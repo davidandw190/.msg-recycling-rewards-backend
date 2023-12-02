@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### PROFILES ###
+/src/main/resources/application-dev.yml
+/src/main/resources/application-prod.yml

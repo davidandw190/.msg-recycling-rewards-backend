@@ -1,0 +1,53 @@
+spring:
+  profiles:
+    active: @spring.profiles.active@
+
+
+  datasource:
+    url: jdbc:${POSGRESQL}://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?currentSchema=${POSTGRES_CURRENT_SCHEMA}
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
+
+  # Persistence
+  jpa:
+    generate-ddl: true
+    show-sql: true
+    hibernate:
+      ddl-auto: ${HIBERNATE_DDL_AUTO}
+    properties:
+      hibernate:
+        globally_quoted_identifiers: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          time_zone: EET
+  sql:
+    init:
+      mode: ${SQL_INIT_MODE}
+
+
+# Application
+application:
+  title: ${APP_TITLE}
+  version: ${APP_VERSION}
+  domain: ${APP_DOMAIN}
+  administration: ${APP_ADMINISTRATION}
+
+# Server Config
+server:
+  port: ${SERVER_PORT}
+  error:
+    path: ${ERROR_PATH}
+    whitelabel:
+      enabled: ${WHITELABEL_ENABLED}
+
+# SMS Verification
+mfa:
+  sms:
+    from: ${FROM_NUMBER_RO}
+    sid-key: ${SID_KEY}
+    token-key: ${SMS_TOKEN_KEY}
+
+jwt:
+  secret: ${JWT_SECRET}
+
