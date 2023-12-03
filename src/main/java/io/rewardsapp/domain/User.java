@@ -33,9 +33,11 @@ public class User {
     @NotEmpty(message = "Password field cannot be empty")
     private String password;
 
+    @NotEmpty(message = "City field cannot be empty")
+    private String city;
+
     private String address;
     private String phone;
-    private String title;
     private String bio;
     private String imageUrl;
 
