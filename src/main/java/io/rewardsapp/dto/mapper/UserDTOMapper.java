@@ -3,6 +3,7 @@ package io.rewardsapp.dto.mapper;
 import io.rewardsapp.domain.Role;
 import io.rewardsapp.domain.User;
 import io.rewardsapp.dto.UserDTO;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -66,7 +67,10 @@ public class UserDTOMapper {
                 .build();
     }
 
-
-
+    public static User toUser(UserDTO userDTO) {
+        User user = new User();
+        BeanUtils.copyProperties(userDTO, user);
+        return user;
+    }
 
 }
