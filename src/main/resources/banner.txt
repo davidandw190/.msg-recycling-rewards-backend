@@ -1,0 +1,16 @@
+
+                                                                                     ,,    ,,                                                                                  ,,
+                                      `7MM"""Mq.                                   `7MM    db                      `7MM"""Mq.                                                `7MM
+                                        MM   `MM.                                    MM                              MM   `MM.                                                 MM
+   `7MMpMMMb.pMMMb.  ,pP"Ybd  .P"Ybmmm  MM   ,M9  .gP"Ya   ,p6"bo `7M'   `MF',p6"bo  MM  `7MM  `7MMpMMMb.  .P"Ybmmm  MM   ,M9  .gP"Ya `7M'    ,A    `MF',6"Yb.  `7Mb,od8  ,M""bMM  ,pP"Ybd
+     MM    MM    MM  8I   `" :MI  I8    MMmmdM9  ,M'   Yb 6M'  OO   VA   ,V 6M'  OO  MM    MM    MM    MM :MI  I8    MMmmdM9  ,M'   Yb  VA   ,VAA   ,V 8)   MM    MM' "',AP    MM  8I   `"
+     MM    MM    MM  `YMMMa.  WmmmP"    MM  YM.  8M"""""" 8M         VA ,V  8M       MM    MM    MM    MM  WmmmP"    MM  YM.  8M""""""   VA ,V  VA ,V   ,pm9MM    MM    8MI    MM  `YMMMa.
+,,   MM    MM    MM  L.   I8 8M         MM   `Mb.YM.    , YM.    ,    VVV   YM.    , MM    MM    MM    MM 8M         MM   `Mb.YM.    ,    VVV    VVV   8M   MM    MM    `Mb    MM  L.   I8
+db .JMML  JMML  JMML.M9mmmP'  YMMMMMb .JMML. .JMM.`Mbmmd'  YMbmd'     ,V     YMbmd'.JMML..JMML..JMML  JMML.YMMMMMb .JMML. .JMM.`Mbmmd'     W      W    `Moo9^Yo..JMML.   `Wbmd"MML.M9mmmP'
+                             6'     dP                               ,V                                   6'     dP
+                             Ybmmmd'                              OOb"                                    Ybmmmd'
+
+${application.title} ${application.version}
+Powered by Spring Boot ${spring-boot.version}
+
+
