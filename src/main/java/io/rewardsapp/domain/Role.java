@@ -7,6 +7,10 @@ import lombok.experimental.SuperBuilder;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_DEFAULT;
 
+/**
+ * The Role class represents a role in the recycling rewards application.
+ * It includes information such as role name and associated permissions.
+ */
 @Data
 @SuperBuilder
 @RequiredArgsConstructor

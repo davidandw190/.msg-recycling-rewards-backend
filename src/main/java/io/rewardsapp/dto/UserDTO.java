@@ -4,6 +4,10 @@ import lombok.Builder;
 
 import java.time.LocalDateTime;
 
+/**
+ * The UserDTO record represents a data transfer object for user information in the recycling rewards application.
+ * It includes information such as user details, reward points, role name, permissions, and creation timestamp.
+ */
 @Builder
 public record UserDTO(
         Long id,

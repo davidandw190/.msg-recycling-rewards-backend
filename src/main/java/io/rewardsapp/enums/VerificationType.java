@@ -1,5 +1,8 @@
 package io.rewardsapp.enums;
 
+/**
+ * The VerificationType enum represents different types of verifications in the recycling rewards application.
+ */
 public enum VerificationType {
     ACCOUNT("ACCOUNT"),
     PASSWORD("PASSWORD");

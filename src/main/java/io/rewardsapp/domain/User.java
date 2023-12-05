@@ -12,6 +12,10 @@ import java.time.LocalDateTime;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_DEFAULT;
 
+/**
+ * The User class represents a user in the recycling rewards application.
+ * It includes information such as user details, authentication status, and creation timestamp.
+ */
 @Data
 @SuperBuilder
 @NoArgsConstructor

@@ -9,6 +9,10 @@ import java.util.Map;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_DEFAULT;
 
+/**
+ * The HttpResponse class represents a custom HTTP response in the recycling rewards application.
+ * It includes information such as timestamp, status code, status, reason, message, developer message, and additional data.
+ */
 @Data
 @SuperBuilder
 @JsonInclude(NON_DEFAULT)
