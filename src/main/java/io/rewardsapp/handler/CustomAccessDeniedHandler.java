@@ -2,6 +2,7 @@ package io.rewardsapp.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.rewardsapp.domain.HttpResponse;
+import io.rewardsapp.exception.ApiException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
