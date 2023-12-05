@@ -1,5 +1,6 @@
 package io.rewardsapp.security;
 
+import io.rewardsapp.handler.CustomAccessDeniedHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +25,8 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable).cors(withDefaults());
@@ -32,6 +35,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(request -> request.requestMatchers(OPTIONS).permitAll());
         http.authorizeHttpRequests(request -> request.requestMatchers(DELETE, "/user/delete/**").hasAnyAuthority("DELETE:USER"));
         http.authorizeHttpRequests(request -> request.requestMatchers(DELETE, "/recycling-centers/delete/**").hasAnyAuthority("DELETE:CENTER"));
+        http.exceptionHandling(exception -> exception.accessDeniedHandler(customAccessDeniedHandler));
         // TODO: configure custom handlers
         http.authorizeHttpRequests(request -> request.anyRequest().authenticated());
         // TODO: configure custom auth filter
