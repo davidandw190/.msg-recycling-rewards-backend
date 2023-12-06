@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 import static java.util.Arrays.stream;
@@ -71,6 +72,18 @@ public class TokenProvider {
     }
 
     /**
+     * Checks if the provided token is valid for the given user ID.
+     *
+     * @param userId The ID of the user.
+     * @param token  The token to be validated.
+     * @return True if the token is valid, false otherwise.
+     */
+    public boolean isTokenValid(Long userId, String token) {
+        JWTVerifier verifier = getJWTVerifier();
+        return !Objects.isNull(userId) && !isTokenExpired(verifier, token);
+    }
+
+    /**
      * Extracts the subject (user ID) from the provided JWT token.
      *
      * @param token   The JWT token from which to extract the subject.
@@ -98,10 +111,16 @@ public class TokenProvider {
         return stream(getClaimsFromToken(token)).map(SimpleGrantedAuthority::new).collect(toList());
     }
 
+    /* Checks if the provided token has expired. */
+    private boolean isTokenExpired(JWTVerifier verifier, String token) {
+        Date expiration = verifier.verify(token).getExpiresAt();
+        return expiration.before(new Date());
+    }
+
     /* Retrieves the claims from the provided JWT token. */
     private String[] getClaimsFromToken(String token) {
-        JWTVerifier tokenVerifier = getJWTVerifier();
-        return tokenVerifier.verify(token).getClaim(AUTHORITIES).asArray(String.class);
+        JWTVerifier verifier = getJWTVerifier();
+        return verifier.verify(token).getClaim(AUTHORITIES).asArray(String.class);
     }
 
     /* Retrieves the claims associated with a user principal. */
@@ -111,14 +130,14 @@ public class TokenProvider {
 
     /* Retrieves a JWT verifier instance with the specified algorithm and issuer. */
     private JWTVerifier getJWTVerifier() {
-        JWTVerifier tokenVerifier;
+        JWTVerifier verifier;
         try {
             Algorithm algorithm = HMAC512(SECRET);
-            tokenVerifier = JWT.require(algorithm).withIssuer(MSG_SYSTEMS_ROMANIA).build();
+            verifier = JWT.require(algorithm).withIssuer(MSG_SYSTEMS_ROMANIA).build();
         } catch (JWTVerificationException exception) {
             throw new JWTVerificationException(TOKEN_CANNOT_BE_VERIFIED);
         }
 
-        return tokenVerifier;
+        return verifier;
     }
 }
