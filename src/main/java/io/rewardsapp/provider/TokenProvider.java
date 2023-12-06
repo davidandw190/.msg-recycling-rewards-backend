@@ -7,11 +7,15 @@ import com.auth0.jwt.exceptions.InvalidClaimException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import io.rewardsapp.domain.UserPrincipal;
+import io.rewardsapp.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -34,8 +38,11 @@ public class TokenProvider {
     @Value("${jwt.secret}")
     private String SECRET;
 
+    private final UserService userService;
+
     public static final long ACCESS_TOKEN_EXPIRATION_TIME = 100_000_000; //1_800_000;
     public static final long REFRESH_TOKEN_EXPIRATION_TIME = 432_000_000;
+
 
 
     /**
@@ -69,6 +76,20 @@ public class TokenProvider {
                 .withSubject(String.valueOf(userPrincipal.user().getId()))
                 .withExpiresAt(Date.from(Instant.now().plusMillis(REFRESH_TOKEN_EXPIRATION_TIME)))
                 .sign(HMAC512(SECRET.getBytes()));
+    }
+
+    /**
+     * Retrieves authentication details for the given user ID and authorities.
+     *
+     * @param userId      The ID of the user.
+     * @param authorities The authorities associated with the user.
+     * @param request     The HTTP servlet request.
+     * @return An authentication object for the user.
+     */
+    public Authentication getAuthentication(Long userId, List<GrantedAuthority> authorities, HttpServletRequest request) {
+        UsernamePasswordAuthenticationToken userPasswordAuthToken = new UsernamePasswordAuthenticationToken(userService.getUserById(userId), null, authorities);
+        userPasswordAuthToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        return userPasswordAuthToken;
     }
 
     /**
