@@ -75,9 +75,11 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
             String query = "Executing SQL query: " + SELECT_USER_BY_EMAIL_QUERY + " with parameters: " + params;
             log.info(query);
             return jdbc.queryForObject(SELECT_USER_BY_EMAIL_QUERY, params, new UserRowMapper());
+
         } catch (EmptyResultDataAccessException exception) {
             log.error("No user found by email: {}", email);
             throw new ApiException("No user found by email: " + email);
+
         } catch (Exception exception) {
             log.error("An error occurred while fetching user by email: {}", email, exception);
             throw new ApiException("An error occurred. Please try again.");
