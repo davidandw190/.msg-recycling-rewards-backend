@@ -2,6 +2,7 @@ package io.rewardsapp.filter;
 
 import io.rewardsapp.provider.TokenProvider;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import java.util.Arrays;
 import java.util.List;
+
+import static java.util.Arrays.asList;
+import static java.util.Optional.ofNullable;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Slf4j
 @Component
@@ -54,15 +61,34 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
         }
     }
 
+    /**
+     * Determines whether to skip filtering for certain requests.
+     *
+     * @param request The HTTP request.
+     * @return True if filtering should be skipped, false otherwise.
+     * @throws ServletException If a servlet-specific error occurs.
+     */
+    @Override
+    public boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        log.info("Request URI: {}", request.getRequestURI());
+        log.info("Public Routes: {}", Arrays.toString(PUBLIC_ROUTES));
+
+        return request.getHeader(AUTHORIZATION) == null ||
+                !request.getHeader(AUTHORIZATION).startsWith(TOKEN_PREFIX) ||
+                request.getMethod().equalsIgnoreCase(HTTP_OPTIONS_METHOD) ||
+                asList(PUBLIC_ROUTES).contains(request.getRequestURI());
+    }
+
+    /* Extracts the user ID from the JWT token. */
     private Long getUSerId(HttpServletRequest request) {
-        return null;
-        //TODO
+        return tokenProvider.getSubject(getToken(request), request);
     }
 
+    /* Extracts the JWT token from the request headers. */
     private String getToken(HttpServletRequest request) {
-        return null;
-        //TODO
+        return ofNullable(request.getHeader(AUTHORIZATION))
+                .filter(header -> header.startsWith(TOKEN_PREFIX))
+                .map(token -> token.replace(TOKEN_PREFIX, EMPTY))
+                .orElse(null);
     }
-
-    //TODO implement shouldNotFilter
 }

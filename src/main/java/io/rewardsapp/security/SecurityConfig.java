@@ -1,5 +1,6 @@
 package io.rewardsapp.security;
 
+import io.rewardsapp.filter.CustomAuthorizationFilter;
 import io.rewardsapp.handler.CustomAccessDeniedHandler;
 import io.rewardsapp.handler.CustomAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static io.rewardsapp.security.SecurityConstants.PUBLIC_URLS;
 import static org.springframework.http.HttpMethod.DELETE;
@@ -28,6 +30,7 @@ public class SecurityConfig {
 
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomAuthorizationFilter customAuthorizationFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -39,7 +42,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(request -> request.requestMatchers(DELETE, "/recycling-centers/delete/**").hasAnyAuthority("DELETE:CENTER"));
         http.exceptionHandling(exception -> exception.accessDeniedHandler(customAccessDeniedHandler).authenticationEntryPoint(customAuthenticationEntryPoint));
         http.authorizeHttpRequests(request -> request.anyRequest().authenticated());
-        // TODO: configure custom auth filter
+        http.addFilterBefore(customAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
@@ -50,6 +53,5 @@ public class SecurityConfig {
         // TODO: configure pass encoder
         return new ProviderManager(authenticationProvider);
     }
-
 
 }
