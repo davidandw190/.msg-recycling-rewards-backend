@@ -9,4 +9,6 @@ public class SecurityConstants {
             "/user/reset-password/**", "/user/verify/account/**", "/user/refresh/token/**", "/user/image/**",
             "/user/new/password/**" , "/user/error/**"
     };
+
+    public static final int PASS_ENCODER_STRENGTH = 14;
 }
