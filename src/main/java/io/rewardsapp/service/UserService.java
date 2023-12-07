@@ -12,4 +12,5 @@ public interface UserService {
 
     UserDTO getUserById(Long userId);
 
+    void sendAccountVerificationCode(UserDTO user);
 }

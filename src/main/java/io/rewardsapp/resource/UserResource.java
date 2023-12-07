@@ -86,7 +86,16 @@ public class UserResource {
     }
 
     private ResponseEntity<HttpResponse> sendLoginVerificationCode(UserDTO authenticatedUser) {
-        return null;
+        userService.sendVerificationCode(authenticatedUser);
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .data(Map.of("user", authenticatedUser))
+                        .message("Verification Code Sent")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build()
+        );
     }
 
 

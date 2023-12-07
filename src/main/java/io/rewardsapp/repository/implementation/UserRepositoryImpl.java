@@ -157,7 +157,7 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         try {
             jdbc.update(DELETE_VERIFICATION_CODE_BY_USER_ID, Map.of("userId", user.id()));
             jdbc.update(INSERT_VERIFICATION_CODE_QUERY, Map.of("userId", user.id(), "code", verificationCode, "expirationDate", expirationDate));
-//            sendSMS(user.phone(), "From: SnapInvoice \nVerification code\n" + verificationCode);
+//            sendSMS(user.phone(), "From: .MsgRecyclingRewards \nVerification code\n" + verificationCode);
             log.info("Verification Code: {}", verificationCode);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -170,4 +170,5 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         String verificationUrl = getVerificationUrl(UUID.randomUUID().toString(), ACCOUNT.getType());
         jdbc.update(INSERT_VERIFICATION_QUERY, Map.of("userId", user.getId(), "url", verificationUrl));
     }
+
 }

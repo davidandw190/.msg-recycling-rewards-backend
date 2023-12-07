@@ -35,6 +35,11 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
+    @Override
+    public void sendAccountVerificationCode(UserDTO user) {
+        userRepository.sendAccountVerificationCode(user);
+    }
+
     private UserDTO mapToUserDTO(User user) {
         return UserDTOMapper.fromUser(user, roleRepository.getRoleByUserId(user.getId()));
     }

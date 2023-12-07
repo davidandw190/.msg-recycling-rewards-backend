@@ -20,5 +20,5 @@ public interface UserRepository<T extends User> {
 
     void sendAccountVerificationCode(UserDTO user);
 
-    void createAccountVerificationCode(T user);
+    void createAccountVerificationCode(User user);
 }
