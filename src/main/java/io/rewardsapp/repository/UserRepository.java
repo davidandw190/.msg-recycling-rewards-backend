@@ -9,7 +9,7 @@ public interface UserRepository<T extends User> {
 
     Collection<T> list(int page, int pageSize);
 
-    T get(Long id);
+    T get(Long userId);
 
     T update(T data);
 
