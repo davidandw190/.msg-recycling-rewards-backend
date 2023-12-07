@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 import static io.rewardsapp.dto.mapper.UserDTOMapper.toUser;
+import static io.rewardsapp.utils.UserUtils.getLoggedInUser;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -88,10 +89,6 @@ public class UserResource {
         return null;
     }
 
-    private UserDTO getLoggedInUser(Authentication authentication) {
-        // TODO implement logged in user retrival from auth context
-        return null;
-    }
 
     private URI getUri() {
         return URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/user/get/<userId>").toUriString());

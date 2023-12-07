@@ -1,5 +1,7 @@
 package io.rewardsapp.domain;
 
+import io.rewardsapp.dto.UserDTO;
+import io.rewardsapp.dto.mapper.UserDTOMapper;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -44,5 +46,9 @@ public record UserPrincipal(User user, Role role) implements UserDetails {
     @Override
     public boolean isEnabled() {
         return this.user.isEnabled();
+    }
+
+    public UserDTO getUser() {
+        return UserDTOMapper.fromUser(user, role);
     }
 }
