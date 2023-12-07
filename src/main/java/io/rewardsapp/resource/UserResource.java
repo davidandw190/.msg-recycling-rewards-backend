@@ -86,7 +86,7 @@ public class UserResource {
     }
 
     private ResponseEntity<HttpResponse> sendLoginVerificationCode(UserDTO authenticatedUser) {
-        userService.sendVerificationCode(authenticatedUser);
+        userService.sendAccountVerificationCode(authenticatedUser);
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(LocalDateTime.now().toString())
