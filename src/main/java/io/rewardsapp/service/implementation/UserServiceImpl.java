@@ -10,6 +10,7 @@ import io.rewardsapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -19,7 +20,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO createNewUser(User user) {
-        return mapToUserDTO(userRepository.create(user));
+        UserDTO createdUser = mapToUserDTO(userRepository.create(user));
+        userRepository.createVerificationCode(user);
+        return createdUser;
     }
 
     @Override
