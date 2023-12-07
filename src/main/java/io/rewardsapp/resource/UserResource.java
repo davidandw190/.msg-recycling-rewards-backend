@@ -8,16 +8,14 @@ import io.rewardsapp.form.UserLoginForm;
 import io.rewardsapp.provider.TokenProvider;
 import io.rewardsapp.service.RoleService;
 import io.rewardsapp.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -25,15 +23,17 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 import static io.rewardsapp.dto.mapper.UserDTOMapper.toUser;
+import static io.rewardsapp.filter.CustomAuthorizationFilter.TOKEN_PREFIX;
 import static io.rewardsapp.utils.UserUtils.getLoggedInUser;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/user")
 public class UserResource {
-    
+
     private final UserService userService;
     private final RoleService roleService;
     private final TokenProvider tokenProvider;
@@ -62,7 +62,42 @@ public class UserResource {
         );
     }
 
+    @GetMapping("/refresh/token")
+    public ResponseEntity<HttpResponse> refreshToken(HttpServletRequest request) {
+        if (isHeaderAndTokenValid(request)) {
+            String token = request.getHeader(AUTHORIZATION).substring(TOKEN_PREFIX.length());
+            UserDTO user = userService.getUserById(tokenProvider.getSubject(token, request));
+            return ResponseEntity.ok().body(
+                    HttpResponse.builder()
+                            .timeStamp(LocalDateTime.now().toString())
+                            .data(Map.of(
+                                    "user", user,
+                                    "access_token", tokenProvider.createAccessToken(getUserPrincipal(user)),
+                                    "refresh_token", token))
+                            .message("Token refreshed successfully")
+                            .status(OK)
+                            .statusCode(OK.value())
+                            .build());
+        } else {
+            return ResponseEntity.badRequest().body(
+                    HttpResponse.builder()
+                            .timeStamp(LocalDateTime.now().toString())
+                            .reason("Refresh Token missing or invalid")
+                            ._devMessage("Refresh token missing or invalid")
+                            .status(BAD_REQUEST)
+                            .statusCode(BAD_REQUEST.value())
+                            .build());
+        }
+    }
 
+    private boolean isHeaderAndTokenValid(HttpServletRequest request) {
+        return  request.getHeader(AUTHORIZATION) != null &&
+                request.getHeader(AUTHORIZATION).startsWith(TOKEN_PREFIX) &&
+                tokenProvider.isTokenValid(
+                        tokenProvider.getSubject(request.getHeader(AUTHORIZATION).substring(TOKEN_PREFIX.length()), request),
+                        request.getHeader(AUTHORIZATION).substring(TOKEN_PREFIX.length())
+                );
+    }
 
     private ResponseEntity<HttpResponse> sendLoginResponse(UserDTO user) {
         return ResponseEntity.ok().body(
