@@ -30,6 +30,7 @@ import java.util.UUID;
 import static io.rewardsapp.enums.RoleType.ROLE_USER;
 import static io.rewardsapp.enums.VerificationType.ACCOUNT;
 import static io.rewardsapp.query.UserQuery.*;
+import static io.rewardsapp.utils.SmsUtils.sendSMS;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang3.time.DateFormatUtils.format;
 import static org.apache.commons.lang3.time.DateUtils.addDays;
@@ -157,8 +158,9 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         try {
             jdbc.update(DELETE_VERIFICATION_CODE_BY_USER_ID, Map.of("userId", user.id()));
             jdbc.update(INSERT_VERIFICATION_CODE_QUERY, Map.of("userId", user.id(), "code", verificationCode, "expirationDate", expirationDate));
-//            sendSMS(user.phone(), "From: .MsgRecyclingRewards \nVerification code\n" + verificationCode);
+            sendSMS(user.phone(), "From: .MsgRecyclingRewards \nVerification code\n" + verificationCode);
             log.info("Verification Code: {}", verificationCode);
+
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new ApiException("An error occurred. Please try again.");
