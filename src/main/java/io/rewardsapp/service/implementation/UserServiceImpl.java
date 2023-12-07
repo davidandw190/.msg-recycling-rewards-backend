@@ -21,13 +21,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO createNewUser(User user) {
         UserDTO createdUser = mapToUserDTO(userRepository.create(user));
-        userRepository.createVerificationCode(user);
+        userRepository.createAccountVerificationCode(user);
         return createdUser;
     }
 
     @Override
     public UserDTO getUserByEmail(String email) {
-        return null;
+        return mapToUserDTO(userRepository.getUserByEmail(email));
     }
 
     @Override
