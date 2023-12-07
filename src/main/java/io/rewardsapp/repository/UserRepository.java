@@ -18,11 +18,7 @@ public interface UserRepository<T extends User> {
 
     User getUserByEmail(String email);
 
-    void sendVerificationCode(UserDTO user);
-
-    void createVerificationCode(T user);
-
     void sendAccountVerificationCode(UserDTO user);
 
-    void createAccountVerificationCode(User user);
+    void createAccountVerificationCode(T user);
 }

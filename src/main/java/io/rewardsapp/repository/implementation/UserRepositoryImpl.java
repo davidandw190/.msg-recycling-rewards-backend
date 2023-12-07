@@ -3,6 +3,7 @@ package io.rewardsapp.repository.implementation;
 import io.rewardsapp.domain.Role;
 import io.rewardsapp.domain.User;
 import io.rewardsapp.domain.UserPrincipal;
+import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.repository.RoleRepository;
 import io.rewardsapp.repository.UserRepository;
@@ -22,21 +23,23 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
 import static io.rewardsapp.enums.RoleType.ROLE_USER;
 import static io.rewardsapp.enums.VerificationType.ACCOUNT;
+import static io.rewardsapp.query.UserQuery.*;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.time.DateFormatUtils.format;
+import static org.apache.commons.lang3.time.DateUtils.addDays;
+import static org.hibernate.type.descriptor.java.JdbcDateJavaType.DATE_FORMAT;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentContextPath;
 
 @Slf4j
 @Repository
 @RequiredArgsConstructor
 public class UserRepositoryImpl implements UserRepository<User>, UserDetailsService {
-
-    private static final String SELECT_USER_BY_EMAIL_QUERY = "SELECT * FROM users WHERE email = :email";
-    private static final String INSERT_VERIFICATION_QUERY = "INSERT INTO account_verifications (user_id, url) VALUES (:userId, :url)";
-    private static final String SELECT_USER_BY_ID_QUERY = "SELECT * FROM users WHERE user_id = :userId";
 
     private final NamedParameterJdbcTemplate jdbc;
     private final RoleRepository<Role> roleRepository;
@@ -60,8 +63,6 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
             user.setId(userId.longValue());
             log.info("User created with ID: {}", userId);
             roleRepository.addRoleToUser(user.getId(), ROLE_USER.name());
-            String verificationUrl = getVerificationUrl(UUID.randomUUID().toString(), ACCOUNT.getType());
-            jdbc.update(INSERT_VERIFICATION_QUERY, Map.of("userId", user.getId(), "url", verificationUrl));
             user.setEnabled(false);
             user.setNotLocked(true);
 
@@ -85,8 +86,8 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
                 .addValue("password", encoder.encode(user.getPassword()));
     }
 
-    private int getEmailCount(String lowerCase) {
-        return 0;
+    private Integer getEmailCount(String email) {
+        return jdbc.queryForObject(COUNT_USER_EMAIL_QUERY, Map.of("email", email), Integer.class);
     }
 
     @Override
@@ -147,5 +148,26 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
             log.error("An error occurred while fetching user by email: {}", email, exception);
             throw new ApiException("An error occurred. Please try again.");
         }
+    }
+
+    @Override
+    public void sendAccountVerificationCode(UserDTO user) {
+        String expirationDate = format(addDays(new Date(), 1), DATE_FORMAT);
+        String verificationCode = randomAlphabetic(8).toUpperCase();
+        try {
+            jdbc.update(DELETE_VERIFICATION_CODE_BY_USER_ID, Map.of("userId", user.id()));
+            jdbc.update(INSERT_VERIFICATION_CODE_QUERY, Map.of("userId", user.id(), "code", verificationCode, "expirationDate", expirationDate));
+//            sendSMS(user.phone(), "From: SnapInvoice \nVerification code\n" + verificationCode);
+            log.info("Verification Code: {}", verificationCode);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new ApiException("An error occurred. Please try again.");
+        }
+    }
+
+    @Override
+    public void createAccountVerificationCode(User user) {
+        String verificationUrl = getVerificationUrl(UUID.randomUUID().toString(), ACCOUNT.getType());
+        jdbc.update(INSERT_VERIFICATION_QUERY, Map.of("userId", user.getId(), "url", verificationUrl));
     }
 }
