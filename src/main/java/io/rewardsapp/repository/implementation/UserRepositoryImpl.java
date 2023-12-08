@@ -222,8 +222,16 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
     }
 
     private SqlParameterSource getUserDetailsSqlParameterSource(UpdateUserForm updateUserForm) {
-        // TODO implemetn user details mapping
-        return null;
+        return new MapSqlParameterSource()
+                .addValue("user_id", updateUserForm.id())
+                .addValue("firstName", updateUserForm.firstName())
+                .addValue("lastName", updateUserForm.lastName())
+                .addValue("email", updateUserForm.email())
+                .addValue("phone", updateUserForm.phone())
+                .addValue("city", updateUserForm.city())
+                .addValue("address", updateUserForm.address())
+                .addValue("title", updateUserForm.title())
+                .addValue("bio", updateUserForm.bio());
     }
 
     /**
