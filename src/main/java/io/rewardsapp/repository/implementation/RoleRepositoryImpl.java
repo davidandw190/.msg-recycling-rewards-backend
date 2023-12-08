@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Collection;
 
 import static io.rewardsapp.enums.RoleType.ROLE_USER;
+import static io.rewardsapp.query.RoleQuery.SELECT_ROLES_QUERY;
 import static io.rewardsapp.query.RoleQuery.SELECT_ROLE_BY_NAME_QUERY;
 import static java.util.Map.of;
 
@@ -33,7 +34,14 @@ public class RoleRepositoryImpl implements RoleRepository<Role> {
 
     @Override
     public Collection<Role> list() {
-        return null;
+        log.info("Fetching all roles");
+        try {
+            return jdbc.query(SELECT_ROLES_QUERY, new RoleRowMapper());
+
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            throw new ApiException("An error occurred. Please try again.");
+        }
     }
 
     @Override

@@ -4,6 +4,7 @@ import io.rewardsapp.domain.HttpResponse;
 import io.rewardsapp.domain.User;
 import io.rewardsapp.domain.UserPrincipal;
 import io.rewardsapp.dto.UserDTO;
+import io.rewardsapp.form.UpdateUserForm;
 import io.rewardsapp.form.UserLoginForm;
 import io.rewardsapp.provider.TokenProvider;
 import io.rewardsapp.service.RoleService;
@@ -88,6 +89,27 @@ public class UserResource {
                             .statusCode(BAD_REQUEST.value())
                             .build());
         }
+    }
+
+    /**
+     * Updates the details of the authenticated user.
+     *
+     * @param updateUserForm The {@code UpdateUserForm} containing updated user details.
+     * @return ResponseEntity containing the updated user response.
+     */
+    @PatchMapping("/update")
+    public ResponseEntity<HttpResponse> updateUser(@RequestBody @Valid UpdateUserForm updateUserForm) {
+        UserDTO updatedUser = userService.updateUserDetails(updateUserForm);
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .data(Map.of(
+                                "user", updatedUser,
+                                "roles", roleService.getRoles()))
+                        .message("User Updated")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
     }
 
     private boolean isHeaderAndTokenValid(HttpServletRequest request) {

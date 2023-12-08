@@ -2,6 +2,7 @@ package io.rewardsapp.repository;
 
 import io.rewardsapp.domain.User;
 import io.rewardsapp.dto.UserDTO;
+import io.rewardsapp.form.UpdateUserForm;
 
 import java.util.Collection;
 
@@ -21,4 +22,6 @@ public interface UserRepository<T extends User> {
     void sendAccountVerificationCode(UserDTO user);
 
     void createAccountVerificationCode(User user);
+
+    T updateUserDetails(UpdateUserForm updateUserForm);
 }

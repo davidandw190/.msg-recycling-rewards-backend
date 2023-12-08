@@ -5,6 +5,7 @@ import io.rewardsapp.domain.User;
 import io.rewardsapp.domain.UserPrincipal;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.exception.ApiException;
+import io.rewardsapp.form.UpdateUserForm;
 import io.rewardsapp.repository.RoleRepository;
 import io.rewardsapp.repository.UserRepository;
 import io.rewardsapp.rowmapper.UserRowMapper;
@@ -203,6 +204,26 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
     public void createAccountVerificationCode(User user) {
         String verificationUrl = getVerificationUrl(UUID.randomUUID().toString(), ACCOUNT.getType());
         jdbc.update(INSERT_VERIFICATION_QUERY, Map.of("userId", user.getId(), "url", verificationUrl));
+    }
+
+    @Override
+    public User updateUserDetails(UpdateUserForm updateUserForm) {
+        try {
+            jdbc.update(UPDATE_USER_DETAILS_QUERY, getUserDetailsSqlParameterSource(updateUserForm));
+            return get(updateUserForm.id());
+
+        } catch (EmptyResultDataAccessException exception) {
+            throw new ApiException("No User found by ID: " + updateUserForm.id());
+
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            throw new ApiException("An error occurred. Please try again.");
+        }
+    }
+
+    private SqlParameterSource getUserDetailsSqlParameterSource(UpdateUserForm updateUserForm) {
+        // TODO implemetn user details mapping
+        return null;
     }
 
     /**

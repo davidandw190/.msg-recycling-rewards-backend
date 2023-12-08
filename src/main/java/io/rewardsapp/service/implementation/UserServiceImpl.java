@@ -4,6 +4,7 @@ import io.rewardsapp.domain.Role;
 import io.rewardsapp.domain.User;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.dto.mapper.UserDTOMapper;
+import io.rewardsapp.form.UpdateUserForm;
 import io.rewardsapp.repository.RoleRepository;
 import io.rewardsapp.service.UserService;
 import io.rewardsapp.repository.UserRepository;
@@ -38,6 +39,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void sendAccountVerificationCode(UserDTO user) {
         userRepository.sendAccountVerificationCode(user);
+    }
+
+    @Override
+    public UserDTO updateUserDetails(UpdateUserForm updateUserForm) {
+        return mapToUserDTO(userRepository.updateUserDetails(updateUserForm));
     }
 
     private UserDTO mapToUserDTO(User user) {

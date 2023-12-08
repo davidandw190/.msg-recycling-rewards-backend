@@ -6,6 +6,8 @@ import io.rewardsapp.service.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
+
 @Service
 @RequiredArgsConstructor
 public class RoleServiceImpl implements RoleService {
@@ -14,5 +16,10 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public Role getRoleByUserId(Long id) {
         return roleRoleRepository.getRoleByUserId(id);
+    }
+
+    @Override
+    public Collection<Role> getRoles() {
+        return roleRoleRepository.list();
     }
 }
