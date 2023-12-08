@@ -1,5 +1,8 @@
 package io.rewardsapp.query;
 
+/**
+ * Contains queries related to User entities.
+ */
 public class UserQuery {
     public static final String SELECT_USER_BY_EMAIL_QUERY = "SELECT * FROM users WHERE email = :email";
     public static final String INSERT_VERIFICATION_QUERY = "INSERT INTO account_verifications (user_id, url) VALUES (:userId, :url)";

@@ -24,26 +24,18 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
+import static io.rewardsapp.constants.SecurityConstants.*;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
 @Component
 @RequiredArgsConstructor
 public class TokenProvider {
-    private static final String MSG_CUSTOMER_SERVICE = ".msg Systems Customer Service";
-    private static final String MSG_SYSTEMS_ROMANIA = ".msg Systems Romania";
-    private static final String AUTHORITIES = "authorities";
-    private static final String TOKEN_CANNOT_BE_VERIFIED = "";
 
     @Value("${jwt.secret}")
     private String SECRET;
 
     private final UserService userService;
-
-    public static final long ACCESS_TOKEN_EXPIRATION_TIME = 100_000_000; //1_800_000;
-    public static final long REFRESH_TOKEN_EXPIRATION_TIME = 432_000_000;
-
-
 
     /**
      * Creates an access token for the given user principal.

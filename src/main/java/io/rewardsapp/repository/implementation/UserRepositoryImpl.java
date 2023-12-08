@@ -37,6 +37,9 @@ import static org.apache.commons.lang3.time.DateUtils.addDays;
 import static org.hibernate.type.descriptor.java.JdbcDateJavaType.DATE_FORMAT;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentContextPath;
 
+/**
+ * Implementation of UserRepository and UserDetailsService for handling User-related database operations.
+ */
 @Slf4j
 @Repository
 @RequiredArgsConstructor
@@ -46,6 +49,13 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
     private final RoleRepository<Role> roleRepository;
     private final BCryptPasswordEncoder encoder;
 
+    /**
+     * Creates a new user in the database. The user is disabled by default.
+     *
+     * @param user The user data to be created.
+     * @return The created user.
+     * @throws ApiException If there is an issue creating the user.
+     */
     @Override
     public User create(User user) {
         if (getEmailCount(user.getEmail().trim().toLowerCase()) > 0) {
@@ -74,28 +84,25 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
     }
 
-    private String getVerificationUrl(String key, String verificationType) {
-        return fromCurrentContextPath().path("/user/verify/" + verificationType + "/" + key).toUriString();
-    }
-
-    private SqlParameterSource getSqlParameterSource(User user) {
-        return new MapSqlParameterSource()
-                .addValue("firstName", user.getFirstName())
-                .addValue("lastName", user.getLastName())
-                .addValue("email", user.getEmail())
-                .addValue("city", user.getCity())
-                .addValue("password", encoder.encode(user.getPassword()));
-    }
-
-    private Integer getEmailCount(String email) {
-        return jdbc.queryForObject(COUNT_USER_EMAIL_QUERY, Map.of("email", email), Integer.class);
-    }
-
+    /**
+     * Retrieves a list of users from the database based on pagination parameters.
+     *
+     * @param page     The page number.
+     * @param pageSize The number of users per page.
+     * @return The list of users for the specified page and size.
+     */
     @Override
     public Collection<User> list(int page, int pageSize) {
         return null;
     }
 
+    /**
+     * Retrieves a user by their ID from the database.
+     *
+     * @param userId The ID of the user to retrieve.
+     * @return The user object.
+     * @throws ApiException If no user is found with the specified ID.
+     */
     @Override
     public User get(Long userId) {
         try {
@@ -120,6 +127,13 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         return null;
     }
 
+    /**
+     * Loads a user by their email address for Spring Security authentication.
+     *
+     * @param email The email address of the user.
+     * @return The UserDetails object for the authenticated user.
+     * @throws UsernameNotFoundException If no user is found with the specified email.
+     */
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User existingUser = getUserByEmail(email);
@@ -133,6 +147,13 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
     }
 
+    /**
+     * Retrieves a user by their email address from the database.
+     *
+     * @param email The email address of the user.
+     * @return The user object.
+     * @throws ApiException If no user is found with the specified email.
+     */
     @Override
     public User getUserByEmail(String email) {
         try {
@@ -151,6 +172,12 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
     }
 
+    /**
+     * Sends an account verification code to the user's phone number.
+     *
+     * @param user The user DTO containing necessary information.
+     * @throws ApiException If there is an issue sending the verification code.
+     */
     @Override
     public void sendAccountVerificationCode(UserDTO user) {
         String expirationDate = format(addDays(new Date(), 1), DATE_FORMAT);
@@ -167,10 +194,51 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
     }
 
+    /**
+     * Creates an account verification code and stores it in the database.
+     *
+     * @param user The user for whom the verification code is created.
+     */
     @Override
     public void createAccountVerificationCode(User user) {
         String verificationUrl = getVerificationUrl(UUID.randomUUID().toString(), ACCOUNT.getType());
         jdbc.update(INSERT_VERIFICATION_QUERY, Map.of("userId", user.getId(), "url", verificationUrl));
+    }
+
+    /**
+     * Generates a verification URL based on a key and verification type.
+     *
+     * @param key              The unique key for verification.
+     * @param verificationType The type of verification (e.g., ACCOUNT).
+     * @return The generated verification URL.
+     */
+    private String getVerificationUrl(String key, String verificationType) {
+        return fromCurrentContextPath().path("/user/verify/" + verificationType + "/" + key).toUriString();
+    }
+
+    /**
+     * Maps a User object to a SqlParameterSource for use in database operations.
+     *
+     * @param user The user object to be mapped.
+     * @return The mapped SqlParameterSource.
+     */
+    private SqlParameterSource getSqlParameterSource(User user) {
+        return new MapSqlParameterSource()
+                .addValue("firstName", user.getFirstName())
+                .addValue("lastName", user.getLastName())
+                .addValue("email", user.getEmail())
+                .addValue("city", user.getCity())
+                .addValue("password", encoder.encode(user.getPassword()));
+    }
+
+    /**
+     * Retrieves the count of users with a given email address from the database.
+     *
+     * @param email The email address to check.
+     * @return The count of users with the specified email.
+     */
+    private Integer getEmailCount(String email) {
+        return jdbc.queryForObject(COUNT_USER_EMAIL_QUERY, Map.of("email", email), Integer.class);
     }
 
 }

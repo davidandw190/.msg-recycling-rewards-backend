@@ -14,13 +14,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static io.rewardsapp.security.SecurityConstants.PASS_ENCODER_STRENGTH;
-import static io.rewardsapp.security.SecurityConstants.PUBLIC_URLS;
+import static io.rewardsapp.constants.SecurityConstants.PUBLIC_URLS;
 import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.OPTIONS;
 import static org.springframework.security.config.Customizer.withDefaults;

@@ -16,11 +16,15 @@ import static io.rewardsapp.enums.RoleType.ROLE_USER;
 import static io.rewardsapp.query.RoleQuery.SELECT_ROLE_BY_NAME_QUERY;
 import static java.util.Map.of;
 
+/**
+ * Implementation of RoleRepository for handling Role-related database operations.
+ */
 @Slf4j
 @Repository
 @RequiredArgsConstructor
 public class RoleRepositoryImpl implements RoleRepository<Role> {
     private final NamedParameterJdbcTemplate jdbc;
+
 
     @Override
     public Role create(Role data) {
