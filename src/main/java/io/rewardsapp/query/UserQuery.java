@@ -13,4 +13,5 @@ public class UserQuery {
     public static final String UPDATE_USER_DETAILS_QUERY = "UPDATE users SET first_name = :firstName, last_name = :lastName, email = :email, city = :city, phone = :phone, address = :address, title = :title, bio = :bio WHERE user_id = :user_id";
     public static final String SELECT_USER_BY_USER_CODE_QUERY = "SELECT * FROM users WHERE user_id = (SELECT user_id FROM tfa_verifications WHERE code = :code)";
     public static final String DELETE_CODE = "DELETE FROM tfa_verifications WHERE code = :code";
+    public static final String SELECT_CODE_EXPIRATION_QUERY = "SELECT expiration_date < NOW() AS is_expired FROM tfa_verifications WHERE code = :code";
 }
