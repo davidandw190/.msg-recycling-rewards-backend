@@ -18,4 +18,6 @@ public interface UserService {
     UserDTO updateUserDetails(UpdateUserForm updateUserForm);
 
     UserDTO verifyCode(String email, String code);
+
+    void resetForgottenPassword(String email);
 }

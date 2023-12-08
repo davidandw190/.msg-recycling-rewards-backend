@@ -51,6 +51,11 @@ public class UserServiceImpl implements UserService {
         return mapToUserDTO(userRepository.verifyCode(email, code));
     }
 
+    @Override
+    public void resetForgottenPassword(String email) {
+        userRepository.resetForgottenPassword(email);
+    }
+
     private UserDTO mapToUserDTO(User user) {
         return UserDTOMapper.fromUser(user, roleRepository.getRoleByUserId(user.getId()));
     }

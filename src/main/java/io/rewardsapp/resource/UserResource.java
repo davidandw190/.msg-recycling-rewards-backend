@@ -107,6 +107,24 @@ public class UserResource {
                         .build());
     }
 
+    /**
+     * Initiates the process of resetting a user's password and sends a confirmation email.
+     *
+     * @param email The email of the user for password reset.
+     * @return ResponseEntity containing the password reset response.
+     */
+    @GetMapping("/reset-password/{email}")
+    public ResponseEntity<HttpResponse> resetForgottenPassword(@PathVariable("email") String email) {
+        userService.resetForgottenPassword(email);
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .message("Email sent. Please check your email to reset your password.")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
     @GetMapping("/refresh/token")
     public ResponseEntity<HttpResponse> refreshToken(HttpServletRequest request) {
         if (isHeaderAndTokenValid(request)) {

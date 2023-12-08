@@ -27,6 +27,7 @@ import java.util.*;
 
 import static io.rewardsapp.enums.RoleType.ROLE_USER;
 import static io.rewardsapp.enums.VerificationType.ACCOUNT;
+import static io.rewardsapp.enums.VerificationType.PASSWORD;
 import static io.rewardsapp.query.UserQuery.*;
 import static io.rewardsapp.utils.SmsUtils.sendSMS;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
@@ -235,6 +236,24 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
 
         } catch (EmptyResultDataAccessException exception) {
             throw new ApiException("Could not find record");
+
+        } catch (Exception exception) {
+            throw new ApiException("An error occurred. Please try again.");
+        }
+    }
+
+    @Override
+    public void resetForgottenPassword(String email) {
+        if (getEmailCount(email.trim().toLowerCase()) <= 0) throw new ApiException("There is no account for this email address");
+
+        try {
+            String expirationDate = format(addDays(new Date(), 1), DATE_FORMAT);
+            User user = getUserByEmail(email);
+            String verificationUrl = getVerificationUrl(UUID.randomUUID().toString(), PASSWORD.getType());
+            jdbc.update(DELETE_PASSWORD_VERIFICATION_BY_USER_ID_QUERY, Map.of("userId",  user.getId()));
+            jdbc.update(INSERT_PASSWORD_VERIFICATION_QUERY, Map.of("userId",  user.getId(), "url", verificationUrl, "expirationDate", expirationDate));
+//            sendEmail(user.getFirstName(), email, verificationUrl, PASSWORD);
+            log.info("Verification URL: {}", verificationUrl);
 
         } catch (Exception exception) {
             throw new ApiException("An error occurred. Please try again.");
