@@ -23,10 +23,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static io.rewardsapp.enums.RoleType.ROLE_USER;
 import static io.rewardsapp.enums.VerificationType.ACCOUNT;
@@ -219,6 +216,34 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
             log.error(exception.getMessage());
             throw new ApiException("An error occurred. Please try again.");
         }
+    }
+
+    @Override
+    public User verifyCode(String email, String code) {
+        if (isVerificationCodeExpired(code)) throw new ApiException("This code has expired. Please login again.");
+
+        try {
+            User userByCode = jdbc.queryForObject(SELECT_USER_BY_USER_CODE_QUERY, Map.of("code", code), new UserRowMapper());
+            User userByEmail = jdbc.queryForObject(SELECT_USER_BY_EMAIL_QUERY, Map.of("email", email), new UserRowMapper());
+
+            if (Objects.requireNonNull(userByCode).getEmail().equalsIgnoreCase(Objects.requireNonNull(userByEmail).getEmail())) {
+                jdbc.update(DELETE_CODE, Map.of("code", code));
+                return userByCode;
+            } else {
+                throw new ApiException("Code is invalid. Please try again.");
+            }
+
+        } catch (EmptyResultDataAccessException exception) {
+            throw new ApiException("Could not find record");
+
+        } catch (Exception exception) {
+            throw new ApiException("An error occurred. Please try again.");
+        }
+    }
+
+    private boolean isVerificationCodeExpired(String code) {
+        return false;
+        //TODO implement code exiration check
     }
 
     private SqlParameterSource getUserDetailsSqlParameterSource(UpdateUserForm updateUserForm) {

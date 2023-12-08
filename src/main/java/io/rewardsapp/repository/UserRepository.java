@@ -24,4 +24,6 @@ public interface UserRepository<T extends User> {
     void createAccountVerificationCode(User user);
 
     T updateUserDetails(UpdateUserForm updateUserForm);
+
+    T verifyCode(String email, String code);
 }

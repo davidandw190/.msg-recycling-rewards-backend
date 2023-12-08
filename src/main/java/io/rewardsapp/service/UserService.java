@@ -16,4 +16,6 @@ public interface UserService {
     void sendAccountVerificationCode(UserDTO user);
 
     UserDTO updateUserDetails(UpdateUserForm updateUserForm);
+
+    UserDTO verifyCode(String email, String code);
 }

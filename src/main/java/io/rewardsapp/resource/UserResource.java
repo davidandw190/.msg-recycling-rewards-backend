@@ -63,6 +63,50 @@ public class UserResource {
         );
     }
 
+    /**
+     * Updates the details of the authenticated user.
+     *
+     * @param updateUserForm The {@code UpdateUserForm} containing updated user details.
+     * @return ResponseEntity containing the updated user response.
+     */
+    @PatchMapping("/update")
+    public ResponseEntity<HttpResponse> updateUser(@RequestBody @Valid UpdateUserForm updateUserForm) {
+        UserDTO updatedUser = userService.updateUserDetails(updateUserForm);
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .data(Map.of(
+                                "user", updatedUser,
+                                "roles", roleService.getRoles()))
+                        .message("User Updated")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+    /**
+     * Verifies the provided verification code for a user and enables the user in the app.
+     *
+     * @param email The email of the user.
+     * @param code The verification code.
+     * @return ResponseEntity containing the verification response.
+     */
+    @GetMapping("/verify/code/{email}/{code}")
+    public ResponseEntity<HttpResponse> verifyCode(@PathVariable("email") String email, @PathVariable("code") String code) {
+        UserDTO user = userService.verifyCode(email, code);
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .data(Map.of(
+                                "user", user,
+                                "access_token", tokenProvider.createAccessToken(getUserPrincipal(user)),
+                                "refresh_token", tokenProvider.createRefreshToken(getUserPrincipal(user))))
+                        .message("Login Success")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
     @GetMapping("/refresh/token")
     public ResponseEntity<HttpResponse> refreshToken(HttpServletRequest request) {
         if (isHeaderAndTokenValid(request)) {
@@ -89,27 +133,6 @@ public class UserResource {
                             .statusCode(BAD_REQUEST.value())
                             .build());
         }
-    }
-
-    /**
-     * Updates the details of the authenticated user.
-     *
-     * @param updateUserForm The {@code UpdateUserForm} containing updated user details.
-     * @return ResponseEntity containing the updated user response.
-     */
-    @PatchMapping("/update")
-    public ResponseEntity<HttpResponse> updateUser(@RequestBody @Valid UpdateUserForm updateUserForm) {
-        UserDTO updatedUser = userService.updateUserDetails(updateUserForm);
-        return ResponseEntity.ok().body(
-                HttpResponse.builder()
-                        .timeStamp(LocalDateTime.now().toString())
-                        .data(Map.of(
-                                "user", updatedUser,
-                                "roles", roleService.getRoles()))
-                        .message("User Updated")
-                        .status(OK)
-                        .statusCode(OK.value())
-                        .build());
     }
 
     private boolean isHeaderAndTokenValid(HttpServletRequest request) {
