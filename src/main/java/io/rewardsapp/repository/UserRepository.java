@@ -28,4 +28,6 @@ public interface UserRepository<T extends User> {
     T verifyCode(String email, String code);
 
     void resetForgottenPassword(String email);
+
+    T verifyResetPasswordKey(String key);
 }

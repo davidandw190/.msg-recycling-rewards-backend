@@ -20,4 +20,6 @@ public interface UserService {
     UserDTO verifyCode(String email, String code);
 
     void resetForgottenPassword(String email);
+
+    UserDTO verifyResetPasswordKey(String key);
 }

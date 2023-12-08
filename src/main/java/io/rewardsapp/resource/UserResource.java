@@ -22,6 +22,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static io.rewardsapp.dto.mapper.UserDTOMapper.toUser;
 import static io.rewardsapp.filter.CustomAuthorizationFilter.TOKEN_PREFIX;
@@ -120,6 +121,27 @@ public class UserResource {
                 HttpResponse.builder()
                         .timeStamp(LocalDateTime.now().toString())
                         .message("Email sent. Please check your email to reset your password.")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+    /**
+     * Verifies a password reset URL and provides instructions to set a new password.
+     *
+     * @param key The key embedded in the password reset URL.
+     * @return ResponseEntity containing the password verification response.
+     * @throws InterruptedException if the thread is interrupted during sleep.
+     */
+    @GetMapping("/verify/password/{key}")
+    public ResponseEntity<HttpResponse> verifyResetPasswordUrl(@PathVariable("key") String key) throws InterruptedException {
+        TimeUnit.SECONDS.sleep(1);
+        UserDTO user = userService.verifyResetPasswordKey(key);
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .data(Map.of("user", user))
+                        .message("Please enter a new password")
                         .status(OK)
                         .statusCode(OK.value())
                         .build());

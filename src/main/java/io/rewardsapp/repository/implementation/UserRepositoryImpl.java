@@ -4,6 +4,7 @@ import io.rewardsapp.domain.Role;
 import io.rewardsapp.domain.User;
 import io.rewardsapp.domain.UserPrincipal;
 import io.rewardsapp.dto.UserDTO;
+import io.rewardsapp.enums.VerificationType;
 import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.form.UpdateUserForm;
 import io.rewardsapp.repository.RoleRepository;
@@ -258,6 +259,29 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         } catch (Exception exception) {
             throw new ApiException("An error occurred. Please try again.");
         }
+    }
+
+    @Override
+    public User verifyResetPasswordKey(String key) {
+        if (isLinkExpired(key, PASSWORD)) throw new ApiException("This link has expired. Please reset your password again.");
+
+        try {
+            User user = jdbc.queryForObject(SELECT_USER_BY_PASSWORD_URL_QUERY, Map.of("url", getVerificationUrl(key, PASSWORD.getType())), new UserRowMapper());
+            //jdbc.update("DELETE_USER_FROM_PASSWORD_VERIFICATION_QUERY", Map.of("id", user.getId()));
+            return user;
+
+        } catch (EmptyResultDataAccessException exception) {
+            log.error(exception.getMessage());
+            throw new ApiException("This link is not valid. Please reset your password again.");
+
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            throw new ApiException("An error occurred. Please try again.");
+        }
+    }
+
+    private boolean isLinkExpired(String key, VerificationType verificationType) {
+        return false;
     }
 
     private boolean isVerificationCodeExpired(String code) {
