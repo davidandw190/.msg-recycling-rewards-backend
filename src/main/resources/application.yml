@@ -4,11 +4,9 @@ spring:
 
 
   datasource:
-    url: jdbc:${POSGRESQL}://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?currentSchema=${POSTGRES_CURRENT_SCHEMA}
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
     username: ${POSTGRES_USERNAME}
     password: ${POSTGRES_PASSWORD}
-
-  # Persistence
   jpa:
     generate-ddl: true
     show-sql: true
@@ -19,6 +17,7 @@ spring:
         globally_quoted_identifiers: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+
         jdbc:
           time_zone: EET
   sql:
