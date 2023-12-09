@@ -94,11 +94,9 @@ public class UserResource {
      *
      * @param key The key embedded in the account verification URL.
      * @return ResponseEntity containing the account verification response.
-     * @throws InterruptedException if the thread is interrupted during sleep.
      */
     @GetMapping("/verify/account/{key}")
-    public ResponseEntity<HttpResponse> verifyAccount(@PathVariable("key") String key) throws InterruptedException {
-        TimeUnit.SECONDS.sleep(1);
+    public ResponseEntity<HttpResponse> verifyAccount(@PathVariable("key") String key) {
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(LocalDateTime.now().toString())
@@ -154,11 +152,9 @@ public class UserResource {
      *
      * @param key The key embedded in the password reset URL.
      * @return ResponseEntity containing the password verification response.
-     * @throws InterruptedException if the thread is interrupted during sleep.
      */
     @GetMapping("/verify/password/{key}")
-    public ResponseEntity<HttpResponse> verifyResetPasswordUrl(@PathVariable("key") String key) throws InterruptedException {
-        TimeUnit.SECONDS.sleep(1);
+    public ResponseEntity<HttpResponse> verifyResetPasswordUrl(@PathVariable("key") String key) {
         UserDTO user = userService.verifyResetPasswordKey(key);
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
@@ -175,11 +171,9 @@ public class UserResource {
      *
      * @param form The {@code ResetPasswordForm} containing the user ID, new password, and confirmation password.
      * @return ResponseEntity containing the password reset response.
-     * @throws InterruptedException if the thread is interrupted during sleep.
      */
     @PutMapping("/new/password")
-    public ResponseEntity<HttpResponse> resetPasswordWithKey(@RequestBody @Valid ResetForgottenPasswordForm form) throws InterruptedException {
-        TimeUnit.SECONDS.sleep(1);
+    public ResponseEntity<HttpResponse> resetPasswordWithKey(@RequestBody @Valid ResetForgottenPasswordForm form) {
         userService.updatePassword(form.userId(), form.password(), form.confirmPassword());
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
@@ -189,6 +183,7 @@ public class UserResource {
                         .statusCode(OK.value())
                         .build());
     }
+
 
     /**
      * Updates the password for the authenticated user.
@@ -209,6 +204,21 @@ public class UserResource {
                                 "roles", roleService.getRoles()
                         ))
                         .message("Password Updated Successfully")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+    @PatchMapping("/toggle-mfa")
+    public ResponseEntity<HttpResponse> toggleMfa(Authentication authentication) throws InterruptedException {
+        UserDTO user = userService.toggleMfa(getAuthenticatedUser(authentication).email());
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .data(Map.of(
+                                "user", user,
+                                "roles", roleService.getRoles()))
+                        .timeStamp(LocalDateTime.now().toString())
+                        .message("Multi-Factor Authentication updated successfully")
                         .status(OK)
                         .statusCode(OK.value())
                         .build());

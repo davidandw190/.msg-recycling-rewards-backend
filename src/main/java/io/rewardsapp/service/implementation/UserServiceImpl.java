@@ -77,6 +77,11 @@ public class UserServiceImpl implements UserService {
         return mapToUserDTO(userRepository.verifyAccountKey(key));
     }
 
+    @Override
+    public UserDTO toggleMfa(String email) {
+        return mapToUserDTO(userRepository.toggleMfa(email));
+    }
+
     private UserDTO mapToUserDTO(User user) {
         return UserDTOMapper.fromUser(user, roleRepository.getRoleByUserId(user.getId()));
     }

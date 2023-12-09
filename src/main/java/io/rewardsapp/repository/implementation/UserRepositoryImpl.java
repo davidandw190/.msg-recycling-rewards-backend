@@ -10,6 +10,7 @@ import io.rewardsapp.form.UpdateUserDetailsForm;
 import io.rewardsapp.repository.RoleRepository;
 import io.rewardsapp.repository.UserRepository;
 import io.rewardsapp.rowmapper.UserRowMapper;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -33,6 +34,7 @@ import static io.rewardsapp.query.UserQuery.*;
 import static io.rewardsapp.utils.SmsUtils.sendSMS;
 import static java.util.Map.of;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.time.DateFormatUtils.format;
 import static org.apache.commons.lang3.time.DateUtils.addDays;
 import static org.hibernate.type.descriptor.java.JdbcDateJavaType.DATE_FORMAT;
@@ -363,6 +365,22 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         } catch (Exception exception) {
             throw new ApiException("An error occurred. Please try again.");
         }
+    }
+
+    @Override
+    @Transactional
+    public User toggleMfa(String email) {
+        User user = getUserByEmail(email);
+        if (isBlank(user.getPhone())) {throw new ApiException("You need a phone number to change Multi-Factor Authentication"); }
+        user.setUsingMfa(!user.isUsingMfa());
+        try {
+            jdbc.update(TOGGLE_USER_MFA_QUERY, of("email", email, "isUsingMfa", user.isUsingMfa()));
+            return user;
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            throw new ApiException("Unable to update Multi-Factor Authentication");
+        }
+
     }
 
     private Boolean isLinkExpired(String key, VerificationType verification) {

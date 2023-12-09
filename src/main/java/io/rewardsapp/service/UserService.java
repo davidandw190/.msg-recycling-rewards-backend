@@ -29,4 +29,6 @@ public interface UserService {
     void updatePassword(Long userId, String currentPassword, String newPassword, String confirmNewPassword);
 
     UserDTO verifyAccountKey(String key);
+
+    UserDTO toggleMfa(String email);
 }

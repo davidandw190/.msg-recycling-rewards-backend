@@ -36,4 +36,6 @@ public interface UserRepository<T extends User> {
     void updatePassword(Long userId, String currentPassword, String newPassword, String confirmNewPassword);
 
     T verifyAccountKey(String key);
+
+    T toggleMfa(String email);
 }
