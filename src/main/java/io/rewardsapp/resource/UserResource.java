@@ -4,6 +4,7 @@ import io.rewardsapp.domain.HttpResponse;
 import io.rewardsapp.domain.User;
 import io.rewardsapp.domain.UserPrincipal;
 import io.rewardsapp.dto.UserDTO;
+import io.rewardsapp.form.ResetForgottenPasswordForm;
 import io.rewardsapp.form.UpdateUserForm;
 import io.rewardsapp.form.UserLoginForm;
 import io.rewardsapp.provider.TokenProvider;
@@ -146,6 +147,27 @@ public class UserResource {
                         .statusCode(OK.value())
                         .build());
     }
+
+    /**
+     * Resets the user's password using the provided reset key.
+     *
+     * @param form The {@code ResetPasswordForm} containing the user ID, new password, and confirmation password.
+     * @return ResponseEntity containing the password reset response.
+     * @throws InterruptedException if the thread is interrupted during sleep.
+     */
+    @PutMapping("/new/password")
+    public ResponseEntity<HttpResponse> resetPasswordWithKey(@RequestBody @Valid ResetForgottenPasswordForm form) throws InterruptedException {
+        TimeUnit.SECONDS.sleep(1);
+        userService.updatePassword(form.userId(), form.password(), form.confirmPassword());
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .message("Password reset successfully")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
 
     @GetMapping("/refresh/token")
     public ResponseEntity<HttpResponse> refreshToken(HttpServletRequest request) {

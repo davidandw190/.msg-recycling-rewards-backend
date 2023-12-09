@@ -30,4 +30,6 @@ public interface UserRepository<T extends User> {
     void resetForgottenPassword(String email);
 
     T verifyResetPasswordKey(String key);
+
+    void renewPassword(Long userId, String password, String confirmPassword);
 }

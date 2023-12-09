@@ -22,4 +22,6 @@ public interface UserService {
     void resetForgottenPassword(String email);
 
     UserDTO verifyResetPasswordKey(String key);
+
+    void updatePassword(Long userId, String password, String confirmPassword);
 }
