@@ -5,7 +5,8 @@ import io.rewardsapp.domain.User;
 import io.rewardsapp.domain.UserPrincipal;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.form.ResetForgottenPasswordForm;
-import io.rewardsapp.form.UpdateUserForm;
+import io.rewardsapp.form.UpdateUserDetailsForm;
+import io.rewardsapp.form.UpdateUserPasswordForm;
 import io.rewardsapp.form.UserLoginForm;
 import io.rewardsapp.provider.TokenProvider;
 import io.rewardsapp.service.RoleService;
@@ -27,7 +28,9 @@ import java.util.concurrent.TimeUnit;
 
 import static io.rewardsapp.dto.mapper.UserDTOMapper.toUser;
 import static io.rewardsapp.filter.CustomAuthorizationFilter.TOKEN_PREFIX;
+import static io.rewardsapp.utils.UserUtils.getAuthenticatedUser;
 import static io.rewardsapp.utils.UserUtils.getLoggedInUser;
+import static java.time.LocalDateTime.now;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -68,12 +71,12 @@ public class UserResource {
     /**
      * Updates the details of the authenticated user.
      *
-     * @param updateUserForm The {@code UpdateUserForm} containing updated user details.
+     * @param updateUserDetailsForm The {@code UpdateUserForm} containing updated user details.
      * @return ResponseEntity containing the updated user response.
      */
     @PatchMapping("/update")
-    public ResponseEntity<HttpResponse> updateUser(@RequestBody @Valid UpdateUserForm updateUserForm) {
-        UserDTO updatedUser = userService.updateUserDetails(updateUserForm);
+    public ResponseEntity<HttpResponse> updateUser(@RequestBody @Valid UpdateUserDetailsForm updateUserDetailsForm) {
+        UserDTO updatedUser = userService.updateUserDetails(updateUserDetailsForm);
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(LocalDateTime.now().toString())
@@ -163,6 +166,30 @@ public class UserResource {
                 HttpResponse.builder()
                         .timeStamp(LocalDateTime.now().toString())
                         .message("Password reset successfully")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+    /**
+     * Updates the password for the authenticated user.
+     *
+     * @param authentication The {@code Authentication} object containing user details.
+     * @param form The {@code UpdatePasswordForm} containing the current password, new password, and confirmation password.
+     * @return ResponseEntity containing the password update response.
+     */
+    @PatchMapping("/update/password")
+    public ResponseEntity<HttpResponse> updatePassword(Authentication authentication, @RequestBody @Valid UpdateUserPasswordForm form) {
+        UserDTO userDTO = getAuthenticatedUser(authentication);
+        userService.updatePassword(userDTO.id(), form.currentPassword(), form.newPassword(), form.confirmPassword());
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .data(Map.of(
+                                "user", userService.getUserById(userDTO.id()),
+                                "roles", roleService.getRoles()
+                        ))
+                        .message("Password Updated Successfully")
                         .status(OK)
                         .statusCode(OK.value())
                         .build());

@@ -4,12 +4,14 @@ import io.rewardsapp.domain.Role;
 import io.rewardsapp.domain.User;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.dto.mapper.UserDTOMapper;
-import io.rewardsapp.form.UpdateUserForm;
+import io.rewardsapp.form.UpdateUserDetailsForm;
 import io.rewardsapp.repository.RoleRepository;
 import io.rewardsapp.service.UserService;
 import io.rewardsapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import static java.util.Map.of;
 
 
 @Service
@@ -42,8 +44,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO updateUserDetails(UpdateUserForm updateUserForm) {
-        return mapToUserDTO(userRepository.updateUserDetails(updateUserForm));
+    public UserDTO updateUserDetails(UpdateUserDetailsForm updateUserDetailsForm) {
+        return mapToUserDTO(userRepository.updateUserDetails(updateUserDetailsForm));
     }
 
     @Override
@@ -64,6 +66,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updatePassword(Long userId, String password, String confirmPassword) {
         userRepository.renewPassword(userId, password, confirmPassword);
+    }
+
+    @Override
+    public void updatePassword(Long userId, String currentPassword, String newPassword, String confirmNewPassword) {
+        userRepository.updatePassword(userId, currentPassword, newPassword, confirmNewPassword);
     }
 
     private UserDTO mapToUserDTO(User user) {

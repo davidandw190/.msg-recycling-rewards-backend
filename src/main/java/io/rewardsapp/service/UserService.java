@@ -2,7 +2,7 @@ package io.rewardsapp.service;
 
 import io.rewardsapp.domain.User;
 import io.rewardsapp.dto.UserDTO;
-import io.rewardsapp.form.UpdateUserForm;
+import io.rewardsapp.form.UpdateUserDetailsForm;
 
 
 public interface UserService {
@@ -15,7 +15,7 @@ public interface UserService {
 
     void sendAccountVerificationCode(UserDTO user);
 
-    UserDTO updateUserDetails(UpdateUserForm updateUserForm);
+    UserDTO updateUserDetails(UpdateUserDetailsForm updateUserDetailsForm);
 
     UserDTO verifyCode(String email, String code);
 
@@ -24,4 +24,6 @@ public interface UserService {
     UserDTO verifyResetPasswordKey(String key);
 
     void updatePassword(Long userId, String password, String confirmPassword);
+
+    void updatePassword(Long userId, String currentPassword, String newPassword, String confirmNewPassword);
 }

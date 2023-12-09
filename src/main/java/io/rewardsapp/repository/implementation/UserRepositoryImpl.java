@@ -6,7 +6,7 @@ import io.rewardsapp.domain.UserPrincipal;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.enums.VerificationType;
 import io.rewardsapp.exception.ApiException;
-import io.rewardsapp.form.UpdateUserForm;
+import io.rewardsapp.form.UpdateUserDetailsForm;
 import io.rewardsapp.repository.RoleRepository;
 import io.rewardsapp.repository.UserRepository;
 import io.rewardsapp.rowmapper.UserRowMapper;
@@ -31,6 +31,7 @@ import static io.rewardsapp.enums.VerificationType.ACCOUNT;
 import static io.rewardsapp.enums.VerificationType.PASSWORD;
 import static io.rewardsapp.query.UserQuery.*;
 import static io.rewardsapp.utils.SmsUtils.sendSMS;
+import static java.util.Map.of;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang3.time.DateFormatUtils.format;
 import static org.apache.commons.lang3.time.DateUtils.addDays;
@@ -206,13 +207,13 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
     }
 
     @Override
-    public User updateUserDetails(UpdateUserForm updateUserForm) {
+    public User updateUserDetails(UpdateUserDetailsForm updateUserDetailsForm) {
         try {
-            jdbc.update(UPDATE_USER_DETAILS_QUERY, getUserDetailsSqlParameterSource(updateUserForm));
-            return get(updateUserForm.id());
+            jdbc.update(UPDATE_USER_DETAILS_QUERY, getUserDetailsSqlParameterSource(updateUserDetailsForm));
+            return get(updateUserDetailsForm.id());
 
         } catch (EmptyResultDataAccessException exception) {
-            throw new ApiException("No User found by ID: " + updateUserForm.id());
+            throw new ApiException("No User found by ID: " + updateUserDetailsForm.id());
 
         } catch (Exception exception) {
             log.error(exception.getMessage());
@@ -294,6 +295,24 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
     }
 
+    @Override
+    public void updatePassword(Long userId, String currentPassword, String newPassword, String confirmNewPassword) {
+        if (!newPassword.equals(confirmNewPassword)) { throw new ApiException("Passwords don't match. Please try again."); }
+
+        User user = get(userId);
+
+        if (encoder.matches(currentPassword, user.getPassword())) {
+            try {
+                jdbc.update(UPDATE_USER_PASSWORD_BY_ID_QUERY, of("userId", userId, "password", encoder.encode(newPassword)));
+
+            } catch (Exception exception) {
+                throw new ApiException("An error occurred. Please try again.");
+            }
+        } else {
+            throw new ApiException("Incorrect current password. Please try again.");
+        }
+    }
+
     private Boolean isLinkExpired(String key, VerificationType verification) {
         try {
             return jdbc.queryForObject(SELECT_EXPIRATION_BY_URL, Map.of("url", getVerificationUrl(key, verification.getType())), Boolean.class);
@@ -308,9 +327,9 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
     }
 
-    private boolean isVerificationCodeExpired(String code) {
+    private Boolean isVerificationCodeExpired(String code) {
         try {
-            return Boolean.TRUE.equals(jdbc.queryForObject(SELECT_CODE_EXPIRATION_QUERY, Map.of("code", code), Boolean.class));
+            return jdbc.queryForObject(SELECT_CODE_EXPIRATION_QUERY, Map.of("code", code), Boolean.class);
 
         } catch (EmptyResultDataAccessException exception) {
             throw new ApiException("This code is not valid. Please login again.");
@@ -320,17 +339,17 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
     }
 
-    private SqlParameterSource getUserDetailsSqlParameterSource(UpdateUserForm updateUserForm) {
+    private SqlParameterSource getUserDetailsSqlParameterSource(UpdateUserDetailsForm updateUserDetailsForm) {
         return new MapSqlParameterSource()
-                .addValue("user_id", updateUserForm.id())
-                .addValue("firstName", updateUserForm.firstName())
-                .addValue("lastName", updateUserForm.lastName())
-                .addValue("email", updateUserForm.email())
-                .addValue("phone", updateUserForm.phone())
-                .addValue("city", updateUserForm.city())
-                .addValue("address", updateUserForm.address())
-                .addValue("title", updateUserForm.title())
-                .addValue("bio", updateUserForm.bio());
+                .addValue("user_id", updateUserDetailsForm.id())
+                .addValue("firstName", updateUserDetailsForm.firstName())
+                .addValue("lastName", updateUserDetailsForm.lastName())
+                .addValue("email", updateUserDetailsForm.email())
+                .addValue("phone", updateUserDetailsForm.phone())
+                .addValue("city", updateUserDetailsForm.city())
+                .addValue("address", updateUserDetailsForm.address())
+                .addValue("title", updateUserDetailsForm.title())
+                .addValue("bio", updateUserDetailsForm.bio());
     }
 
     /**
