@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Pattern;
 /**
  * Represents the form data for user details update.
  */
-public record UpdateUserForm(
+public record UpdateUserDetailsForm(
         @NotNull(message = "ID field cannot be null or empty") Long id,
         @NotEmpty(message = "First name field cannot be empty") String firstName,
         @NotEmpty(message = "Last name field cannot be empty") String lastName,
