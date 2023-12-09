@@ -60,107 +60,65 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler imple
     }
 
     @ExceptionHandler(ApiException.class)
-    public ResponseEntity<HttpResponse> apiException(ApiException exception) {
+    public ResponseEntity<HttpResponse> handleApiException(ApiException exception) {
         log.error(exception.getMessage());
-        return new ResponseEntity<>(
-                HttpResponse.builder()
-                        .timeStamp(now().toString())
-                        .reason(exception.getMessage())
-                        ._devMessage(exception.getMessage())
-                        .status(BAD_REQUEST)
-                        .statusCode(BAD_REQUEST.value())
-                        .build(), BAD_REQUEST);
+        return buildErrorResponse(exception.getMessage(), BAD_REQUEST);
     }
 
     @ExceptionHandler(LockedException.class)
-    public ResponseEntity<HttpResponse> lockedException(LockedException exception) {
+    public ResponseEntity<HttpResponse> handleLockedException(LockedException exception) {
         log.error(exception.getMessage());
-        return new ResponseEntity<>(
-                HttpResponse.builder()
-                        .timeStamp(now().toString())
-                        ._devMessage(exception.getMessage())
-                        .reason("User account is currently locked")
-                        .status(BAD_REQUEST)
-                        .statusCode(BAD_REQUEST.value())
-                        .build(), BAD_REQUEST);
+        return buildErrorResponse("User account is currently locked", BAD_REQUEST);
     }
 
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
-    public ResponseEntity<HttpResponse> SQLIntegrityConstraintViolationException(SQLIntegrityConstraintViolationException exception) {
+    public ResponseEntity<HttpResponse> handleSQLIntegrityConstraintViolationException(SQLIntegrityConstraintViolationException exception) {
         log.error(exception.getMessage());
-        return new ResponseEntity<>(
-                HttpResponse.builder()
-                        .timeStamp(now().toString())
-                        .reason(exception.getMessage().contains("Duplicate entry") ? "Information already exists" : exception.getMessage())
-                        ._devMessage(exception.getMessage())
-                        .status(BAD_REQUEST)
-                        .statusCode(BAD_REQUEST.value())
-                        .build(), BAD_REQUEST);
+        String errorMessage = exception.getMessage().contains("Duplicate entry") ? "Information already exists" : exception.getMessage();
+        return buildErrorResponse(errorMessage, BAD_REQUEST);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<HttpResponse> badCredentialsException(BadCredentialsException exception) {
+    public ResponseEntity<HttpResponse> handleBadCredentialsException(BadCredentialsException exception) {
         log.error(exception.getMessage());
-        return new ResponseEntity<>(
-                HttpResponse.builder()
-                        .timeStamp(now().toString())
-                        .reason(exception.getMessage() + ", Incorrect email or password")
-                        ._devMessage(exception.getMessage())
-                        .status(BAD_REQUEST)
-                        .statusCode(BAD_REQUEST.value())
-                        .build(), BAD_REQUEST);
+        return buildErrorResponse(exception.getMessage() + ", Incorrect email or password", BAD_REQUEST);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<HttpResponse> accessDeniedException(AccessDeniedException exception) {
+    public ResponseEntity<HttpResponse> handleAccessDeniedException(AccessDeniedException exception) {
         log.error(exception.getMessage());
-        return new ResponseEntity<>(
-                HttpResponse.builder()
-                        .timeStamp(now().toString())
-                        .reason("Access denied. You don't have access to this resource")
-                        ._devMessage(exception.getMessage())
-                        .status(FORBIDDEN)
-                        .statusCode(FORBIDDEN.value())
-                        .build(), FORBIDDEN);
+        return buildErrorResponse("Access denied. You don't have access to this resource", FORBIDDEN);
     }
 
     @ExceptionHandler(JWTDecodeException.class)
-    public ResponseEntity<HttpResponse> exception(JWTDecodeException exception) {
+    public ResponseEntity<HttpResponse> handleJWTDecodeException(JWTDecodeException exception) {
         log.error(exception.getMessage());
-        return new ResponseEntity<>(
-                HttpResponse.builder()
-                        .timeStamp(now().toString())
-                        .reason("Could not decode the token")
-                        ._devMessage(exception.getMessage())
-                        .status(INTERNAL_SERVER_ERROR)
-                        .statusCode(INTERNAL_SERVER_ERROR.value())
-                        .build(), INTERNAL_SERVER_ERROR);
+        return buildErrorResponse("Could not decode the token", INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(EmptyResultDataAccessException.class)
-    public ResponseEntity<HttpResponse> emptyResultDataAccessException(EmptyResultDataAccessException exception) {
+    public ResponseEntity<HttpResponse> handleEmptyResultDataAccessException(EmptyResultDataAccessException exception) {
         log.error(exception.getMessage());
-        return new ResponseEntity<>(
-                HttpResponse.builder()
-                        .timeStamp(now().toString())
-                        .reason(exception.getMessage().contains("expected 1, actual 0") ? "Record not found" : exception.getMessage())
-                        ._devMessage(exception.getMessage())
-                        .status(BAD_REQUEST)
-                        .statusCode(BAD_REQUEST.value())
-                        .build(), BAD_REQUEST);
+        String errorMessage = exception.getMessage().contains("expected 1, actual 0") ? "Record not found" : exception.getMessage();
+        return buildErrorResponse(errorMessage, BAD_REQUEST);
     }
 
     @ExceptionHandler(DataAccessException.class)
-    public ResponseEntity<HttpResponse> dataAccessException(DataAccessException exception) {
+    public ResponseEntity<HttpResponse> handleDataAccessException(DataAccessException exception) {
         log.error(exception.getMessage());
+        String processedErrorMessage = processErrorMessage(exception.getMessage());
+        return buildErrorResponse(processedErrorMessage, BAD_REQUEST);
+    }
+
+    private ResponseEntity<HttpResponse> buildErrorResponse(String reason, HttpStatusCode statusCode) {
         return new ResponseEntity<>(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
-                        .reason(processErrorMessage(exception.getMessage()))
-                        ._devMessage(processErrorMessage(exception.getMessage()))
-                        .status(BAD_REQUEST)
-                        .statusCode(BAD_REQUEST.value())
-                        .build(), BAD_REQUEST);
+                        .reason(reason)
+                        ._devMessage(reason)
+                        .status(resolve(statusCode.value()))
+                        .statusCode(statusCode.value())
+                        .build(), statusCode);
     }
 
     private String processErrorMessage(String errorMessage) {
