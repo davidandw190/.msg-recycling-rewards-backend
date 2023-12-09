@@ -244,6 +244,12 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
     }
 
+    /**
+     * Sends a reset password link to the user's email address.
+     *
+     * @param email The email address of the user.
+     * @throws ApiException If there is an issue sending the reset link.
+     */
     @Override
     public void resetForgottenPassword(String email) {
         if (getEmailCount(email.trim().toLowerCase()) <= 0) throw new ApiException("There is no account for this email address");
@@ -262,6 +268,13 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
     }
 
+    /**
+     * Verifies the reset password key and retrieves the user.
+     *
+     * @param key The verification key.
+     * @return The verified user object.
+     * @throws ApiException If the link is invalid or expired.
+     */
     @Override
     public User verifyResetPasswordKey(String key) {
         if (isLinkExpired(key, PASSWORD)) throw new ApiException("This link has expired. Please reset your password again.");
@@ -281,6 +294,14 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
     }
 
+    /**
+     * Updates the password for a user.
+     *
+     * @param userId              The ID of the user.
+     * @param password            The new password.
+     * @param confirmPassword     The confirmation of the new password.
+     * @throws ApiException If there is an issue updating the password.
+     */
     @Override
     public void renewPassword(Long userId, String password, String confirmPassword) {
         if (!password.equals(confirmPassword)) throw new ApiException("Passwords don't match. Please try again.");
@@ -295,6 +316,15 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
     }
 
+    /**
+     * Updates the password for a user.
+     *
+     * @param userId              The ID of the user.
+     * @param currentPassword     The current password.
+     * @param newPassword         The new password.
+     * @param confirmNewPassword  The confirmation of the new password.
+     * @throws ApiException If there is an issue updating the password.
+     */
     @Override
     public void updatePassword(Long userId, String currentPassword, String newPassword, String confirmNewPassword) {
         if (!newPassword.equals(confirmNewPassword)) { throw new ApiException("Passwords don't match. Please try again."); }
@@ -313,12 +343,18 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
     }
 
+    /**
+     * Verifies the account key and enables the user's account.
+     *
+     * @param key The verification key.
+     * @return The verified user object.
+     * @throws ApiException If the link is invalid.
+     */
     @Override
     public User verifyAccountKey(String key) {
         try {
             User user = jdbc.queryForObject(SELECT_USER_BY_ACCOUNT_URL_QUERY, Map.of("url", getVerificationUrl(key, ACCOUNT.getType())), new UserRowMapper());
             jdbc.update(UPDATE_USER_ENABLED_QUERY, Map.of("enabled", true, "userId", user.getId()));
-
             return user;
 
         } catch (EmptyResultDataAccessException exception) {

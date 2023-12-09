@@ -11,7 +11,6 @@ import io.rewardsapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import static java.util.Map.of;
 
 
 @Service
