@@ -4,11 +4,13 @@ import com.auth0.jwt.exceptions.JWTDecodeException;
 import io.rewardsapp.domain.HttpResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.servlet.error.ErrorController;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -65,6 +67,19 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler imple
                         .timeStamp(now().toString())
                         .reason(exception.getMessage())
                         ._devMessage(exception.getMessage())
+                        .status(BAD_REQUEST)
+                        .statusCode(BAD_REQUEST.value())
+                        .build(), BAD_REQUEST);
+    }
+
+    @ExceptionHandler(LockedException.class)
+    public ResponseEntity<HttpResponse> lockedException(LockedException exception) {
+        log.error(exception.getMessage());
+        return new ResponseEntity<>(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        ._devMessage(exception.getMessage())
+                        .reason("User account is currently locked")
                         .status(BAD_REQUEST)
                         .statusCode(BAD_REQUEST.value())
                         .build(), BAD_REQUEST);
@@ -133,5 +148,36 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler imple
                         .status(BAD_REQUEST)
                         .statusCode(BAD_REQUEST.value())
                         .build(), BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<HttpResponse> dataAccessException(DataAccessException exception) {
+        log.error(exception.getMessage());
+        return new ResponseEntity<>(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .reason(processErrorMessage(exception.getMessage()))
+                        ._devMessage(processErrorMessage(exception.getMessage()))
+                        .status(BAD_REQUEST)
+                        .statusCode(BAD_REQUEST.value())
+                        .build(), BAD_REQUEST);
+    }
+
+    private String processErrorMessage(String errorMessage) {
+        if (errorMessage != null) {
+            if (errorMessage.contains("Duplicate entry") && errorMessage.contains("AccountVerifications")) {
+                return "You already verified your account.";
+            }
+
+            if (errorMessage.contains("Duplicate entry") && errorMessage.contains("ResetPasswordVerifications")) {
+                return "We already sent you an email to reset your password.";
+            }
+
+            if (errorMessage.contains("Duplicate entry")) {
+                return "Duplicate entry. Please try again.";
+            }
+        }
+
+        return "Some error occurred";
     }
 }
