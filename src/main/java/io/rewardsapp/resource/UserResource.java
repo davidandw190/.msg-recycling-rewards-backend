@@ -92,6 +92,25 @@ public class UserResource {
     /**
      * Verifies the provided verification code for a user and enables the user in the app.
      *
+     * @param key The key embedded in the account verification URL.
+     * @return ResponseEntity containing the account verification response.
+     * @throws InterruptedException if the thread is interrupted during sleep.
+     */
+    @GetMapping("/verify/account/{key}")
+    public ResponseEntity<HttpResponse> verifyAccount(@PathVariable("key") String key) throws InterruptedException {
+        TimeUnit.SECONDS.sleep(1);
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .message(userService.verifyAccountKey(key).enabled() ? "Account already verified" : "Account verified")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+    /**
+     * Verifies a user's account using the provided verification key.
+     *
      * @param email The email of the user.
      * @param code The verification code.
      * @return ResponseEntity containing the verification response.

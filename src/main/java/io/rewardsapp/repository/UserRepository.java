@@ -34,4 +34,6 @@ public interface UserRepository<T extends User> {
     void renewPassword(Long userId, String password, String confirmPassword);
 
     void updatePassword(Long userId, String currentPassword, String newPassword, String confirmNewPassword);
+
+    T verifyAccountKey(String key);
 }

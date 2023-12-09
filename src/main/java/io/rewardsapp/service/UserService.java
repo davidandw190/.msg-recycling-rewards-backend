@@ -1,5 +1,6 @@
 package io.rewardsapp.service;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import io.rewardsapp.domain.User;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.form.UpdateUserDetailsForm;
@@ -26,4 +27,6 @@ public interface UserService {
     void updatePassword(Long userId, String password, String confirmPassword);
 
     void updatePassword(Long userId, String currentPassword, String newPassword, String confirmNewPassword);
+
+    UserDTO verifyAccountKey(String key);
 }
