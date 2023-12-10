@@ -4,6 +4,7 @@ import io.rewardsapp.domain.HttpResponse;
 import io.rewardsapp.domain.User;
 import io.rewardsapp.domain.UserPrincipal;
 import io.rewardsapp.dto.UserDTO;
+import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.form.ResetForgottenPasswordForm;
 import io.rewardsapp.form.UpdateUserDetailsForm;
 import io.rewardsapp.form.UpdateUserPasswordForm;
@@ -12,11 +13,11 @@ import io.rewardsapp.provider.TokenProvider;
 import io.rewardsapp.service.RoleService;
 import io.rewardsapp.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -24,16 +25,16 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import static io.rewardsapp.dto.mapper.UserDTOMapper.toUser;
 import static io.rewardsapp.filter.CustomAuthorizationFilter.TOKEN_PREFIX;
+import static io.rewardsapp.utils.ExceptionUtils.handleException;
 import static io.rewardsapp.utils.UserUtils.getAuthenticatedUser;
 import static io.rewardsapp.utils.UserUtils.getLoggedInUser;
 import static java.time.LocalDateTime.now;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.*;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.security.authentication.UsernamePasswordAuthenticationToken.unauthenticated;
 
 @RestController
 @RequiredArgsConstructor
@@ -43,15 +44,14 @@ public class UserResource {
     private final UserService userService;
     private final RoleService roleService;
     private final TokenProvider tokenProvider;
+    private final HttpServletRequest request;
+    private final HttpServletResponse response;
     private final AuthenticationManager authenticationManager;
 
     @PostMapping("/login")
-    public ResponseEntity<HttpResponse> loginUser(@RequestBody @Valid UserLoginForm loginForm) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginForm.email(), loginForm.password()));
-        UserDTO authenticatedUser = getLoggedInUser(authentication);
-        return authenticatedUser.usingMfa()
-                ? sendLoginVerificationCode(authenticatedUser)
-                : sendLoginResponse(authenticatedUser);
+    public ResponseEntity<HttpResponse> login(@RequestBody @Valid UserLoginForm loginForm) {
+        UserDTO user = authenticate(loginForm.email(), loginForm.password());
+        return user.usingMfa() ? sendLoginVerificationCode(user) : sendLoginResponse(user);
     }
 
     @PostMapping("/register")
@@ -269,6 +269,17 @@ public class UserResource {
                 .build(), NOT_FOUND);
     }
 
+    private UserDTO authenticate(String email, String password) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(unauthenticated(email, password));
+            return getLoggedInUser(authentication);
+
+        } catch (Exception exception) {
+            handleException(request, response, exception);
+            throw new ApiException(exception.getMessage());
+        }
+    }
+
     private boolean isHeaderAndTokenValid(HttpServletRequest request) {
         return  request.getHeader(AUTHORIZATION) != null &&
                 request.getHeader(AUTHORIZATION).startsWith(TOKEN_PREFIX) &&
@@ -299,12 +310,12 @@ public class UserResource {
         );
     }
 
-    private ResponseEntity<HttpResponse> sendLoginVerificationCode(UserDTO authenticatedUser) {
-        userService.sendAccountVerificationCode(authenticatedUser);
+    private ResponseEntity<HttpResponse> sendLoginVerificationCode(UserDTO user) {
+        userService.sendAccountVerificationCode(user);
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(LocalDateTime.now().toString())
-                        .data(Map.of("user", authenticatedUser))
+                        .data(Map.of("user", user))
                         .message("Verification Code Sent")
                         .status(OK)
                         .statusCode(OK.value())
