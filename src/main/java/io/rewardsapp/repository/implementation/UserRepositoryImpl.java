@@ -18,6 +18,8 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -60,32 +62,63 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
      * @throws ApiException If there is an issue creating the user.
      */
     @Override
+    @Transactional
     public User create(User user) {
         if (getEmailCount(user.getEmail().trim().toLowerCase()) > 0) {
             throw new ApiException("Email already in use. Please use a different email and try again.");
         }
-
         try {
-            SimpleJdbcInsert insertUserQuery = new SimpleJdbcInsert(jdbc.getJdbcTemplate())
-                    .withTableName("users")
-                    .usingGeneratedKeyColumns("user_id");
-
+            KeyHolder holder = new GeneratedKeyHolder();
+            user.setEnabled(true);
             user.setCreatedAt(LocalDateTime.now());
-
-            SqlParameterSource params = getSqlParameterSource(user);
-            Number userId = insertUserQuery.executeAndReturnKey(params);
-            user.setId(userId.longValue());
-            log.info("User created with ID: {}", userId);
+            SqlParameterSource parameters = getSqlParameterSource(user);
+            jdbc.update(INSERT_USER_QUERY, parameters, holder, new String[]{"user_id"});  // Specify the key column
+            log.info("inserted");
+            Number key = holder.getKey();
+            if (key == null) {
+                throw new ApiException("Failed to retrieve the generated key for the user.");
+            }
+            user.setId(key.longValue());
             roleRepository.addRoleToUser(user.getId(), ROLE_USER.name());
-            user.setEnabled(false);
+            log.info("added role");
+//            sendEmail(user.getFirstName(), user.getEmail(), verificationUrl, ACCOUNT);
+            user.setEnabled(true);
             user.setNotLocked(true);
-
+            log.info("returning..");
             return user;
 
         } catch (Exception exception) {
+            log.error(exception.getMessage());
             throw new ApiException("An error occurred. Please try again.");
         }
     }
+//    @Override
+//    public User create(User user) {
+//        if (getEmailCount(user.getEmail().trim().toLowerCase()) > 0) {
+//            throw new ApiException("Email already in use. Please use a different email and try again.");
+//        }
+//
+//        try {
+//            SimpleJdbcInsert insertUserQuery = new SimpleJdbcInsert(jdbc.getJdbcTemplate())
+//                    .withTableName("users")
+//                    .usingGeneratedKeyColumns("user_id");
+//
+//            user.setCreatedAt(LocalDateTime.now());
+//
+//            SqlParameterSource params = getSqlParameterSource(user);
+//            Number userId = insertUserQuery.executeAndReturnKey(params);
+//            user.setId(userId.longValue());
+//            log.info("User created with ID: {}", userId);
+//            roleRepository.addRoleToUser(user.getId(), ROLE_USER.name());
+//            user.setEnabled(false);
+//            user.setNotLocked(true);
+//
+//            return user;
+//
+//        } catch (Exception exception) {
+//            throw new ApiException("An error occurred. Please try again.");
+//        }
+//    }
 
     /**
      * Retrieves a list of users from the database based on pagination parameters.
@@ -455,7 +488,8 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
      * @return The count of users with the specified email.
      */
     private Integer getEmailCount(String email) {
-        return jdbc.queryForObject(COUNT_USER_EMAIL_QUERY, Map.of("email", email), Integer.class);
+        return jdbc.queryForObject("SELECT COUNT(*) FROM rewards_app.users WHERE email = :email",
+                Map.of("email", email), Integer.class);
     }
 
 }

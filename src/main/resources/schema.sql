@@ -1,13 +1,29 @@
-CREATE SCHEMA IF NOT EXISTS recycling_app;
+CREATE SCHEMA IF NOT EXISTS rewards_app;
 
 -- Set time zone
 SET TIME ZONE 'Europe/Bucharest';
 
 -- Use the recycling_app schema
-SET search_path TO recycling_app;
+SET search_path TO rewards_app;
 
--- Drop tables if they exist
-DROP TABLE IF EXISTS users, roles, user_roles, account_verifications, reset_pass_verifications, tfa_verifications, user_social_media, recycling_centers, recycled_materials, user_recycling_activities, reward_points, vouchers, educational_resources, challenges, user_challenges;
+DROP TABLE IF EXISTS    rewards_app.users,
+                        rewards_app.roles,
+                        rewards_app.user_roles,
+                        rewards_app.account_verifications,
+                        rewards_app.reset_pass_verifications,
+                        rewards_app.tfa_verifications,
+                        rewards_app.user_social_media,
+                        rewards_app.recycled_materials,
+                        rewards_app.recycling_centers,
+                        rewards_app.materials_to_recycle,
+                        rewards_app.user_recycling_activities,
+                        rewards_app.reward_points,
+                        rewards_app.vouchers,
+                        rewards_app.educational_resources,
+                        rewards_app.user_saved_resources,
+                        rewards_app.challenges,
+                        rewards_app.user_challenges,
+                        rewards_app.leaderboard;
 
 -- Create users table
 CREATE TABLE users (
@@ -20,6 +36,7 @@ CREATE TABLE users (
     address        VARCHAR(255),
     phone          VARCHAR(15),
     bio            TEXT,
+    notif_enabled  BOOLEAN DEFAULT TRUE,
     enabled        BOOLEAN DEFAULT FALSE,
     non_locked     BOOLEAN DEFAULT TRUE,
     using_mfa      BOOLEAN DEFAULT FALSE,
@@ -179,6 +196,23 @@ CREATE TABLE user_challenges (
     CONSTRAINT fk_user_challenges_challenge_id FOREIGN KEY (challenge_id) REFERENCES challenges(challenge_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+-- -- Create badges table
+-- CREATE TABLE badges (
+--                         badge_id        BIGSERIAL PRIMARY KEY,
+--                         name            VARCHAR(50) NOT NULL UNIQUE,
+--                         description     TEXT
+-- );
+--
+-- -- Create user_badges table
+-- CREATE TABLE user_badges (
+--                              user_id         BIGINT PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE,
+--                              badge_id        BIGINT REFERENCES badges(badge_id) ON DELETE SET NULL,
+--                              awarded_at      TIMESTAMP DEFAULT NULL,
+--                              CONSTRAINT fk_user_badges_user_id FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+--                              CONSTRAINT fk_user_badges_badge_id FOREIGN KEY (badge_id) REFERENCES badges(badge_id) ON DELETE SET NULL
+-- );
+
+
 -- Create leaderboard table
 CREATE TABLE leaderboard (
     user_id         BIGINT PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE,
@@ -190,9 +224,16 @@ CREATE TABLE leaderboard (
 CREATE INDEX idx_user_recycling_activities_user_id ON user_recycling_activities(user_id);
 CREATE INDEX idx_user_recycling_activities_center_id ON user_recycling_activities(center_id);
 CREATE INDEX idx_user_recycling_activities_material_id ON user_recycling_activities(material_id);
-CREATE INDEX idx_user_likes_user_id ON user_likes(user_id);
 CREATE INDEX idx_user_saved_resources_user_id ON user_saved_resources(user_id);
 CREATE INDEX idx_user_saved_resources_resource_id ON user_saved_resources(resource_id);
 CREATE INDEX idx_user_challenges_user_id ON user_challenges(user_id);
 CREATE INDEX idx_user_challenges_challenge_id ON user_challenges(challenge_id);
 CREATE INDEX idx_leaderboard_total_points ON leaderboard(total_points);
+
+-- Insert records into the 'roles' table
+INSERT INTO roles (name, permission)
+VALUES
+    ('ROLE_USER', 'READ:ALL,UPDATE:USER_PROFILE,CREATE:RECYCLING_ACTIVITY,READ:SAVED_RESOURCES,CREATE:SAVED_RESOURCES,JOIN:CHALLENGE'),
+    ('ROLE_ADMIN', 'READ:ALL,CREATE:ALL,UPDATE:ALL,DELETE:ALL,MANAGE:USER_PROFILE,MANAGE:USER_ACTIVITIES'),
+    ('ROLE_SYSADMIN', 'READ:ALL,CREATE:ALL,UPDATE:ALL,DELETE:ALL,MANAGE:ROLES_PERMISSIONS,ACCESS:ADVANCED_FEATURES');
+
