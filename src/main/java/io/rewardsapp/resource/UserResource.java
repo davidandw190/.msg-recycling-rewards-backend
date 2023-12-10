@@ -253,6 +253,22 @@ public class UserResource {
         }
     }
 
+    /**
+     * Handles HTTP errors and returns an appropriate response.
+     *
+     * @param request The {@code HttpServletRequest} causing the error.
+     * @return ResponseEntity containing the error response.
+     */
+    @RequestMapping("/user/error")
+    public ResponseEntity<HttpResponse> handleError(HttpServletRequest request) {
+        return new ResponseEntity<>(HttpResponse.builder()
+                .timeStamp(LocalDateTime.now().toString())
+                .reason("There is no mapping for a " + request.getMethod() + " request for this path on the server")
+                .status(NOT_FOUND)
+                .statusCode(NOT_FOUND.value())
+                .build(), NOT_FOUND);
+    }
+
     private boolean isHeaderAndTokenValid(HttpServletRequest request) {
         return  request.getHeader(AUTHORIZATION) != null &&
                 request.getHeader(AUTHORIZATION).startsWith(TOKEN_PREFIX) &&

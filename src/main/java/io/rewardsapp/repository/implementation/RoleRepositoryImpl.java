@@ -26,7 +26,6 @@ import static java.util.Map.of;
 public class RoleRepositoryImpl implements RoleRepository<Role> {
     private final NamedParameterJdbcTemplate jdbc;
 
-
     @Override
     public Role create(Role data) {
         return null;

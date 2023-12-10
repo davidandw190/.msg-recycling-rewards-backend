@@ -39,6 +39,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
             ObjectMapper mapper = new ObjectMapper();
             mapper.writeValue(out, httpResponse);
             out.flush();
+
         } catch (IOException exception) {
             throw new ApiException("An issue occurred. Please try again later.");
         }
