@@ -16,6 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.rewardsapp.utils.ExceptionUtils.handleException;
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
@@ -61,6 +62,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
         } catch (Exception exception) {
             log.error(exception.getMessage());
+            handleException(request, response, exception);
         }
     }
 

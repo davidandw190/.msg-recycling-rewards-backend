@@ -106,7 +106,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler imple
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<HttpResponse> handleDataAccessException(DataAccessException exception) {
         log.error(exception.getMessage());
-        String processedErrorMessage = processErrorMessage(exception.getMessage());
+        String processedErrorMessage = processExceptionMessage(exception.getMessage());
         return buildErrorResponse(processedErrorMessage, BAD_REQUEST);
     }
 
@@ -121,7 +121,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler imple
                         .build(), statusCode);
     }
 
-    private String processErrorMessage(String errorMessage) {
+    private String processExceptionMessage(String errorMessage) {
         if (errorMessage != null) {
             if (errorMessage.contains("Duplicate entry") && errorMessage.contains("AccountVerifications")) {
                 return "You already verified your account.";
