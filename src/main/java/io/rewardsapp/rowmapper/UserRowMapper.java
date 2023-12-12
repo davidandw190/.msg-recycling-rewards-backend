@@ -22,7 +22,7 @@ public class UserRowMapper implements RowMapper<User> {
                 .address(resultSet.getString("address"))
                 .phone(resultSet.getString("phone"))
                 .bio(resultSet.getString("bio"))
-                .notificationEnabled(resultSet.getBoolean("notif_enabled"))
+                .notificationsEnabled(resultSet.getBoolean("notif_enabled"))
                 .imageUrl(resultSet.getString("image_url"))
                 .enabled(resultSet.getBoolean("enabled"))
                 .usingMfa(resultSet.getBoolean("using_mfa"))

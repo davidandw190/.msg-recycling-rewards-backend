@@ -1,6 +1,5 @@
 package io.rewardsapp.service;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import io.rewardsapp.domain.User;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.form.UpdateUserDetailsForm;

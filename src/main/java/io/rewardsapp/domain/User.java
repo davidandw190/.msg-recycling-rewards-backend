@@ -45,7 +45,7 @@ public class User {
     private String bio;
     private String imageUrl;
 
-    private boolean notificationEnabled;
+    private boolean notificationsEnabled;
     private boolean enabled;
     private boolean notLocked;
     private boolean usingMfa;

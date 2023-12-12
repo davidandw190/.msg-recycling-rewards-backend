@@ -22,6 +22,8 @@ public record UserDTO(
 
         int rewardPoints,
 
+        boolean notificationsEnabled,
+
         boolean enabled,
         boolean notLocked,
         boolean usingMfa,
