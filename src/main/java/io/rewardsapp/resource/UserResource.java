@@ -209,6 +209,29 @@ public class UserResource {
                         .build());
     }
 
+    /**
+     * Updates the role of the authenticated user.
+     *
+     * @param authentication The {@code Authentication} object containing user details.
+     * @param roleName The name of the role to be assigned to the user.
+     * @return ResponseEntity containing the user role update response.
+     */
+    @PatchMapping("/update/role/{roleName}")
+    public ResponseEntity<HttpResponse> updateUserRole(Authentication authentication, @PathVariable("roleName") String roleName) {
+        UserDTO userDTO = getAuthenticatedUser(authentication);
+        userService.updateUserRole(userDTO.id(), roleName);
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .data(Map.of(
+                                "user", userService.getUserById(userDTO.id()),
+                                "roles", roleService.getRoles()))
+                        .timeStamp(now().toString())
+                        .message("Role updated successfully")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
     @PatchMapping("/toggle-mfa")
     public ResponseEntity<HttpResponse> toggleMfa(Authentication authentication) throws InterruptedException {
         UserDTO user = userService.toggleMfa(getAuthenticatedUser(authentication).email());
