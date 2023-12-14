@@ -30,4 +30,6 @@ public interface UserService {
     UserDTO verifyAccountKey(String key);
 
     UserDTO toggleMfa(String email);
+
+    void updateUserRole(Long userId, String roleName);
 }

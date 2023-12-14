@@ -82,6 +82,11 @@ public class UserServiceImpl implements UserService {
         return mapToUserDTO(userRepository.toggleMfa(email));
     }
 
+    @Override
+    public void updateUserRole(Long userId, String roleName) {
+        roleRepository.updateUserRole(userId, roleName);
+    }
+
     private UserDTO mapToUserDTO(User user) {
         return UserDTOMapper.fromUser(user, roleRepository.getRoleByUserId(user.getId()));
     }
