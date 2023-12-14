@@ -38,4 +38,6 @@ public interface UserRepository<T extends User> {
     T verifyAccountKey(String key);
 
     T toggleMfa(String email);
+
+    void updateAccountSettings(Long userId, Boolean enabled, Boolean notLocked);
 }

@@ -26,4 +26,5 @@ public class UserQuery {
     public static final String SELECT_USER_BY_ACCOUNT_URL_QUERY = "SELECT * FROM " + DB_NAME + ".users WHERE user_id = (SELECT user_id FROM " + DB_NAME + ".account_verifications WHERE url = :url)";
     public static final String UPDATE_USER_ENABLED_QUERY = "UPDATE " + DB_NAME + ".users SET enabled = :enabled WHERE userId = :userId";
     public static final String TOGGLE_USER_MFA_QUERY = "UPDATE " + DB_NAME + ".users SET using_mfa = :isUsingMfa WHERE email = :email";
+    public static final String UPDATE_USER_SETTINGS_QUERY = "UPDATE users SET enabled = :enabled, non_locked = :notLocked WHERE user_id = :userId";
 }
