@@ -268,6 +268,22 @@ public class UserResource {
         );
     }
 
+    @PatchMapping("/toggle-notifications")
+    public ResponseEntity<HttpResponse> toggleUserNotifications(@AuthenticationPrincipal UserDTO authenticatedUser) {
+        UserDTO user = userService.toggleNotifications(authenticatedUser.email());
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .data(Map.of(
+                                "user", user,
+                                "roles", roleService.getRoles()))
+                        .message("Multi-Factor Authentication updated successfully")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build()
+        );
+    }
+
     /**
      * Toggles Multi-Factor Authentication (MFA) for the authenticated user.
      *
