@@ -15,7 +15,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -27,7 +26,6 @@ import java.util.Map;
 import static io.rewardsapp.dto.mapper.UserDTOMapper.toUser;
 import static io.rewardsapp.filter.CustomAuthorizationFilter.TOKEN_PREFIX;
 import static io.rewardsapp.utils.ExceptionUtils.handleException;
-import static io.rewardsapp.utils.UserUtils.getAuthenticatedUser;
 import static io.rewardsapp.utils.UserUtils.getLoggedInUser;
 import static java.time.LocalDateTime.now;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -213,11 +211,10 @@ public class UserResource {
         userService.updatePassword(authenticatedUser.id(), form.currentPassword(), form.newPassword(), form.confirmPassword());
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
-                        .timeStamp(now().toString())
+                        .timeStamp(LocalDateTime.now().toString())
                         .data(Map.of(
                                 "user", userService.getUserById(authenticatedUser.id()),
-                                "roles", roleService.getRoles()
-                        ))
+                                "roles", roleService.getRoles()))
                         .message("Password Updated Successfully")
                         .status(OK)
                         .statusCode(OK.value())
@@ -257,12 +254,13 @@ public class UserResource {
      */
     @PatchMapping("/update/settings")
     public ResponseEntity<HttpResponse> updateAccountSettings(@AuthenticationPrincipal UserDTO authenticatedUser, @RequestBody @Valid UpdateAccountSettingsForm form) {
+        userService.updateAccountSettings(authenticatedUser.id(), form.enabled(), form.notLocked());
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
                         .data(Map.of(
                                 "user", userService.getUserById(authenticatedUser.id()),
                                 "roles", roleService.getRoles()))
-                        .timeStamp(now().toString())
                         .message("Account settings updated successfully")
                         .status(OK)
                         .statusCode(OK.value())
@@ -277,7 +275,7 @@ public class UserResource {
      * @return ResponseEntity containing the MFA toggle response.
      */
     @PatchMapping("/toggle-mfa")
-    public ResponseEntity<HttpResponse> toggleMfa(@AuthenticationPrincipal UserDTO authenticatedUser) throws InterruptedException {
+    public ResponseEntity<HttpResponse> toggleMfa(@AuthenticationPrincipal UserDTO authenticatedUser) {
         UserDTO user = userService.toggleMfa(authenticatedUser.email());
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
