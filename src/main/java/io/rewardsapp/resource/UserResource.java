@@ -5,10 +5,7 @@ import io.rewardsapp.domain.User;
 import io.rewardsapp.domain.UserPrincipal;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.exception.ApiException;
-import io.rewardsapp.form.ResetForgottenPasswordForm;
-import io.rewardsapp.form.UpdateUserDetailsForm;
-import io.rewardsapp.form.UpdateUserPasswordForm;
-import io.rewardsapp.form.UserLoginForm;
+import io.rewardsapp.form.*;
 import io.rewardsapp.provider.TokenProvider;
 import io.rewardsapp.service.RoleService;
 import io.rewardsapp.service.UserService;
@@ -19,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -48,12 +46,24 @@ public class UserResource {
     private final HttpServletResponse response;
     private final AuthenticationManager authenticationManager;
 
+    /**
+     * Authenticates a user by processing the login request.
+     *
+     * @param loginForm The {@code UserLoginForm} containing user credentials.
+     * @return ResponseEntity with the authentication result.
+     */
     @PostMapping("/login")
     public ResponseEntity<HttpResponse> login(@RequestBody @Valid UserLoginForm loginForm) {
         UserDTO user = authenticate(loginForm.email(), loginForm.password());
         return user.usingMfa() ? sendLoginVerificationCode(user) : sendLoginResponse(user);
     }
 
+    /**
+     * Registers a new user in the system.
+     *
+     * @param newUser The {@code User} object representing the new user.
+     * @return ResponseEntity with the registration result.
+     */
     @PostMapping("/register")
     public ResponseEntity<HttpResponse> registerUser(@RequestBody @Valid User newUser) {
         UserDTO createdUser = userService.createNewUser(newUser);
@@ -86,7 +96,8 @@ public class UserResource {
                         .message("User Updated")
                         .status(OK)
                         .statusCode(OK.value())
-                        .build());
+                        .build()
+        );
     }
 
     /**
@@ -103,7 +114,8 @@ public class UserResource {
                         .message(userService.verifyAccountKey(key).enabled() ? "Account already verified" : "Account verified")
                         .status(OK)
                         .statusCode(OK.value())
-                        .build());
+                        .build()
+        );
     }
 
     /**
@@ -126,7 +138,8 @@ public class UserResource {
                         .message("Login Success")
                         .status(OK)
                         .statusCode(OK.value())
-                        .build());
+                        .build()
+        );
     }
 
     /**
@@ -144,7 +157,8 @@ public class UserResource {
                         .message("Email sent. Please check your email to reset your password.")
                         .status(OK)
                         .statusCode(OK.value())
-                        .build());
+                        .build()
+        );
     }
 
     /**
@@ -163,7 +177,8 @@ public class UserResource {
                         .message("Please enter a new password")
                         .status(OK)
                         .statusCode(OK.value())
-                        .build());
+                        .build()
+        );
     }
 
     /**
@@ -181,60 +196,89 @@ public class UserResource {
                         .message("Password reset successfully")
                         .status(OK)
                         .statusCode(OK.value())
-                        .build());
+                        .build()
+        );
     }
 
 
     /**
      * Updates the password for the authenticated user.
      *
-     * @param authentication The {@code Authentication} object containing user details.
-     * @param form The {@code UpdatePasswordForm} containing the current password, new password, and confirmation password.
+     * @param authenticatedUser The authenticated user details obtained from the security context.
+     * @param form              The {@code UpdatePasswordForm} containing the current password, new password and confirmation password.
      * @return ResponseEntity containing the password update response.
      */
     @PatchMapping("/update/password")
-    public ResponseEntity<HttpResponse> updatePassword(Authentication authentication, @RequestBody @Valid UpdateUserPasswordForm form) {
-        UserDTO userDTO = getAuthenticatedUser(authentication);
-        userService.updatePassword(userDTO.id(), form.currentPassword(), form.newPassword(), form.confirmPassword());
+    public ResponseEntity<HttpResponse> updatePassword(@AuthenticationPrincipal UserDTO authenticatedUser, @RequestBody @Valid UpdateUserPasswordForm form) {
+        userService.updatePassword(authenticatedUser.id(), form.currentPassword(), form.newPassword(), form.confirmPassword());
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(Map.of(
-                                "user", userService.getUserById(userDTO.id()),
+                                "user", userService.getUserById(authenticatedUser.id()),
                                 "roles", roleService.getRoles()
                         ))
                         .message("Password Updated Successfully")
                         .status(OK)
                         .statusCode(OK.value())
-                        .build());
+                        .build()
+        );
     }
 
     /**
      * Updates the role of the authenticated user.
      *
-     * @param authentication The {@code Authentication} object containing user details.
-     * @param roleName The name of the role to be assigned to the user.
+     * @param authenticatedUser     The authenticated user details obtained from the security context.
+     * @param roleName              The name of the role to be assigned to the user.
      * @return ResponseEntity containing the user role update response.
      */
     @PatchMapping("/update/role/{roleName}")
-    public ResponseEntity<HttpResponse> updateUserRole(Authentication authentication, @PathVariable("roleName") String roleName) {
-        UserDTO userDTO = getAuthenticatedUser(authentication);
-        userService.updateUserRole(userDTO.id(), roleName);
+    public ResponseEntity<HttpResponse> updateUserRole(@AuthenticationPrincipal UserDTO authenticatedUser, @PathVariable("roleName") String roleName) {
+        userService.updateUserRole(authenticatedUser.id(), roleName);
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .data(Map.of(
-                                "user", userService.getUserById(userDTO.id()),
+                                "user", userService.getUserById(authenticatedUser.id()),
                                 "roles", roleService.getRoles()))
                         .timeStamp(now().toString())
                         .message("Role updated successfully")
                         .status(OK)
                         .statusCode(OK.value())
-                        .build());
+                        .build()
+        );
     }
 
+    /**
+     * Updates the account settings for the authenticated user.
+     *
+     * @param authenticatedUser     The authenticated user details obtained from the security context.
+     * @param form                  The {@code UpdateAccountSettingsForm} containing the updated account settings.
+     * @return ResponseEntity containing the account settings update response.
+     */
+    @PatchMapping("/update/settings")
+    public ResponseEntity<HttpResponse> updateAccountSettings(@AuthenticationPrincipal UserDTO authenticatedUser, @RequestBody @Valid UpdateAccountSettingsForm form) {
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .data(Map.of(
+                                "user", userService.getUserById(authenticatedUser.id()),
+                                "roles", roleService.getRoles()))
+                        .timeStamp(now().toString())
+                        .message("Account settings updated successfully")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build()
+        );
+    }
+
+    /**
+     * Toggles Multi-Factor Authentication (MFA) for the authenticated user.
+     *
+     * @param authenticatedUser     The authenticated user details obtained from the security context.
+     * @return ResponseEntity containing the MFA toggle response.
+     */
     @PatchMapping("/toggle-mfa")
-    public ResponseEntity<HttpResponse> toggleMfa(Authentication authentication) throws InterruptedException {
-        UserDTO user = userService.toggleMfa(getAuthenticatedUser(authentication).email());
+    public ResponseEntity<HttpResponse> toggleMfa(@AuthenticationPrincipal UserDTO authenticatedUser) throws InterruptedException {
+        UserDTO user = userService.toggleMfa(authenticatedUser.email());
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .data(Map.of(
@@ -244,7 +288,8 @@ public class UserResource {
                         .message("Multi-Factor Authentication updated successfully")
                         .status(OK)
                         .statusCode(OK.value())
-                        .build());
+                        .build()
+        );
     }
 
 
@@ -263,7 +308,8 @@ public class UserResource {
                             .message("Token refreshed successfully")
                             .status(OK)
                             .statusCode(OK.value())
-                            .build());
+                            .build()
+            );
         } else {
             return ResponseEntity.badRequest().body(
                     HttpResponse.builder()
@@ -272,7 +318,8 @@ public class UserResource {
                             ._devMessage("Refresh token missing or invalid")
                             .status(BAD_REQUEST)
                             .statusCode(BAD_REQUEST.value())
-                            .build());
+                            .build()
+            );
         }
     }
 
@@ -294,8 +341,7 @@ public class UserResource {
 
     private UserDTO authenticate(String email, String password) {
         try {
-            Authentication authentication = authenticationManager.authenticate(unauthenticated(email, password));
-            return getLoggedInUser(authentication);
+            return getLoggedInUser(authenticationManager.authenticate(unauthenticated(email, password)));
 
         } catch (Exception exception) {
             handleException(request, response, exception);
@@ -323,7 +369,8 @@ public class UserResource {
                         .message("Login success")
                         .status(OK)
                         .statusCode(OK.value())
-                        .build());
+                        .build()
+        );
     }
 
     private UserPrincipal getUserPrincipal(UserDTO user) {
