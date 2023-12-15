@@ -26,6 +26,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -34,6 +38,7 @@ import static io.rewardsapp.enums.VerificationType.ACCOUNT;
 import static io.rewardsapp.enums.VerificationType.PASSWORD;
 import static io.rewardsapp.query.UserQuery.*;
 import static io.rewardsapp.utils.SmsUtils.sendSMS;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.Map.of;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -526,10 +531,28 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
     }
 
     private void saveImage(String email, MultipartFile image) {
+        Path fileStorageLocation = Paths.get(System.getProperty("user.home") + "/Downloads/images/").toAbsolutePath().normalize();
+        if (!Files.exists(fileStorageLocation)) {
+            try {
+                Files.createDirectories(fileStorageLocation);
+            } catch (IOException e) {
+                log.error(e.getMessage());
+                throw new ApiException("Unable to create directories to save image");
+            }
+            log.info("Created directories: {}", fileStorageLocation);
+        }
+
+        try {
+            Files.copy(image.getInputStream(), fileStorageLocation.resolve(email + ".png"), REPLACE_EXISTING);
+        } catch (IOException exception) {
+            log.error(exception.getMessage());
+            throw new ApiException(exception.getMessage());
+        }
+        log.info("File saved in: {} folder", fileStorageLocation);
     }
 
     private String setUserImageUrl(String email) {
-        return null;
+        return fromCurrentContextPath().path("/user/image/" + email + ".png").toUriString();
     }
 
 }
