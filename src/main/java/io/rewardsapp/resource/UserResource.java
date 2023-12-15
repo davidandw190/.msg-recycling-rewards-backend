@@ -15,11 +15,15 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -30,6 +34,7 @@ import static io.rewardsapp.utils.UserUtils.getLoggedInUser;
 import static java.time.LocalDateTime.now;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
 import static org.springframework.security.authentication.UsernamePasswordAuthenticationToken.unauthenticated;
 
 @RestController
@@ -305,6 +310,27 @@ public class UserResource {
                         .build()
         );
     }
+
+    @PatchMapping("/update/profile-pic")
+    public ResponseEntity<HttpResponse> updateProfileImage(@AuthenticationPrincipal UserDTO authenticatedUser, @RequestParam("image") MultipartFile image) {
+        userService.updateImage(authenticatedUser, image);
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .data(Map.of(
+                                "user", userService.getUserById(user.id()),
+                                "roles", roleService.getRoles()))
+                        .timeStamp(LocalDateTime.now().toString())
+                        .message("Profile picture updated Successfully!")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+    @GetMapping(value = "/image/{fileName}", produces = IMAGE_PNG_VALUE)
+    public byte[] getProfileImage(@PathVariable("fileName") String fileName) throws Exception {
+        return Files.readAllBytes(Paths.get(System.getProperty("user.home") + "/Downloads/images/" + fileName));
+    }
+
 
 
     @GetMapping("/refresh/token")
