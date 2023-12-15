@@ -3,6 +3,7 @@ package io.rewardsapp.repository;
 import io.rewardsapp.domain.User;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.form.UpdateUserDetailsForm;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collection;
 
@@ -42,4 +43,6 @@ public interface UserRepository<T extends User> {
     void updateAccountSettings(Long userId, Boolean enabled, Boolean notLocked);
 
     T toggleNotifications(String email);
+
+    void updateImage(UserDTO user, MultipartFile image);
 }

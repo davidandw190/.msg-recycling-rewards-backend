@@ -3,6 +3,7 @@ package io.rewardsapp.service;
 import io.rewardsapp.domain.User;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.form.UpdateUserDetailsForm;
+import org.springframework.web.multipart.MultipartFile;
 
 
 public interface UserService {
@@ -36,4 +37,6 @@ public interface UserService {
     void updateAccountSettings(Long userId, Boolean enabled, Boolean notLocked);
 
     UserDTO toggleNotifications(String email);
+
+    void updateImage(UserDTO user, MultipartFile image);
 }

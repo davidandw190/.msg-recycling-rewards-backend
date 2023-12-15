@@ -24,6 +24,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -441,6 +442,13 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
     }
 
+    @Override
+    public void updateImage(UserDTO user, MultipartFile image) {
+        String userImageUrl = setUserImageUrl(user.email());
+        saveImage(user.email(), image);
+        jdbc.update(UPDATE_USER_PROFILE_IMAGE_QUERY, of("imageUrl", userImageUrl, "userId", user.id()));
+    }
+
     private Boolean isLinkExpired(String key, VerificationType verification) {
         try {
             return jdbc.queryForObject(SELECT_EXPIRATION_BY_URL, Map.of("url", getVerificationUrl(key, verification.getType())), Boolean.class);
@@ -515,6 +523,13 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
     private Integer getEmailCount(String email) {
         return jdbc.queryForObject("SELECT COUNT(*) FROM rewards_app.users WHERE email = :email",
                 Map.of("email", email), Integer.class);
+    }
+
+    private void saveImage(String email, MultipartFile image) {
+    }
+
+    private String setUserImageUrl(String email) {
+        return null;
     }
 
 }

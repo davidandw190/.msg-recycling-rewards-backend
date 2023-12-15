@@ -317,7 +317,7 @@ public class UserResource {
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .data(Map.of(
-                                "user", userService.getUserById(user.id()),
+                                "user", userService.getUserById(authenticatedUser.id()),
                                 "roles", roleService.getRoles()))
                         .timeStamp(LocalDateTime.now().toString())
                         .message("Profile picture updated Successfully!")
@@ -432,7 +432,6 @@ public class UserResource {
                         .build()
         );
     }
-
 
     private URI getUri() {
         return URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/user/get/<userId>").toUriString());

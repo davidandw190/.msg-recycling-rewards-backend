@@ -28,4 +28,5 @@ public class UserQuery {
     public static final String TOGGLE_USER_MFA_QUERY = "UPDATE " + DB_NAME + ".users SET using_mfa = :isUsingMfa WHERE email = :email";
     public static final String UPDATE_USER_SETTINGS_QUERY = "UPDATE " + DB_NAME + ".users SET enabled = :enabled, non_locked = :notLocked WHERE user_id = :userId";
     public static final String TOGGLE_USER_NOTIFICATIONS_QUERY = "UPDATE " + DB_NAME + ".users SET notif_enabled = :notifEnabled WHERE email = :email";
+    public static final String UPDATE_USER_PROFILE_IMAGE_QUERY = "UPDATE users SET image_url = :imageUrl WHERE user_id = :userId";
 }

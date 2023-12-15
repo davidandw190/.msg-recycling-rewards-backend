@@ -10,7 +10,7 @@ import io.rewardsapp.service.UserService;
 import io.rewardsapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.multipart.MultipartFile;
 
 
 @Service
@@ -95,6 +95,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO toggleNotifications(String email) {
         return mapToUserDTO(userRepository.toggleNotifications(email));
+    }
+
+    @Override
+    public void updateImage(UserDTO user, MultipartFile image) {
+        userRepository.updateImage(user, image);
     }
 
     private UserDTO mapToUserDTO(User user) {
