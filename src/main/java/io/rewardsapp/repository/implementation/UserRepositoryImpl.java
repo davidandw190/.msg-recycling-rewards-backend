@@ -17,7 +17,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -404,11 +403,12 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
     @Transactional
     public User toggleMfa(String email) {
         User user = getUserByEmail(email);
-        if (isBlank(user.getPhone())) {throw new ApiException("You need a phone number to change Multi-Factor Authentication"); }
+        if (isBlank(user.getPhone())) { throw new ApiException("You need a phone number to change Multi-Factor Authentication"); }
         user.setUsingMfa(!user.isUsingMfa());
         try {
             jdbc.update(TOGGLE_USER_MFA_QUERY, of("email", email, "isUsingMfa", user.isUsingMfa()));
             return user;
+
         } catch (Exception exception) {
             log.error(exception.getMessage());
             throw new ApiException("Unable to update Multi-Factor Authentication");
@@ -424,6 +424,20 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         } catch (Exception exception) {
             log.error(exception.getMessage());
             throw new ApiException("An error occurred. Please try again.");
+        }
+    }
+
+    @Override
+    public User toggleNotifications(String email) {
+        User user = getUserByEmail(email);
+        user.setNotificationsEnabled(!user.isNotificationsEnabled());
+        try {
+            jdbc.update(TOGGLE_USER_NOTIFICATIONS_QUERY, of("email", email, "notifEnabled", user.isNotificationsEnabled()));
+            return user;
+
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            throw new ApiException("Unable to update Multi-Factor Authentication");
         }
     }
 

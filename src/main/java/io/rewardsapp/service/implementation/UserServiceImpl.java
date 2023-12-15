@@ -92,6 +92,11 @@ public class UserServiceImpl implements UserService {
         userRepository.updateAccountSettings(userId, enabled, notLocked);
     }
 
+    @Override
+    public UserDTO toggleNotifications(String email) {
+        return mapToUserDTO(userRepository.toggleNotifications(email));
+    }
+
     private UserDTO mapToUserDTO(User user) {
         return UserDTOMapper.fromUser(user, roleRepository.getRoleByUserId(user.getId()));
     }

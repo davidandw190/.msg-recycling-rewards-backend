@@ -40,4 +40,6 @@ public interface UserRepository<T extends User> {
     T toggleMfa(String email);
 
     void updateAccountSettings(Long userId, Boolean enabled, Boolean notLocked);
+
+    T toggleNotifications(String email);
 }
