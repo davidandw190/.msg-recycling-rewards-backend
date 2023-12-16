@@ -13,8 +13,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +39,7 @@ import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
 import static org.springframework.security.authentication.UsernamePasswordAuthenticationToken.unauthenticated;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/user")
@@ -58,9 +61,7 @@ public class UserResource {
     @PostMapping("/login")
     public ResponseEntity<HttpResponse> login(@RequestBody @Valid UserLoginForm loginForm) {
         UserDTO user = authenticate(loginForm.email(), loginForm.password());
-        return user.usingMfa()
-                ? sendLoginVerificationCode(user)
-                : sendLoginResponse(user);
+        return user.usingMfa() ? sendLoginVerificationCode(user) : sendLoginResponse(user);
     }
 
     /**
@@ -90,13 +91,12 @@ public class UserResource {
      * @return ResponseEntity containing the user profile response.
      */
     @GetMapping("/profile")
-    public ResponseEntity<HttpResponse> userProfile(@AuthenticationPrincipal UserDTO authenticatedUser) {
-        UserDTO user = userService.getUserById(authenticatedUser.id());
+    public ResponseEntity<HttpResponse> profile(@AuthenticationPrincipal UserDTO authenticatedUser) {
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(LocalDateTime.now().toString())
                         .data(Map.of(
-                                "user", user,
+                                "user", authenticatedUser,
                                 "roles", roleService.getRoles()))
                         .message("User profile retrieved successfully!")
                         .status(OK)

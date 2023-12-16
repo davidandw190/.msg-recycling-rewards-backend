@@ -30,6 +30,7 @@ public class UserDTOMapper {
                 .bio(user.getBio())
                 .imageUrl(user.getImageUrl())
                 .enabled(user.isEnabled())
+                .notificationsEnabled(user.isNotificationsEnabled())
                 .notLocked(user.isNotLocked())
                 .usingMfa(user.isUsingMfa())
                 .createdAt(user.getCreatedAt())
