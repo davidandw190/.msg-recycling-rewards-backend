@@ -58,7 +58,9 @@ public class UserResource {
     @PostMapping("/login")
     public ResponseEntity<HttpResponse> login(@RequestBody @Valid UserLoginForm loginForm) {
         UserDTO user = authenticate(loginForm.email(), loginForm.password());
-        return user.usingMfa() ? sendLoginVerificationCode(user) : sendLoginResponse(user);
+        return user.usingMfa()
+                ? sendLoginVerificationCode(user)
+                : sendLoginResponse(user);
     }
 
     /**
@@ -79,6 +81,29 @@ public class UserResource {
                         .statusCode(CREATED.value())
                         .build()
         );
+    }
+
+    /**
+     * Retrieves the profile of the authenticated user.
+     *
+     *
+     * @return ResponseEntity containing the user profile response.
+     */
+    @GetMapping("/profile")
+    public ResponseEntity<HttpResponse> userProfile(@AuthenticationPrincipal UserDTO authenticatedUser) {
+        UserDTO user = userService.getUserById(authenticatedUser.id());
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .data(Map.of(
+                                "user", user,
+                                "roles", roleService.getRoles()))
+                        .message("User profile retrieved successfully!")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build()
+        );
+
     }
 
     /**
