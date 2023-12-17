@@ -16,8 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -92,6 +90,8 @@ public class UserResource {
      */
     @GetMapping("/profile")
     public ResponseEntity<HttpResponse> profile(@AuthenticationPrincipal UserDTO authenticatedUser) {
+        log.info(roleService.getRoles().toString());
+        log.info(authenticatedUser.roleName() + "        " + authenticatedUser.permissions());
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(LocalDateTime.now().toString())
@@ -121,7 +121,7 @@ public class UserResource {
                         .data(Map.of(
                                 "user", updatedUser,
                                 "roles", roleService.getRoles()))
-                        .message("User Updated")
+                        .message("User updated successfully!")
                         .status(OK)
                         .statusCode(OK.value())
                         .build()
@@ -163,7 +163,7 @@ public class UserResource {
                                 "user", user,
                                 "access_token", tokenProvider.createAccessToken(getUserPrincipal(user)),
                                 "refresh_token", tokenProvider.createRefreshToken(getUserPrincipal(user))))
-                        .message("Login Success")
+                        .message("Login success!")
                         .status(OK)
                         .statusCode(OK.value())
                         .build()
@@ -307,7 +307,7 @@ public class UserResource {
                         .data(Map.of(
                                 "user", user,
                                 "roles", roleService.getRoles()))
-                        .message("Multi-Factor Authentication updated successfully")
+                        .message(user.notificationsEnabled() ? "Notifications have been enabled" : "Notifications have been disabled")
                         .status(OK)
                         .statusCode(OK.value())
                         .build()
