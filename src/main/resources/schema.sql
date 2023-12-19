@@ -93,17 +93,11 @@ CREATE TABLE tfa_verifications (
     CONSTRAINT fk_tfa_verifications_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- Create user_social_media table
-CREATE TABLE user_social_media (
-    user_id         BIGSERIAL PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE,
-    social_media    VARCHAR(50),
-    CONSTRAINT chk_user_social_media CHECK (social_media IN ('Facebook', 'Google', 'Twitter', 'Instagram'))
-);
-
 -- Create recycled_materials table
 CREATE TABLE recycled_materials (
     material_id     BIGSERIAL PRIMARY KEY,
-    name            VARCHAR(50) NOT NULL UNIQUE
+    name            VARCHAR(50) NOT NULL UNIQUE,
+    points_per_unit INTEGER NOT NULL
 );
 
 -- Create recycling_centers table
@@ -222,6 +216,7 @@ CREATE TABLE leaderboard (
 
 -- Index creation
 CREATE INDEX idx_user_recycling_activities_user_id ON user_recycling_activities(user_id);
+CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_user_recycling_activities_center_id ON user_recycling_activities(center_id);
 CREATE INDEX idx_user_recycling_activities_material_id ON user_recycling_activities(material_id);
 CREATE INDEX idx_user_saved_resources_user_id ON user_saved_resources(user_id);
@@ -237,3 +232,13 @@ VALUES
     ('ROLE_ADMIN', 'READ:ALL,CREATE:ALL,UPDATE:ALL,DELETE:ALL,MANAGE:USER_PROFILE,MANAGE:USER_ACTIVITIES'),
     ('ROLE_SYSADMIN', 'READ:ALL,CREATE:ALL,UPDATE:ALL,DELETE:ALL,MANAGE:ROLES_PERMISSIONS,ACCESS:ADVANCED_FEATURES');
 
+
+-- Insert some sample data with points per unit
+INSERT INTO recycled_materials (name, points_per_unit)
+VALUES
+    ('PLASTIC', 8),
+    ('ALUMINIUM', 10),
+    ('METALS', 8),
+    ('GLASS', 6),
+    ('PAPER', 5),
+    ('ELECTRONIC', 15);
