@@ -1,10 +1,13 @@
 package io.rewardsapp.query;
 
+import org.springframework.beans.factory.annotation.Value;
+
 /**
  * Contains queries related to User entities.
  */
 public class UserQuery {
-    private static final String DB_NAME = "rewards_app";
+    @Value("${spring.datasource.name}")
+    private static String DB_NAME;
 
     public static final String INSERT_USER_QUERY = "INSERT INTO " + DB_NAME + ".users (first_name, last_name, email, password, city) VALUES (:firstName, :lastName, :email, :password, :city)";
     public static final String SELECT_USER_BY_EMAIL_QUERY = "SELECT * FROM " + DB_NAME + ".users WHERE email = :email";
@@ -28,5 +31,5 @@ public class UserQuery {
     public static final String TOGGLE_USER_MFA_QUERY = "UPDATE " + DB_NAME + ".users SET using_mfa = :isUsingMfa WHERE email = :email";
     public static final String UPDATE_USER_SETTINGS_QUERY = "UPDATE " + DB_NAME + ".users SET enabled = :enabled, non_locked = :notLocked WHERE user_id = :userId";
     public static final String TOGGLE_USER_NOTIFICATIONS_QUERY = "UPDATE " + DB_NAME + ".users SET notif_enabled = :notifEnabled WHERE email = :email";
-    public static final String UPDATE_USER_PROFILE_IMAGE_QUERY = "UPDATE users SET image_url = :imageUrl WHERE user_id = :userId";
+    public static final String UPDATE_USER_PROFILE_IMAGE_QUERY = "UPDATE " + DB_NAME + ".users SET image_url = :imageUrl WHERE user_id = :userId";
 }

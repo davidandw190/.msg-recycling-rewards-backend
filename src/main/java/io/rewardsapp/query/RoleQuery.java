@@ -1,10 +1,13 @@
 package io.rewardsapp.query;
 
+import org.springframework.beans.factory.annotation.Value;
+
 /**
  * Contains SQL queries related to roles in the SnapInvoice platform.
  */
 public class RoleQuery {
-    private static final String DB_NAME = "rewards_app";
+    @Value("${spring.datasource.name}")
+    private static String DB_NAME;
 
     public static final String SELECT_ROLES_QUERY = "SELECT * FROM " + DB_NAME + ".roles ORDER BY role_id";
     public static final String INSERT_ROLE_TO_USER_QUERY = "INSERT INTO " + DB_NAME + ".user_roles (user_id, role_id) VALUES (:userId, :roleId)";
