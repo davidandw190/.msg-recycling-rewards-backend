@@ -31,7 +31,6 @@ import static io.rewardsapp.dto.mapper.UserDTOMapper.toUser;
 import static io.rewardsapp.filter.CustomAuthorizationFilter.TOKEN_PREFIX;
 import static io.rewardsapp.utils.ExceptionUtils.handleException;
 import static io.rewardsapp.utils.UserUtils.getLoggedInUser;
-import static java.time.LocalDateTime.now;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
@@ -267,7 +266,7 @@ public class UserResource {
                         .data(Map.of(
                                 "user", userService.getUserById(authenticatedUser.id()),
                                 "roles", roleService.getRoles()))
-                        .timeStamp(now().toString())
+                        .timeStamp(LocalDateTime.now().toString())
                         .message("Role updated successfully")
                         .status(OK)
                         .statusCode(OK.value())
@@ -298,6 +297,12 @@ public class UserResource {
         );
     }
 
+    /**
+     * Handles the request to toggle user email notifications for the authenticated user.
+     *
+     * @param authenticatedUser The authenticated user details obtained from the security context.
+     * @return ResponseEntity containing the response to the notification toggle request.
+     */
     @PatchMapping("/toggle-notifications")
     public ResponseEntity<HttpResponse> toggleUserNotifications(@AuthenticationPrincipal UserDTO authenticatedUser) {
         UserDTO user = userService.toggleNotifications(authenticatedUser.email());
@@ -336,6 +341,13 @@ public class UserResource {
         );
     }
 
+    /**
+     * Handles the request to update the profile picture for the authenticated user.
+     *
+     * @param authenticatedUser The authenticated user details obtained from the security context.
+     * @param image              The new profile picture image file.
+     * @return ResponseEntity containing the response to the profile picture update request.
+     */
     @PatchMapping("/update/profile-pic")
     public ResponseEntity<HttpResponse> updateProfileImage(@AuthenticationPrincipal UserDTO authenticatedUser, @RequestParam("image") MultipartFile image) {
         userService.updateImage(authenticatedUser, image);
@@ -351,13 +363,24 @@ public class UserResource {
                         .build());
     }
 
+    /**
+     * Handles the request to get the profile image for a given file name.
+     *
+     * @param fileName The name of the profile image file.
+     * @return The byte array representing the profile image.
+     * @throws Exception If an error occurs while reading the image file.
+     */
     @GetMapping(value = "/image/{fileName}", produces = IMAGE_PNG_VALUE)
     public byte[] getProfileImage(@PathVariable("fileName") String fileName) throws Exception {
         return Files.readAllBytes(Paths.get(System.getProperty("user.home") + "/Downloads/images/" + fileName));
     }
 
-
-
+    /**
+     * Handles the request to refresh the authentication token.
+     *
+     * @param request The HttpServletRequest containing the current token.
+     * @return ResponseEntity containing the response to the token refresh request.
+     */
     @GetMapping("/refresh/token")
     public ResponseEntity<HttpResponse> refreshToken(HttpServletRequest request) {
         if (isHeaderAndTokenValid(request)) {
@@ -391,7 +414,7 @@ public class UserResource {
     /**
      * Handles HTTP errors and returns an appropriate response.
      *
-     * @param request The {@code HttpServletRequest} causing the error.
+     * @param request The HttpServletRequest causing the error.
      * @return ResponseEntity containing the error response.
      */
     @RequestMapping("/user/error")

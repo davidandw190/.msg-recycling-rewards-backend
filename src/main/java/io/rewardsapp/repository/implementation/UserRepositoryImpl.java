@@ -97,33 +97,6 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
             throw new ApiException("An error occurred. Please try again.");
         }
     }
-//    @Override
-//    public User create(User user) {
-//        if (getEmailCount(user.getEmail().trim().toLowerCase()) > 0) {
-//            throw new ApiException("Email already in use. Please use a different email and try again.");
-//        }
-//
-//        try {
-//            SimpleJdbcInsert insertUserQuery = new SimpleJdbcInsert(jdbc.getJdbcTemplate())
-//                    .withTableName("users")
-//                    .usingGeneratedKeyColumns("user_id");
-//
-//            user.setCreatedAt(LocalDateTime.now());
-//
-//            SqlParameterSource params = getSqlParameterSource(user);
-//            Number userId = insertUserQuery.executeAndReturnKey(params);
-//            user.setId(userId.longValue());
-//            log.info("User created with ID: {}", userId);
-//            roleRepository.addRoleToUser(user.getId(), ROLE_USER.name());
-//            user.setEnabled(false);
-//            user.setNotLocked(true);
-//
-//            return user;
-//
-//        } catch (Exception exception) {
-//            throw new ApiException("An error occurred. Please try again.");
-//        }
-//    }
 
     /**
      * Retrieves a list of users from the database based on pagination parameters.
@@ -214,7 +187,10 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
     }
 
     /**
-     * Sends an account verification code to the user's phone number.
+     * Sends an account verification code to the user's phone number. This method generates
+     * a random verification code, associates it with the user in the database, and sends
+     * the code to the user's phone via SMS. The verification code is used for account-related
+     * activities, such as registration or password reset.
      *
      * @param user The user DTO containing necessary information.
      * @throws ApiException If there is an issue sending the verification code.
@@ -236,7 +212,10 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
     }
 
     /**
-     * Creates an account verification code and stores it in the database.
+     * Creates an account verification code and stores it in the database. This method
+     * generates a unique verification URL using a random UUID and the ACCOUNT verification
+     * type. The generated URL is associated with the user in the database for account
+     * verification purposes.
      *
      * @param user The user for whom the verification code is created.
      */
@@ -246,6 +225,15 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         jdbc.update(INSERT_VERIFICATION_QUERY, Map.of("userId", user.getId(), "url", verificationUrl));
     }
 
+    /**
+     * Updates the details of a user by taking an UpdateUserDetailsForm as input and updating the
+     * user's details in the database. It uses the provided form to construct and execute an
+     * SQL update query.
+     *
+     * @param updateUserDetailsForm The form containing updated user details.
+     * @return The updated User object.
+     * @throws ApiException If there is an issue updating user details in the database.
+     */
     @Override
     public User updateUserDetails(UpdateUserDetailsForm updateUserDetailsForm) {
         try {
@@ -261,6 +249,16 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
     }
 
+    /**
+     * Verifies a verification code and retrieves the associated user by checking
+     * if the provided verification code has expired. If not, it retrieves the user associated
+     * with the code from the database and ensures the code matches the user's email.
+     *
+     * @param email The email address of the user.
+     * @param code  The verification code to be checked.
+     * @return The verified user object.
+     * @throws ApiException If the verification code is invalid, expired, or an error occurs.
+     */
     @Override
     public User verifyCode(String email, String code) {
         if (isVerificationCodeExpired(code)) throw new ApiException("This code has expired. Please login again.");
@@ -285,7 +283,9 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
     }
 
     /**
-     * Sends a reset password link to the user's email address.
+     * Sends a reset password link to the user's email address. It generates a verification URL,
+     * associates it with the user in the database, and sends the link to the user's email.
+     * The link is used to reset the user's password.
      *
      * @param email The email address of the user.
      * @throws ApiException If there is an issue sending the reset link.
@@ -309,11 +309,12 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
     }
 
     /**
-     * Verifies the reset password key and retrieves the user.
+     * Verifies the reset password key and retrieves the user. It checks if the provided reset password
+     * key has expired. If not, it retrieves the user associated with the key from the database.
      *
      * @param key The verification key.
      * @return The verified user object.
-     * @throws ApiException If the link is invalid or expired.
+     * @throws ApiException If the link is invalid, expired, or an error occurs.
      */
     @Override
     public User verifyResetPasswordKey(String key) {
@@ -335,11 +336,13 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
     }
 
     /**
-     * Updates the password for a user.
+     * Updates the password for a user. This method takes the user ID, new password,
+     * and confirmation of the new password. It updates the user's password in the
+     * database after ensuring the passwords match.
      *
-     * @param userId              The ID of the user.
-     * @param password            The new password.
-     * @param confirmPassword     The confirmation of the new password.
+     * @param userId             The ID of the user.
+     * @param password           The new password.
+     * @param confirmPassword    The confirmation of the new password.
      * @throws ApiException If there is an issue updating the password.
      */
     @Override
@@ -433,6 +436,13 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
     }
 
+    /**
+     * Toggles user notifications for the specified email.
+     *
+     * @param email The email of the user.
+     * @return The updated user object.
+     * @throws ApiException If there is an issue updating user notifications.
+     */
     @Override
     public User toggleNotifications(String email) {
         User user = getUserByEmail(email);
@@ -447,6 +457,15 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
     }
 
+    /**
+     * Updates the profile image of the user. This method sets a new profile image for
+     * the user identified by the provided UserDTO. It saves the image file locally,
+     * updates the user's profile image URL, and persists the changes in the database.
+     *
+     * @param user  The UserDTO containing user information.
+     * @param image The profile image file to be set.
+     * @throws ApiException If there is an issue updating the user's profile image.
+     */
     @Override
     public void updateImage(UserDTO user, MultipartFile image) {
         String userImageUrl = setUserImageUrl(user.email());
@@ -454,6 +473,15 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         jdbc.update(UPDATE_USER_PROFILE_IMAGE_QUERY, of("imageUrl", userImageUrl, "userId", user.id()));
     }
 
+    /**
+     * Verifies the expiration status of a given verification link based on the provided key
+     * and verification type.
+     *
+     * @param key           The verification key.
+     * @param verification  The type of verification (e.g., ACCOUNT).
+     * @return True if the verification link has expired; otherwise, false.
+     * @throws ApiException If there is an issue checking the expiration of the verification link.
+     */
     private Boolean isLinkExpired(String key, VerificationType verification) {
         try {
             return jdbc.queryForObject(SELECT_EXPIRATION_BY_URL, Map.of("url", getVerificationUrl(key, verification.getType())), Boolean.class);
@@ -468,6 +496,13 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
     }
 
+    /**
+     * Verifies the expiration status of a given verification code based on the provided code.
+     *
+     * @param code The verification code.
+     * @return True if the verification code has expired; otherwise, false.
+     * @throws ApiException If there is an issue checking the expiration of the verification code.
+     */
     private Boolean isVerificationCodeExpired(String code) {
         try {
             return jdbc.queryForObject(SELECT_CODE_EXPIRATION_QUERY, Map.of("code", code), Boolean.class);
@@ -480,6 +515,14 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
     }
 
+    /**
+     * Generates a SqlParameterSource for user details from an UpdateUserDetailsForm.
+     * This method maps the fields of an UpdateUserDetailsForm to a SqlParameterSource
+     * for use in database operations.
+     *
+     * @param updateUserDetailsForm The form containing updated user details.
+     * @return The mapped SqlParameterSource for user details.
+     */
     private SqlParameterSource getUserDetailsSqlParameterSource(UpdateUserDetailsForm updateUserDetailsForm) {
         return new MapSqlParameterSource()
                 .addValue("user_id", updateUserDetailsForm.id())
@@ -494,7 +537,9 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
     }
 
     /**
-     * Generates a verification URL based on a key and verification type.
+     * Generates a verification URL based on a key and verification type. It constructs
+     * a verification URL using the provided key and verification type, which is useful
+     * for various verification processes (e.g., account verification).
      *
      * @param key              The unique key for verification.
      * @param verificationType The type of verification (e.g., ACCOUNT).
@@ -506,9 +551,11 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
 
     /**
      * Maps a User object to a SqlParameterSource for use in database operations.
+     * It transforms a User object into a SqlParameterSource, making it
+     * suitable for insertion or update operations in the database.
      *
-     * @param user The user object to be mapped.
-     * @return The mapped SqlParameterSource.
+     * @param user The User object to be mapped.
+     * @return The mapped SqlParameterSource for the User object.
      */
     private SqlParameterSource getSqlParameterSource(User user) {
         return new MapSqlParameterSource()
@@ -530,6 +577,15 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
                 Map.of("email", email), Integer.class);
     }
 
+    /**
+     * Saves the provided image for the user with the given email, storing the
+     * the user's profile image locally, ensuring proper organization and management of
+     * user images. It utilizes the email as a unique identifier for file naming.
+     *
+     * @param email The email of the user.
+     * @param image The profile image file to be saved.
+     * @throws ApiException If there is an issue saving the user's profile image.
+     */
     private void saveImage(String email, MultipartFile image) {
         Path fileStorageLocation = Paths.get(System.getProperty("user.home") + "/Downloads/images/").toAbsolutePath().normalize();
         if (!Files.exists(fileStorageLocation)) {
@@ -551,6 +607,13 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         log.info("File saved in: {} folder", fileStorageLocation);
     }
 
+    /**
+     * Sets the user image URL based on the user's email. This method constructs a
+     * URL for accessing the user's profile image using the provided email.
+     *
+     * @param email The email of the user.
+     * @return The generated URL for accessing the user's profile image.
+     */
     private String setUserImageUrl(String email) {
         return fromCurrentContextPath().path("/user/image/" + email + ".png").toUriString();
     }
