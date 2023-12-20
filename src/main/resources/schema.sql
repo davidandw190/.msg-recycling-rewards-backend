@@ -12,26 +12,27 @@ DROP TABLE IF EXISTS    rewards_app.users,
                         rewards_app.account_verifications,
                         rewards_app.reset_pass_verifications,
                         rewards_app.tfa_verifications,
-                        rewards_app.user_social_media,
-                        rewards_app.recycled_materials,
+                        rewards_app.materials,
                         rewards_app.recycling_centers,
                         rewards_app.materials_to_recycle,
                         rewards_app.user_recycling_activities,
                         rewards_app.reward_points,
                         rewards_app.vouchers,
+                        rewards_app.voucher_history,
                         rewards_app.educational_resources,
                         rewards_app.user_saved_resources,
                         rewards_app.challenges,
                         rewards_app.user_challenges,
                         rewards_app.leaderboard;
 
--- Create users table
+-- Users Table
 CREATE TABLE users (
     user_id        BIGSERIAL PRIMARY KEY,
     first_name     VARCHAR(50) NOT NULL,
     last_name      VARCHAR(50) NOT NULL,
     email          VARCHAR(100) NOT NULL UNIQUE,
     password       VARCHAR(255) NOT NULL,
+    county         VARCHAR(255) NOT NULL,
     city           VARCHAR(100) NOT NULL,
     address        VARCHAR(255),
     phone          VARCHAR(15),
@@ -44,14 +45,14 @@ CREATE TABLE users (
     image_url      VARCHAR(255)
 );
 
--- Create roles table
+-- Roles Table
 CREATE TABLE roles (
     role_id        BIGSERIAL PRIMARY KEY,
     name           VARCHAR(50) NOT NULL UNIQUE,
     permission     VARCHAR(255) NOT NULL
 );
 
--- Create user_roles table
+-- User Roles Mapping Table
 CREATE TABLE user_roles (
     id             BIGSERIAL PRIMARY KEY,
     user_id        BIGINT NOT NULL,
@@ -61,7 +62,7 @@ CREATE TABLE user_roles (
     CONSTRAINT fk_user_roles_role FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
--- Create account_verifications table
+-- Account Verifications Table
 CREATE TABLE account_verifications (
     id             BIGSERIAL PRIMARY KEY,
     user_id        BIGINT NOT NULL,
@@ -71,7 +72,7 @@ CREATE TABLE account_verifications (
     CONSTRAINT fk_account_verifications_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- Create reset_pass_verifications table
+-- Password Reset Verifications Table
 CREATE TABLE reset_pass_verifications (
     id                BIGSERIAL PRIMARY KEY,
     user_id           BIGINT NOT NULL,
@@ -82,7 +83,7 @@ CREATE TABLE reset_pass_verifications (
     CONSTRAINT fk_reset_pass_verifications_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- Create tfa_verifications table
+-- Two Factor Authentication Verifications Table
 CREATE TABLE tfa_verifications (
     id                BIGSERIAL PRIMARY KEY,
     user_id           BIGINT NOT NULL,
@@ -93,11 +94,11 @@ CREATE TABLE tfa_verifications (
     CONSTRAINT fk_tfa_verifications_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- Create recycled_materials table
-CREATE TABLE recycled_materials (
+-- Materials Table
+CREATE TABLE materials (
     material_id     BIGSERIAL PRIMARY KEY,
     name            VARCHAR(50) NOT NULL UNIQUE,
-    points_per_unit INTEGER NOT NULL
+    reward_points   INTEGER DEFAULT 0
 );
 
 -- Create recycling_centers table
@@ -110,27 +111,27 @@ CREATE TABLE recycling_centers (
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create materials_to_recycle table to establish the one-to-many relationship
+-- Materials Accepted by Centers Table
 CREATE TABLE materials_to_recycle (
     center_id       BIGINT REFERENCES recycling_centers(center_id) ON DELETE CASCADE,
-    material_id     BIGINT REFERENCES recycled_materials(material_id) ON DELETE CASCADE,
+    material_id     BIGINT REFERENCES materials(material_id) ON DELETE CASCADE,
     PRIMARY KEY(center_id, material_id)
 );
 
--- Create user_recycling_activities table
+-- User Recycling Activities Table
 CREATE TABLE user_recycling_activities (
     activity_id     BIGSERIAL PRIMARY KEY,
     user_id         BIGINT REFERENCES users(user_id) ON DELETE CASCADE,
     center_id       BIGINT REFERENCES recycling_centers(center_id) ON DELETE SET NULL,
-    material_id     BIGINT REFERENCES recycled_materials(material_id) ON DELETE SET NULL,
+    material_id     BIGINT REFERENCES materials(material_id) ON DELETE SET NULL,
     amount          DECIMAL(10, 2) NOT NULL,
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_user_recycling_activities_user_id FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_user_recycling_activities_center_id FOREIGN KEY (center_id) REFERENCES recycling_centers(center_id) ON DELETE SET NULL,
-    CONSTRAINT fk_user_recycling_activities_material_id FOREIGN KEY (material_id) REFERENCES recycled_materials(material_id) ON DELETE SET NULL
+    CONSTRAINT fk_user_recycling_activities_material_id FOREIGN KEY (material_id) REFERENCES materials(material_id) ON DELETE SET NULL
 );
 
--- Create reward_points table
+-- Reward Points Table
 CREATE TABLE reward_points (
     user_id         BIGINT PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE,
     total_points    INTEGER DEFAULT 0,
@@ -138,7 +139,7 @@ CREATE TABLE reward_points (
     CONSTRAINT fk_reward_points_user_id FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- Create vouchers table
+-- Vouchers Table
 CREATE TABLE vouchers (
     voucher_id      BIGSERIAL PRIMARY KEY,
     user_id         BIGINT REFERENCES users(user_id) ON DELETE CASCADE,
@@ -149,7 +150,14 @@ CREATE TABLE vouchers (
     CONSTRAINT fk_vouchers_user_id FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- Create educational_resources table
+-- Voucher History Table
+CREATE TABLE voucher_history (
+    voucher_id      BIGINT REFERENCES vouchers(voucher_id) ON DELETE CASCADE,
+    download_date   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_voucher_history_voucher_id FOREIGN KEY (voucher_id) REFERENCES vouchers(voucher_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- Educational Resources Table
 CREATE TABLE educational_resources (
     resource_id     BIGSERIAL PRIMARY KEY,
     title           VARCHAR(255) NOT NULL,
@@ -159,7 +167,7 @@ CREATE TABLE educational_resources (
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create user_saved_resources table
+-- User Saved Educational Resources Table
 CREATE TABLE user_saved_resources (
     user_id         BIGINT REFERENCES users(user_id) ON DELETE CASCADE,
     resource_id     BIGINT REFERENCES educational_resources(resource_id) ON DELETE CASCADE,
@@ -168,7 +176,7 @@ CREATE TABLE user_saved_resources (
     CONSTRAINT fk_user_saved_resources_resource_id FOREIGN KEY (resource_id) REFERENCES educational_resources(resource_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- Create challenges table
+-- Challenges Table
 CREATE TABLE challenges (
     challenge_id    BIGSERIAL PRIMARY KEY,
     title           VARCHAR(255) NOT NULL,
@@ -179,7 +187,7 @@ CREATE TABLE challenges (
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create user_challenges table
+-- User Participation In Challenges Table
 CREATE TABLE user_challenges (
     user_id         BIGINT REFERENCES users(user_id) ON DELETE CASCADE,
     challenge_id    BIGINT REFERENCES challenges(challenge_id) ON DELETE CASCADE,
@@ -190,24 +198,8 @@ CREATE TABLE user_challenges (
     CONSTRAINT fk_user_challenges_challenge_id FOREIGN KEY (challenge_id) REFERENCES challenges(challenge_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- -- Create badges table
--- CREATE TABLE badges (
---                         badge_id        BIGSERIAL PRIMARY KEY,
---                         name            VARCHAR(50) NOT NULL UNIQUE,
---                         description     TEXT
--- );
---
--- -- Create user_badges table
--- CREATE TABLE user_badges (
---                              user_id         BIGINT PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE,
---                              badge_id        BIGINT REFERENCES badges(badge_id) ON DELETE SET NULL,
---                              awarded_at      TIMESTAMP DEFAULT NULL,
---                              CONSTRAINT fk_user_badges_user_id FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
---                              CONSTRAINT fk_user_badges_badge_id FOREIGN KEY (badge_id) REFERENCES badges(badge_id) ON DELETE SET NULL
--- );
 
-
--- Create leaderboard table
+-- Leaderboard Table
 CREATE TABLE leaderboard (
     user_id         BIGINT PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE,
     total_points    INTEGER DEFAULT 0,
@@ -234,7 +226,7 @@ VALUES
 
 
 -- Insert some sample data with points per unit
-INSERT INTO recycled_materials (name, points_per_unit)
+INSERT INTO materials (name, reward_points)
 VALUES
     ('PLASTIC', 8),
     ('ALUMINIUM', 10),
