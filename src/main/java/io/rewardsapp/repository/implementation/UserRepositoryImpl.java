@@ -530,9 +530,9 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
                 .addValue("lastName", updateUserDetailsForm.lastName())
                 .addValue("email", updateUserDetailsForm.email())
                 .addValue("phone", updateUserDetailsForm.phone())
+                .addValue("county", updateUserDetailsForm.county())
                 .addValue("city", updateUserDetailsForm.city())
                 .addValue("address", updateUserDetailsForm.address())
-                .addValue("title", updateUserDetailsForm.title())
                 .addValue("bio", updateUserDetailsForm.bio());
     }
 
@@ -562,6 +562,7 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
                 .addValue("firstName", user.getFirstName())
                 .addValue("lastName", user.getLastName())
                 .addValue("email", user.getEmail())
+                .addValue("county", user.getCounty())
                 .addValue("city", user.getCity())
                 .addValue("password", encoder.encode(user.getPassword()));
     }

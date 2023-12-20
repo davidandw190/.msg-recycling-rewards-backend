@@ -14,8 +14,8 @@ public record UpdateUserDetailsForm(
         @NotEmpty(message = "Last name field cannot be empty") String lastName,
         @NotEmpty(message = "Email field cannot be empty") @Email(message = "Invalid email. Please enter a valid email address") String email,
         @NotEmpty(message = "City field cannot be empty") String city,
-        @Pattern(regexp = "^\\d{10}$", message = "Invalid phone number") String phone,
+        @NotEmpty(message = "County field cannot be empty") String county,
+        @Pattern(regexp = "^\\d{10}$", message = "Invalid phone number. The number should contain 10 digits.") String phone,
         String address,
-        String title,
         String bio
 ) {}

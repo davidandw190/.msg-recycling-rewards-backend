@@ -48,6 +48,10 @@ public class User {
     @NotEmpty(message  = "Password field cannot be empty")
     private String password;
 
+    @Column(name = "county", nullable = false)
+    @NotEmpty(message = "County field cannot be empty")
+    private String county;
+
     @Column(name = "city", nullable = false)
     @NotEmpty(message = "City field cannot be empty")
     private String city;

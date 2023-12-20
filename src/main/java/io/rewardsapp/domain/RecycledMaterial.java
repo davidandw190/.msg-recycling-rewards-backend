@@ -14,7 +14,7 @@ import java.util.Set;
 @Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "recycled_materials")
+@Table(name = "materials")
 public class RecycledMaterial {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
