@@ -183,7 +183,7 @@ CREATE TABLE challenges (
     description     TEXT,
     points_reward   INTEGER,
     target_amount   INTEGER,
-    material_id     BIGINT REFERENCES recycled_materials(material_id) ON DELETE SET NULL,
+    material_id     BIGINT REFERENCES materials(material_id) ON DELETE SET NULL,
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
