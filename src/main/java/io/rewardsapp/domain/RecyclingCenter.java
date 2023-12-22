@@ -40,7 +40,14 @@ public class RecyclingCenter {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "recyclingCenter", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "materials_to_recycle",
+            joinColumns = @JoinColumn(name = "center_id"),
+            inverseJoinColumns = @JoinColumn(name = "material_id"))
+    private Set<RecycledMaterial> acceptedMaterials;
+
     @JsonIgnore
+    @OneToMany(mappedBy = "recyclingCenter", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserRecyclingActivity> recyclingActivities;
 }

@@ -26,4 +26,7 @@ public class RecycledMaterial {
 
     @OneToMany(mappedBy = "recycledMaterial", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserRecyclingActivity> recyclingActivities;
+
+    @ManyToMany(mappedBy = "acceptedMaterials")
+    private Set<RecyclingCenter> recyclingCenters;
 }
