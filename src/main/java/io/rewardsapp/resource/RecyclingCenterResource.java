@@ -18,6 +18,7 @@ import java.util.Optional;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
+@RestController
 @RequestMapping(path = "/centers")
 @RequiredArgsConstructor
 public class RecyclingCenterResource {

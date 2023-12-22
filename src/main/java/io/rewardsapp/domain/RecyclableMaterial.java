@@ -1,5 +1,7 @@
 package io.rewardsapp.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,8 +27,10 @@ public class RecyclableMaterial {
     private String name;
 
     @OneToMany(mappedBy = "recycledMaterial", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private Set<UserRecyclingActivity> recyclingActivities;
 
     @ManyToMany(mappedBy = "acceptedMaterials")
+    @JsonBackReference
     private Set<RecyclingCenter> recyclingCenters;
 }

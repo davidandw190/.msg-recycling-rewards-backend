@@ -5,7 +5,7 @@ package io.rewardsapp.query;
  */
 public class UserQuery {
 
-    public static final String INSERT_USER_QUERY = "INSERT INTO users (first_name, last_name, email, password, city) VALUES (:firstName, :lastName, :email, :password, :city)";
+    public static final String INSERT_USER_QUERY = "INSERT INTO users (first_name, last_name, email, password, county, city) VALUES (:firstName, :lastName, :email, :password, :county, :city)";
     public static final String SELECT_USER_BY_EMAIL_QUERY = "SELECT * FROM users WHERE email = :email";
     public static final String INSERT_VERIFICATION_QUERY = "INSERT INTO account_verifications (user_id, url) VALUES (:userId, :url)";
     public static final String SELECT_USER_BY_ID_QUERY = "SELECT * FROM users WHERE user_id = :userId";
