@@ -26,6 +26,6 @@ public class RecyclingCenterServiceImpl implements RecyclingCenterService {
 
     @Override
     public RecyclingCenter createRecyclingCenter(RecyclingCenter newCenter) {
-        return null;
+        return centerRepository.save(newCenter);
     }
 }
