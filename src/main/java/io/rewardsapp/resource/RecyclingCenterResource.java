@@ -42,4 +42,20 @@ public class RecyclingCenterResource {
                         .build()
         );
     }
+
+    @PostMapping("/create")
+    public ResponseEntity<HttpResponse> createCustomer(@AuthenticationPrincipal UserDTO authenticatedUser, @RequestBody RecyclingCenter newCenter) {
+        return ResponseEntity.created(URI.create(""))
+                .body(
+                        HttpResponse.builder()
+                                .timeStamp(LocalDateTime.now().toString())
+                                .data(Map.of(
+                                        "user", userService.getUserById(authenticatedUser.id()),
+                                        "center", centerService.createRecyclingCenter(newCenter)))
+                                .message("Recycling center created successfully!")
+                                .status(CREATED)
+                                .statusCode(CREATED.value())
+                                .build()
+                );
+    }
 }
