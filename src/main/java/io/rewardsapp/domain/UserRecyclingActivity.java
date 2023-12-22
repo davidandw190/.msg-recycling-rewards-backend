@@ -24,7 +24,7 @@ public class UserRecyclingActivity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "material_id")
-    private RecycledMaterial recycledMaterial;
+    private RecyclableMaterial recycledMaterial;
 
     @Column(name = "amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal amount;

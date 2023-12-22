@@ -45,7 +45,7 @@ public class RecyclingCenter {
             name = "materials_to_recycle",
             joinColumns = @JoinColumn(name = "center_id"),
             inverseJoinColumns = @JoinColumn(name = "material_id"))
-    private Set<RecycledMaterial> acceptedMaterials;
+    private Set<RecyclableMaterial> acceptedMaterials;
 
     @JsonIgnore
     @OneToMany(mappedBy = "recyclingCenter", cascade = CascadeType.ALL, orphanRemoval = true)
