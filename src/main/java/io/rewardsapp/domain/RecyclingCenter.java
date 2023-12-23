@@ -10,7 +10,8 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.time.LocalTime;
+import java.util.Collection;
 
 @Entity
 @SuperBuilder
@@ -36,6 +37,16 @@ public class RecyclingCenter {
     @Column(name = "address", nullable = false)
     private String address;
 
+    @Column(name = "opening_hour", columnDefinition = "TIME")
+    private LocalTime openingHour;
+
+    @Column(name = "closing_hour", columnDefinition = "TIME")
+    private LocalTime closingHour;
+
+    @Column(name = "always_open", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private boolean alwaysOpen;
+
+
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
@@ -45,9 +56,9 @@ public class RecyclingCenter {
             name = "materials_to_recycle",
             joinColumns = @JoinColumn(name = "center_id"),
             inverseJoinColumns = @JoinColumn(name = "material_id"))
-    private Set<RecyclableMaterial> acceptedMaterials;
+    private Collection<RecyclableMaterial> acceptedMaterials;
 
     @JsonIgnore
     @OneToMany(mappedBy = "recyclingCenter", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<UserRecyclingActivity> recyclingActivities;
+    private Collection<UserRecyclingActivity> recyclingActivities;
 }

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Set;
+import java.util.Collection;
 
 @Entity
 @SuperBuilder
@@ -26,11 +26,14 @@ public class RecyclableMaterial {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
+    @Column(name = "reward_points", nullable = false)
+    private String rewardPoints;
+
     @OneToMany(mappedBy = "recycledMaterial", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    private Set<UserRecyclingActivity> recyclingActivities;
+    @JsonBackReference
+    private Collection<UserRecyclingActivity> recyclingActivities;
 
     @ManyToMany(mappedBy = "acceptedMaterials")
     @JsonBackReference
-    private Set<RecyclingCenter> recyclingCenters;
+    private Collection<RecyclingCenter> recyclingCenters;
 }

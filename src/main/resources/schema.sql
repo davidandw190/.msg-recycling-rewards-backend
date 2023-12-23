@@ -108,7 +108,11 @@ CREATE TABLE recycling_centers (
     county          VARCHAR(50),
     city            VARCHAR(50),
     address         VARCHAR(255) NOT NULL,
-    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    opening_hour    TIME,
+    closing_hour    TIME,
+    always_open     BOOLEAN DEFAULT FALSE,
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    image_url       VARCHAR(255)
 );
 
 -- Materials Accepted by Centers Table
