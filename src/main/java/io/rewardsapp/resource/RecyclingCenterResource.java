@@ -44,6 +44,21 @@ public class RecyclingCenterResource {
         );
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<HttpResponse> searchCustomer(@AuthenticationPrincipal UserDTO user, Optional<String> name, @RequestParam Optional<Integer> page, @RequestParam Optional<Integer> size) {
+        return ResponseEntity.ok(
+                HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .data(Map.of(
+                                "user", userService.getUserByEmail(user.email()),
+                                "page", centerService.searchCenters(name.orElse(""), page.orElse(0), size.orElse(10))))
+                        .message("Customers retrieved successfully!")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build()
+        );
+    }
+
     @PostMapping("/create")
     public ResponseEntity<HttpResponse> createCustomer(@AuthenticationPrincipal UserDTO authenticatedUser, @RequestBody RecyclingCenter newCenter) {
         return ResponseEntity.created(URI.create(""))

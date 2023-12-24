@@ -1,6 +1,7 @@
 package io.rewardsapp.service;
 
 import io.rewardsapp.domain.RecyclingCenter;
+import io.rewardsapp.dto.UserDTO;
 import org.springframework.data.domain.Page;
 
 
@@ -10,4 +11,6 @@ public interface RecyclingCenterService {
     Iterable<RecyclingCenter> getRecyclingCenters();
 
     RecyclingCenter createRecyclingCenter(RecyclingCenter newCenter);
+
+    Page<RecyclingCenter> searchCenters(String name, int page, int size);
 }

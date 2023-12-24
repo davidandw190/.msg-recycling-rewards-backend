@@ -8,6 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import static org.springframework.data.domain.PageRequest.of;
+
 @Service
 @AllArgsConstructor
 public class RecyclingCenterServiceImpl implements RecyclingCenterService {
@@ -27,5 +29,10 @@ public class RecyclingCenterServiceImpl implements RecyclingCenterService {
     @Override
     public RecyclingCenter createRecyclingCenter(RecyclingCenter newCenter) {
         return centerRepository.save(newCenter);
+    }
+
+    @Override
+    public Page<RecyclingCenter> searchCenters(String name, int page, int size) {
+        return centerRepository.findByNameContainingIgnoreCase(name, of(page, size));
     }
 }
