@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -50,34 +51,18 @@ public class RecyclingCenterResource {
         );
     }
 
-//    @GetMapping("/search")
-//    public ResponseEntity<HttpResponse> searchCustomer(@AuthenticationPrincipal UserDTO user, Optional<String> name, @RequestParam Optional<Integer> page, @RequestParam Optional<Integer> size) {
-//        return ResponseEntity.ok(
-//                HttpResponse.builder()
-//                        .timeStamp(LocalDateTime.now().toString())
-//                        .data(Map.of(
-//                                "user", userService.getUserByEmail(user.email()),
-//                                "page", centerService.searchCenters(name.orElse(""), page.orElse(0), size.orElse(10))))
-//                        .message("Customers retrieved successfully!")
-//                        .status(OK)
-//                        .statusCode(OK.value())
-//                        .build()
-//        );
-//    }
-
     @GetMapping("/search")
     public ResponseEntity<HttpResponse> searchCenters(
             @AuthenticationPrincipal UserDTO user,
             @RequestParam(defaultValue = "") String name,
             @RequestParam(defaultValue = "") String county,
             @RequestParam(defaultValue = "") String city,
-            @RequestParam(defaultValue = "") String materials,
+            @RequestParam(defaultValue = "") List<String> materials,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "asc") String sortOrder
     ) {
-
         Map<String, Object> searchData = null;
         try {
             validatePageAndSize(page, size);

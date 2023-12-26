@@ -3,6 +3,8 @@ package io.rewardsapp.service;
 import io.rewardsapp.domain.RecyclingCenter;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 
 public interface RecyclingCenterService {
     Page<RecyclingCenter> getCenters(Integer page, Integer size);
@@ -17,7 +19,7 @@ public interface RecyclingCenterService {
             String name,
             String county,
             String city,
-            String materials,
+            List<String> materials,
             int page,
             int size,
             String sortBy,

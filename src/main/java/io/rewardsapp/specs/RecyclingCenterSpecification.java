@@ -2,6 +2,7 @@ package io.rewardsapp.specs;
 
 import io.rewardsapp.domain.RecyclableMaterial;
 import io.rewardsapp.domain.RecyclingCenter;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
@@ -19,7 +20,7 @@ public class RecyclingCenterSpecification {
             String name,
             String county,
             String city,
-            String materials
+            List<String> materials
     ) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -29,19 +30,22 @@ public class RecyclingCenterSpecification {
             }
 
             if (StringUtils.hasText(county)) {
-                predicates.add(criteriaBuilder.equal(criteriaBuilder.lower(root.get("county")), county.toLowerCase()));
+                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("county")), "%" + county.toLowerCase() + "%"));
             }
 
             if (StringUtils.hasText(city)) {
-                predicates.add(criteriaBuilder.equal(criteriaBuilder.lower(root.get("city")), city.toLowerCase()));
+                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("city")), "%" + city.toLowerCase() + "%"));
             }
 
-            if (StringUtils.hasText(materials)) {
+            if (!materials.isEmpty()) {
                 Join<RecyclingCenter, RecyclableMaterial> materialsJoin = root.join("acceptedMaterials", JoinType.LEFT);
-                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(materialsJoin.get("name")), "%" + materials.toLowerCase() + "%"));
+                CriteriaBuilder.In<String> inClause = criteriaBuilder.in(materialsJoin.get("name"));
+                materials.forEach(inClause::value);
+                predicates.add(inClause);
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }
+
 }

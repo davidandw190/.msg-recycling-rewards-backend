@@ -12,6 +12,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 import static org.springframework.data.domain.PageRequest.of;
 
 @Service
@@ -45,7 +47,7 @@ public class RecyclingCenterServiceImpl implements RecyclingCenterService {
             String name,
             String county,
             String city,
-            String materials,
+            List<String> materials,
             int page,
             int size,
             String sortBy,
