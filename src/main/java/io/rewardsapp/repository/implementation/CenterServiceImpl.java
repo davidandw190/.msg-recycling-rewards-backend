@@ -1,8 +1,8 @@
 package io.rewardsapp.repository.implementation;
 
 import io.rewardsapp.domain.RecyclingCenter;
-import io.rewardsapp.repository.RecyclingCenterRepository;
-import io.rewardsapp.service.RecyclingCenterService;
+import io.rewardsapp.repository.CenterRepository;
+import io.rewardsapp.service.CenterService;
 import io.rewardsapp.specs.RecyclingCenterSpecification;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,9 +18,9 @@ import static org.springframework.data.domain.PageRequest.of;
 
 @Service
 @AllArgsConstructor
-public class RecyclingCenterServiceImpl implements RecyclingCenterService {
+public class CenterServiceImpl implements CenterService {
 
-    private final RecyclingCenterRepository centerRepository;
+    private final CenterRepository centerRepository;
 
     @Override
     public Page<RecyclingCenter> getCenters(Integer page, Integer size) {

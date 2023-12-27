@@ -3,7 +3,7 @@ package io.rewardsapp.resource;
 import io.rewardsapp.domain.HttpResponse;
 import io.rewardsapp.domain.RecyclingCenter;
 import io.rewardsapp.dto.UserDTO;
-import io.rewardsapp.service.RecyclingCenterService;
+import io.rewardsapp.service.CenterService;
 import io.rewardsapp.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,9 +26,9 @@ import static org.springframework.http.HttpStatus.OK;
 @RestController
 @RequestMapping(path = "/centers")
 @RequiredArgsConstructor
-public class RecyclingCenterResource {
+public class CenterResource {
     private final UserService userService;
-    private final RecyclingCenterService centerService;
+    private final CenterService centerService;
     private final HttpServletRequest request;
     private final HttpServletResponse response;
 

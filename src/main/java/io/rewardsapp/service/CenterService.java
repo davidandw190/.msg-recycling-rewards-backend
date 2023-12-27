@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 
-public interface RecyclingCenterService {
+public interface CenterService {
     Page<RecyclingCenter> getCenters(Integer page, Integer size);
 
     Iterable<RecyclingCenter> getCenters();
