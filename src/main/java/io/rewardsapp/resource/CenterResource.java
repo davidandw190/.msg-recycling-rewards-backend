@@ -2,8 +2,11 @@ package io.rewardsapp.resource;
 
 import io.rewardsapp.domain.HttpResponse;
 import io.rewardsapp.domain.RecyclingCenter;
+import io.rewardsapp.domain.User;
+import io.rewardsapp.domain.UserRecyclingActivity;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.service.CenterService;
+import io.rewardsapp.service.RecyclingActivityService;
 import io.rewardsapp.service.StatsService;
 import io.rewardsapp.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.rewardsapp.dto.mapper.UserDTOMapper.toUser;
 import static io.rewardsapp.utils.ExceptionUtils.handleException;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
@@ -31,6 +35,7 @@ public class CenterResource {
     private final UserService userService;
     private final CenterService centerService;
     private final StatsService statsService;
+    private final RecyclingActivityService activityService;
     private final HttpServletRequest request;
     private final HttpServletResponse response;
 
@@ -109,12 +114,17 @@ public class CenterResource {
 
     @GetMapping("/get/{id}")
     public ResponseEntity<HttpResponse> getCustomer(@AuthenticationPrincipal UserDTO authenticatedUser, @PathVariable("id") Long id) {
+        RecyclingCenter center = centerService.getCenter(id);
+        User user = toUser(userService.getUser(authenticatedUser.id()));
+        List<UserRecyclingActivity> activities = activityService.getUserRecyclingActivitiesAtCenter(user, center);
+
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timeStamp(LocalDateTime.now().toString())
                         .data(Map.of(
-                                "user", userService.getUser(authenticatedUser.id()),
-                                "center", centerService.getCenter(id)))
+                                "user", user,
+                                "center", center,
+                                "activities", activities))
                         .message("Center retrieved successfully!")
                         .status(OK)
                         .statusCode(OK.value())
