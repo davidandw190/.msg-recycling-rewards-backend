@@ -4,6 +4,7 @@ import io.rewardsapp.domain.HttpResponse;
 import io.rewardsapp.domain.RecyclingCenter;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.service.CenterService;
+import io.rewardsapp.service.StatsService;
 import io.rewardsapp.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,6 +30,7 @@ import static org.springframework.http.HttpStatus.OK;
 public class CenterResource {
     private final UserService userService;
     private final CenterService centerService;
+    private final StatsService statsService;
     private final HttpServletRequest request;
     private final HttpServletResponse response;
 
@@ -43,7 +45,9 @@ public class CenterResource {
                         .timeStamp(LocalDateTime.now().toString())
                         .data(Map.of(
                                 "user", userService.getUserById(authenticatedUser.id()),
-                                "page", centerService.getCenters(page.orElse(0), size.orElse(10))))
+                                "page", centerService.getCenters(page.orElse(0), size.orElse(10)),
+                                "userStats", statsService.getUserStatsForLastMonth(authenticatedUser.id())
+                                ))
                         .message("Recycling centers retrieved successfully!")
                         .status(OK)
                         .statusCode(OK.value())

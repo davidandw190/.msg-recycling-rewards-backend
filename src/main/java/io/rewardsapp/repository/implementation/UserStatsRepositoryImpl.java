@@ -1,11 +1,14 @@
 package io.rewardsapp.repository.implementation;
 
 import io.rewardsapp.dto.UserStatsDTO;
-import io.rewardsapp.query.UserStatsQuery;
 import io.rewardsapp.repository.UserStatsRepository;
+import io.rewardsapp.rowmapper.UserStatsRowMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.service.spi.ServiceException;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -22,26 +25,24 @@ public class UserStatsRepositoryImpl implements UserStatsRepository {
     @Override
     @Transactional
     public UserStatsDTO getUserStatsForLastMonth(Long userId) {
+        try {
+            SqlParameterSource parameters = buildParameters(userId);
+            return jdbc.queryForObject(GET_USER_STATS_FOR_LAST_MONTH, parameters, new UserStatsRowMapper());
+
+        } catch (Exception exception) {
+            throw new ServiceException("Error retrieving user stats for last month", exception);
+        }
+    }
+
+    private SqlParameterSource buildParameters(Long userId) {
         LocalDateTime lastMonthStart = LocalDateTime.now().minusMonths(1).withHour(0).withMinute(0).withSecond(0);
         LocalDateTime lastMonthEnd = LocalDateTime.now().withHour(23).withMinute(59).withSecond(59);
 
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("userId", userId);
-        parameters.put("startDate", lastMonthStart);
-        parameters.put("endDate", lastMonthEnd);
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("userId", userId);
+        parameterMap.put("startDate", lastMonthStart);
+        parameterMap.put("endDate", lastMonthEnd);
 
-        return jdbc.queryForObject(
-                GET_USER_STATS_FOR_LAST_MONTH,
-                parameters,
-                (resultSet, i) ->
-                        UserStatsDTO.builder()
-                                .paperRecycled(resultSet.getLong("paperRecycled"))
-                                .plasticRecycled(resultSet.getLong("plasticRecycled"))
-                                .glassRecycled(resultSet.getLong("glassRecycled"))
-                                .aluminumRecycled(resultSet.getLong("aluminumRecycled"))
-                                .metalsRecycled(resultSet.getLong("metalsRecycled"))
-                                .electronicsRecycled(resultSet.getLong("electronicsRecycled"))
-                                .build()
-        );
+        return new MapSqlParameterSource(parameterMap);
     }
 }

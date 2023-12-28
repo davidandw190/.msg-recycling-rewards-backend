@@ -25,7 +25,6 @@ public class StatsServiceImpl implements StatsService {
 
     private final UserRecyclingActivityRepository activityRepository;
 
-
     @Override
     public UserStatsDTO getUserStatsForLastMonth(Long userId) {
         return null;
