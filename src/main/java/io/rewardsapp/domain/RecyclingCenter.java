@@ -28,6 +28,9 @@ public class RecyclingCenter {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "contact")
+    private String contact;
+
     @Column(name = "county", nullable = false)
     private String county;
 

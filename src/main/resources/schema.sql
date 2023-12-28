@@ -101,15 +101,18 @@ CREATE TABLE materials (
     reward_points   INTEGER DEFAULT 0
 );
 
+
+
 -- Create recycling_centers table
 CREATE TABLE recycling_centers (
     center_id       BIGSERIAL PRIMARY KEY,
     name            VARCHAR(100) NOT NULL,
-    county          VARCHAR(50),
-    city            VARCHAR(50),
+    contact         VARCHAR(25),
+    county          VARCHAR(50) NOT NULL,
+    city            VARCHAR(50) NOT NULL,
     address         VARCHAR(255) NOT NULL,
-    opening_hour    TIME,
-    closing_hour    TIME,
+    opening_hour    TIME NOT NULL,
+    closing_hour    TIME NOT NULL,
     always_open     BOOLEAN DEFAULT FALSE,
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     image_url       VARCHAR(255)
