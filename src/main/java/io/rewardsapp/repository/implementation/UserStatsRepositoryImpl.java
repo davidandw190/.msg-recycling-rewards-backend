@@ -1,11 +1,11 @@
 package io.rewardsapp.repository.implementation;
 
 import io.rewardsapp.dto.UserStatsDTO;
+import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.repository.UserStatsRepository;
 import io.rewardsapp.rowmapper.UserStatsRowMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.service.spi.ServiceException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -30,7 +30,7 @@ public class UserStatsRepositoryImpl implements UserStatsRepository {
             return jdbc.queryForObject(GET_USER_STATS_FOR_LAST_MONTH, parameters, new UserStatsRowMapper());
 
         } catch (Exception exception) {
-            throw new ServiceException("Error retrieving user stats for last month", exception);
+            throw new ApiException("Error retrieving user stats for last month.");
         }
     }
 
