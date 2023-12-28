@@ -128,7 +128,7 @@ CREATE TABLE user_recycling_activities (
     user_id         BIGINT REFERENCES users(user_id) ON DELETE CASCADE,
     center_id       BIGINT REFERENCES recycling_centers(center_id) ON DELETE SET NULL,
     material_id     BIGINT REFERENCES materials(material_id) ON DELETE SET NULL,
-    amount          DECIMAL(10, 2) NOT NULL,
+    amount          BIGINT NOT NULL,
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_user_recycling_activities_user_id FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_user_recycling_activities_center_id FOREIGN KEY (center_id) REFERENCES recycling_centers(center_id) ON DELETE SET NULL,
