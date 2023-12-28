@@ -60,4 +60,9 @@ public class CenterServiceImpl implements CenterService {
 
         return centerRepository.findAll(specification, pageable);
     }
+
+    @Override
+    public RecyclingCenter getCenter(Long id) {
+        return centerRepository.findById(id).orElseThrow(() -> new RuntimeException("No center found."));
+    }
 }

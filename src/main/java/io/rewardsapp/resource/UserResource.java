@@ -69,7 +69,7 @@ public class UserResource {
      */
     @PostMapping("/register")
     public ResponseEntity<HttpResponse> registerUser(@RequestBody @Valid User newUser) {
-        UserDTO createdUser = userService.createNewUser(newUser);
+        UserDTO createdUser = userService.createUser(newUser);
         return ResponseEntity.created(getUri()).body(
                 HttpResponse.builder()
                         .timeStamp(LocalDateTime.now().toString())
@@ -242,7 +242,7 @@ public class UserResource {
                 HttpResponse.builder()
                         .timeStamp(LocalDateTime.now().toString())
                         .data(Map.of(
-                                "user", userService.getUserById(authenticatedUser.id()),
+                                "user", userService.getUser(authenticatedUser.id()),
                                 "roles", roleService.getRoles()))
                         .message("Password Updated Successfully")
                         .status(OK)
@@ -264,7 +264,7 @@ public class UserResource {
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .data(Map.of(
-                                "user", userService.getUserById(authenticatedUser.id()),
+                                "user", userService.getUser(authenticatedUser.id()),
                                 "roles", roleService.getRoles()))
                         .timeStamp(LocalDateTime.now().toString())
                         .message("Role updated successfully")
@@ -288,7 +288,7 @@ public class UserResource {
                 HttpResponse.builder()
                         .timeStamp(LocalDateTime.now().toString())
                         .data(Map.of(
-                                "user", userService.getUserById(authenticatedUser.id()),
+                                "user", userService.getUser(authenticatedUser.id()),
                                 "roles", roleService.getRoles()))
                         .message("Account settings updated successfully")
                         .status(OK)
@@ -354,7 +354,7 @@ public class UserResource {
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .data(Map.of(
-                                "user", userService.getUserById(authenticatedUser.id()),
+                                "user", userService.getUser(authenticatedUser.id()),
                                 "roles", roleService.getRoles()))
                         .timeStamp(LocalDateTime.now().toString())
                         .message("Profile picture updated Successfully!")
@@ -385,7 +385,7 @@ public class UserResource {
     public ResponseEntity<HttpResponse> refreshToken(HttpServletRequest request) {
         if (isHeaderAndTokenValid(request)) {
             String token = request.getHeader(AUTHORIZATION).substring(TOKEN_PREFIX.length());
-            UserDTO user = userService.getUserById(tokenProvider.getSubject(token, request));
+            UserDTO user = userService.getUser(tokenProvider.getSubject(token, request));
             return ResponseEntity.ok().body(
                     HttpResponse.builder()
                             .timeStamp(LocalDateTime.now().toString())
@@ -463,7 +463,7 @@ public class UserResource {
 
     private UserPrincipal getUserPrincipal(UserDTO user) {
         return new UserPrincipal(
-                toUser(userService.getUserByEmail(user.email())),
+                toUser(userService.getUser(user.id())),
                 roleService.getRoleByUserId(user.id())
         );
     }

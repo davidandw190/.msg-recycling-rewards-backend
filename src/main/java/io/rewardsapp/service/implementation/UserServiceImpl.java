@@ -21,19 +21,19 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository<Role> roleRepository;
 
     @Override
-    public UserDTO createNewUser(User user) {
+    public UserDTO createUser(User user) {
         UserDTO createdUser = mapToUserDTO(userRepository.create(user));
         userRepository.createAccountVerificationCode(user);
         return createdUser;
     }
 
     @Override
-    public UserDTO getUserByEmail(String email) {
+    public UserDTO getUser(String email) {
         return mapToUserDTO(userRepository.getUserByEmail(email));
     }
 
     @Override
-    public UserDTO getUserById(Long userId) {
+    public UserDTO getUser(Long userId) {
         return mapToUserDTO(userRepository.get(userId));
     }
 

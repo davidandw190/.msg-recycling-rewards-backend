@@ -8,11 +8,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface UserService {
 
-    UserDTO createNewUser(User user);
+    UserDTO createUser(User user);
 
-    UserDTO getUserByEmail(String email);
+    UserDTO getUser(String email);
 
-    UserDTO getUserById(Long userId);
+    UserDTO getUser(Long userId);
 
     void sendAccountVerificationCode(UserDTO user);
 

@@ -79,7 +79,7 @@ public class TokenProvider {
      * @return An authentication object for the user.
      */
     public Authentication getAuthentication(Long userId, List<GrantedAuthority> authorities, HttpServletRequest request) {
-        UsernamePasswordAuthenticationToken userPasswordAuthToken = new UsernamePasswordAuthenticationToken(userService.getUserById(userId), null, authorities);
+        UsernamePasswordAuthenticationToken userPasswordAuthToken = new UsernamePasswordAuthenticationToken(userService.getUser(userId), null, authorities);
         userPasswordAuthToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         return userPasswordAuthToken;
     }

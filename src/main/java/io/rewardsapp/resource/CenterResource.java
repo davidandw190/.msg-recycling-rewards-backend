@@ -44,7 +44,7 @@ public class CenterResource {
                 HttpResponse.builder()
                         .timeStamp(LocalDateTime.now().toString())
                         .data(Map.of(
-                                "user", userService.getUserById(authenticatedUser.id()),
+                                "user", userService.getUser(authenticatedUser.id()),
                                 "page", centerService.getCenters(page.orElse(0), size.orElse(10)),
                                 "userStats", statsService.getUserStatsForLastMonth(authenticatedUser.id())
                                 ))
@@ -57,7 +57,7 @@ public class CenterResource {
 
     @GetMapping("/search")
     public ResponseEntity<HttpResponse> searchCenters(
-            @AuthenticationPrincipal UserDTO user,
+            @AuthenticationPrincipal UserDTO authenticatedUser,
             @RequestParam(defaultValue = "") String name,
             @RequestParam(defaultValue = "") String county,
             @RequestParam(defaultValue = "") String city,
@@ -72,7 +72,7 @@ public class CenterResource {
             validatePageAndSize(page, size);
 
             searchData = Map.of(
-                    "user", userService.getUserByEmail(user.email()),
+                    "user", userService.getUser(authenticatedUser.id()),
                     "page", centerService.searchCenters(name, county, city, materials, page, size, sortBy, sortOrder)
             );
         } catch (Exception exception) {
@@ -98,13 +98,28 @@ public class CenterResource {
                         HttpResponse.builder()
                                 .timeStamp(LocalDateTime.now().toString())
                                 .data(Map.of(
-                                        "user", userService.getUserById(authenticatedUser.id()),
+                                        "user", userService.getUser(authenticatedUser.id()),
                                         "center", centerService.createCenter(newCenter)))
                                 .message("Recycling center created successfully!")
                                 .status(CREATED)
                                 .statusCode(CREATED.value())
                                 .build()
                 );
+    }
+
+    @GetMapping("/get/{id}")
+    public ResponseEntity<HttpResponse> getCustomer(@AuthenticationPrincipal UserDTO authenticatedUser, @PathVariable("id") Long id) {
+        return ResponseEntity.ok(
+                HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .data(Map.of(
+                                "user", userService.getUser(authenticatedUser.id()),
+                                "center", centerService.getCenter(id)))
+                        .message("Center retrieved successfully!")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build()
+        );
     }
 
     private void validatePageAndSize(int page, int size) throws BadRequestException {

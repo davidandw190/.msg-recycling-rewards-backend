@@ -1,6 +1,7 @@
 package io.rewardsapp.service;
 
 import io.rewardsapp.domain.RecyclingCenter;
+import io.rewardsapp.dto.UserDTO;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -25,4 +26,6 @@ public interface CenterService {
             String sortBy,
             String sortOrder
     );
+
+    RecyclingCenter getCenter(Long id);
 }
