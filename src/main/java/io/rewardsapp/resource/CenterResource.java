@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -96,7 +97,7 @@ public class CenterResource {
     }
 
 
-    @PostMapping("/create")
+    @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HttpResponse> createCustomer(@AuthenticationPrincipal UserDTO authenticatedUser, @RequestBody RecyclingCenter newCenter) {
         return ResponseEntity.created(URI.create(""))
                 .body(

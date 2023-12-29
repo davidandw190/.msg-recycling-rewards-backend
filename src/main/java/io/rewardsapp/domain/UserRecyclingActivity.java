@@ -1,5 +1,6 @@
 package io.rewardsapp.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -28,6 +29,7 @@ public class UserRecyclingActivity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "center_id")
+    @JsonBackReference
     private RecyclingCenter recyclingCenter;
 
     @ManyToOne(fetch = FetchType.LAZY)
