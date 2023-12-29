@@ -12,4 +12,6 @@ import org.springframework.stereotype.Repository;
 public interface CenterRepository extends PagingAndSortingRepository<RecyclingCenter, Long>, ListCrudRepository<RecyclingCenter, Long>, JpaSpecificationExecutor<RecyclingCenter> {
 
     Page<RecyclingCenter> findByNameContainingIgnoreCase(String name, Pageable pageable);
+
+    boolean existsRecyclingCenterByNameAndCity(String name, String city);
 }

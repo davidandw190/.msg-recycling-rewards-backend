@@ -1,16 +1,12 @@
 package io.rewardsapp.resource;
 
-import io.rewardsapp.domain.HttpResponse;
-import io.rewardsapp.domain.RecyclingCenter;
-import io.rewardsapp.domain.User;
-import io.rewardsapp.domain.UserRecyclingActivity;
+import io.rewardsapp.domain.*;
 import io.rewardsapp.dto.UserDTO;
-import io.rewardsapp.service.CenterService;
-import io.rewardsapp.service.RecyclingActivityService;
-import io.rewardsapp.service.StatsService;
-import io.rewardsapp.service.UserService;
+import io.rewardsapp.form.CreateCenterForm;
+import io.rewardsapp.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.MediaType;
@@ -36,6 +32,7 @@ public class CenterResource {
     private final UserService userService;
     private final CenterService centerService;
     private final StatsService statsService;
+    private final MaterialsService materialsService;
     private final RecyclingActivityService activityService;
     private final HttpServletRequest request;
     private final HttpServletResponse response;
@@ -96,16 +93,29 @@ public class CenterResource {
         );
     }
 
+    @GetMapping("/materials/all")
+    public ResponseEntity<HttpResponse> getAllMaterials() {
+        return ResponseEntity.ok(
+                HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .data(Map.of("materials", materialsService.getAllMaterials()))
+                        .message("Materials retrieved successfully!")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build()
+        );
+    }
+
 
     @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<HttpResponse> createCustomer(@AuthenticationPrincipal UserDTO authenticatedUser, @RequestBody RecyclingCenter newCenter) {
+    public ResponseEntity<HttpResponse> createCustomer(@AuthenticationPrincipal UserDTO authenticatedUser, @RequestBody @Valid CreateCenterForm form) {
         return ResponseEntity.created(URI.create(""))
                 .body(
                         HttpResponse.builder()
                                 .timeStamp(LocalDateTime.now().toString())
                                 .data(Map.of(
                                         "user", userService.getUser(authenticatedUser.id()),
-                                        "center", centerService.createCenter(newCenter)))
+                                        "center", centerService.createCenter(form)))
                                 .message("Recycling center created successfully!")
                                 .status(CREATED)
                                 .statusCode(CREATED.value())

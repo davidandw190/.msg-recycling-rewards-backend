@@ -2,6 +2,7 @@ package io.rewardsapp.service;
 
 import io.rewardsapp.domain.RecyclingCenter;
 import io.rewardsapp.dto.UserDTO;
+import io.rewardsapp.form.CreateCenterForm;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -12,7 +13,7 @@ public interface CenterService {
 
     Iterable<RecyclingCenter> getCenters();
 
-    RecyclingCenter createCenter(RecyclingCenter newCenter);
+    RecyclingCenter createCenter(CreateCenterForm form);
 
     Page<RecyclingCenter> searchCenters(String name, int page, int size);
 

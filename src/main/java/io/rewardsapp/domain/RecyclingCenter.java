@@ -41,14 +41,15 @@ public class RecyclingCenter {
     private String address;
 
     @Column(name = "opening_hour", columnDefinition = "TIME")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     private LocalTime openingHour;
 
     @Column(name = "closing_hour", columnDefinition = "TIME")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     private LocalTime closingHour;
 
     @Column(name = "always_open", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean alwaysOpen;
-
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
