@@ -133,6 +133,25 @@ public class CenterResource {
         );
     }
 
+    @PutMapping("/update")
+    public ResponseEntity<HttpResponse> updateCustomer(@AuthenticationPrincipal UserDTO authenticatedUser, @RequestBody RecyclingCenter center) {
+        RecyclingCenter updatedCenter = centerService.updateCenter(center.getCenterId());
+        User user = toUser(userService.getUser(authenticatedUser.id()));
+        List<UserRecyclingActivity> activities = activityService.getUserRecyclingActivitiesAtCenter(user, center);
+
+        return ResponseEntity.ok(
+                HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .data(Map.of(
+                                "user", user,
+                                "center", updatedCenter,
+                                "activities", activities))
+                        .message("Customer updated successfully!")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
     private void validatePageAndSize(int page, int size) throws BadRequestException {
         if (page < 0 || size <= 0 || size > 100) {
             throw new BadRequestException("Invalid page or size parameters");

@@ -28,4 +28,6 @@ public interface CenterService {
     );
 
     RecyclingCenter getCenter(Long id);
+
+    RecyclingCenter updateCenter(Long centerId);
 }
