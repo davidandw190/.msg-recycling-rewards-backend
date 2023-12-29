@@ -3,6 +3,7 @@ package io.rewardsapp.service;
 import io.rewardsapp.domain.RecyclingCenter;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.form.CreateCenterForm;
+import io.rewardsapp.form.UpdateCenterForm;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -30,5 +31,5 @@ public interface CenterService {
 
     RecyclingCenter getCenter(Long id);
 
-    RecyclingCenter updateCenter(Long centerId);
+    RecyclingCenter updateCenter(UpdateCenterForm form);
 }

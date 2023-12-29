@@ -4,6 +4,7 @@ import io.rewardsapp.domain.RecyclableMaterial;
 import io.rewardsapp.domain.RecyclingCenter;
 import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.form.CreateCenterForm;
+import io.rewardsapp.form.UpdateCenterForm;
 import io.rewardsapp.repository.CenterRepository;
 import io.rewardsapp.repository.MaterialsRepository;
 import io.rewardsapp.service.CenterService;
@@ -48,9 +49,7 @@ public class CenterServiceImpl implements CenterService {
 
         List<RecyclableMaterial> materials = mapMaterialNamesToEntities(form.materials());
 
-        RecyclingCenter newCenter = buildRecyclingCenter(form, materials);
-
-        return centerRepository.save(newCenter);
+        return centerRepository.save(buildRecyclingCenter(form, materials));
     }
 
     private void checkCenterValidity(String name, String city) {
@@ -89,8 +88,16 @@ public class CenterServiceImpl implements CenterService {
     }
 
     @Override
-    public RecyclingCenter updateCenter(Long centerId) {
-        return null;
+    public RecyclingCenter updateCenter(UpdateCenterForm form) {
+        checkCenterValidity(form.name(), form.city());
+        if (!centerRepository.existsById(form.centerId())) {
+            throw new ApiException("No center found by specified id.");
+        }
+
+        List<RecyclableMaterial> materials = mapMaterialNamesToEntities(form.materials());
+
+        return centerRepository.save(buildUpdatedRecyclingCenter(form, materials));
+
     }
 
     private List<RecyclableMaterial> mapMaterialNamesToEntities(String[] materialNames) {
@@ -105,6 +112,22 @@ public class CenterServiceImpl implements CenterService {
 
     private RecyclingCenter buildRecyclingCenter(CreateCenterForm form, List<RecyclableMaterial> materials) {
         return RecyclingCenter.builder()
+                .name(form.name())
+                .contact(form.contact())
+                .county(form.county())
+                .city(form.city())
+                .address(form.address())
+                .acceptedMaterials(materials)
+                .createdAt(LocalDateTime.now())
+                .alwaysOpen(form.alwaysOpen())
+                .openingHour(parseLocalTime(form.openingHour()))
+                .closingHour(parseLocalTime(form.closingHour()))
+                .build();
+    }
+
+    private RecyclingCenter buildUpdatedRecyclingCenter(UpdateCenterForm form, List<RecyclableMaterial> materials) {
+        return RecyclingCenter.builder()
+                .centerId(form.centerId())
                 .name(form.name())
                 .contact(form.contact())
                 .county(form.county())
