@@ -33,6 +33,7 @@ public class CenterResource {
     private final CenterService centerService;
     private final StatsService statsService;
     private final MaterialsService materialsService;
+    private final RewardPointsService rewardPointsService;
     private final RecyclingActivityService activityService;
     private final HttpServletRequest request;
     private final HttpServletResponse response;
@@ -128,6 +129,7 @@ public class CenterResource {
         RecyclingCenter center = centerService.getCenter(id);
         User user = toUser(userService.getUser(authenticatedUser.id()));
         List<UserRecyclingActivity> activities = activityService.getUserRecyclingActivitiesAtCenter(user, center);
+        Long rewardPoints = rewardPointsService.getRewardPointsAmount(authenticatedUser.id());
 
         return ResponseEntity.ok(
                 HttpResponse.builder()
@@ -135,7 +137,8 @@ public class CenterResource {
                         .data(Map.of(
                                 "user", user,
                                 "center", center,
-                                "activities", activities))
+                                "activities", activities,
+                                "rewardPoints", rewardPoints))
                         .message("Center retrieved successfully!")
                         .status(OK)
                         .statusCode(OK.value())
@@ -148,6 +151,8 @@ public class CenterResource {
         RecyclingCenter updatedCenter = centerService.updateCenter(center.getCenterId());
         User user = toUser(userService.getUser(authenticatedUser.id()));
         List<UserRecyclingActivity> activities = activityService.getUserRecyclingActivitiesAtCenter(user, center);
+        Long rewardPoints = rewardPointsService.getRewardPointsAmount(authenticatedUser.id());
+
 
         return ResponseEntity.ok(
                 HttpResponse.builder()
@@ -155,8 +160,9 @@ public class CenterResource {
                         .data(Map.of(
                                 "user", user,
                                 "center", updatedCenter,
-                                "activities", activities))
-                        .message("Customer updated successfully!")
+                                "activities", activities,
+                                "rewardPoints", rewardPoints))
+                        .message("Center updated successfully!")
                         .status(OK)
                         .statusCode(OK.value())
                         .build());
