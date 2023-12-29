@@ -3,6 +3,7 @@ package io.rewardsapp.resource;
 import io.rewardsapp.domain.*;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.form.CreateCenterForm;
+import io.rewardsapp.form.UpdateCenterForm;
 import io.rewardsapp.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -147,10 +148,10 @@ public class CenterResource {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<HttpResponse> updateCustomer(@AuthenticationPrincipal UserDTO authenticatedUser, @RequestBody RecyclingCenter center) {
-        RecyclingCenter updatedCenter = centerService.updateCenter(center.getCenterId());
+    public ResponseEntity<HttpResponse> updateCustomer(@AuthenticationPrincipal UserDTO authenticatedUser, @RequestBody UpdateCenterForm form) {
+        RecyclingCenter updatedCenter = centerService.updateCenter(form);
         User user = toUser(userService.getUser(authenticatedUser.id()));
-        List<UserRecyclingActivity> activities = activityService.getUserRecyclingActivitiesAtCenter(user, center);
+        List<UserRecyclingActivity> activities = activityService.getUserRecyclingActivitiesAtCenter(user, updatedCenter);
         Long rewardPoints = rewardPointsService.getRewardPointsAmount(authenticatedUser.id());
 
 
