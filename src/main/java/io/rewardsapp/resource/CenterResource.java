@@ -3,6 +3,7 @@ package io.rewardsapp.resource;
 import io.rewardsapp.domain.*;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.form.CreateCenterForm;
+import io.rewardsapp.form.CreateRecyclingActivityForm;
 import io.rewardsapp.form.UpdateCenterForm;
 import io.rewardsapp.service.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -148,7 +149,7 @@ public class CenterResource {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<HttpResponse> updateCustomer(@AuthenticationPrincipal UserDTO authenticatedUser, @RequestBody UpdateCenterForm form) {
+    public ResponseEntity<HttpResponse> updateCenter(@AuthenticationPrincipal UserDTO authenticatedUser, @RequestBody UpdateCenterForm form) {
         RecyclingCenter updatedCenter = centerService.updateCenter(form);
         User user = toUser(userService.getUser(authenticatedUser.id()));
         List<UserRecyclingActivity> activities = activityService.getUserRecyclingActivitiesAtCenter(user, updatedCenter);
@@ -164,6 +165,31 @@ public class CenterResource {
                                 "activities", activities,
                                 "rewardPoints", rewardPoints))
                         .message("Center updated successfully!")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+    @PostMapping("/contribute")
+    public ResponseEntity<HttpResponse> contribute(@AuthenticationPrincipal UserDTO authenticatedUser, @RequestBody CreateRecyclingActivityForm form) {
+
+        activityService.createActivity(form);
+
+        RecyclingCenter updatedCenter = centerService.getCenter(form.centerId());
+        User user = toUser(userService.getUser(authenticatedUser.id()));
+        List<UserRecyclingActivity> activities = activityService.getUserRecyclingActivitiesAtCenter(user, updatedCenter);
+        Long rewardPoints = rewardPointsService.getRewardPointsAmount(authenticatedUser.id());
+
+
+        return ResponseEntity.ok(
+                HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .data(Map.of(
+                                "user", user,
+                                "center", updatedCenter,
+                                "activities", activities,
+                                "rewardPoints", rewardPoints))
+                        .message("You contribution was recieved!")
                         .status(OK)
                         .statusCode(OK.value())
                         .build());
