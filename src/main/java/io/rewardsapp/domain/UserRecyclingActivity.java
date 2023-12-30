@@ -21,16 +21,16 @@ public class UserRecyclingActivity {
     @Column(name = "activity_id")
     private Long activityId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "center_id")
     @JsonBackReference
     private RecyclingCenter recyclingCenter;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "material_id")
     private RecyclableMaterial recycledMaterial;
 

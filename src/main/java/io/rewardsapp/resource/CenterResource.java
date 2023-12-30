@@ -8,6 +8,7 @@ import io.rewardsapp.form.UpdateCenterForm;
 import io.rewardsapp.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
@@ -109,7 +110,7 @@ public class CenterResource {
         );
     }
 
-
+    @Transactional
     @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HttpResponse> createCustomer(@AuthenticationPrincipal UserDTO authenticatedUser, @RequestBody @Valid CreateCenterForm form) {
         return ResponseEntity.created(URI.create(""))
@@ -148,6 +149,7 @@ public class CenterResource {
         );
     }
 
+    @Transactional
     @PutMapping("/update")
     public ResponseEntity<HttpResponse> updateCenter(@AuthenticationPrincipal UserDTO authenticatedUser, @RequestBody UpdateCenterForm form) {
         RecyclingCenter updatedCenter = centerService.updateCenter(form);
@@ -170,6 +172,7 @@ public class CenterResource {
                         .build());
     }
 
+    @Transactional
     @PostMapping("/contribute")
     public ResponseEntity<HttpResponse> contribute(@AuthenticationPrincipal UserDTO authenticatedUser, @RequestBody CreateRecyclingActivityForm form) {
 
@@ -187,8 +190,8 @@ public class CenterResource {
                         .data(Map.of(
                                 "user", user,
                                 "center", updatedCenter,
-                                "activities", activities,
-                                "rewardPoints", rewardPoints))
+                                "rewardPoints", rewardPoints,
+                                "activities", activities))
                         .message("You contribution was recieved!")
                         .status(OK)
                         .statusCode(OK.value())
