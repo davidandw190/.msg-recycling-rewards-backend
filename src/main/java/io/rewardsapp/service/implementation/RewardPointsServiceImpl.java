@@ -12,6 +12,6 @@ public class RewardPointsServiceImpl implements RewardPointsService {
 
     @Override
     public Long getRewardPointsAmount(Long userId) {
-        return rewardPointsRepository.findAmountByUserId(userId).orElse(0L);
+        return rewardPointsRepository.findTotalPointsByUserId(userId).orElse(0L);
     }
 }
