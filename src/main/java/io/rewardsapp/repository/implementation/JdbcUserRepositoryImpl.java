@@ -7,8 +7,8 @@ import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.enums.VerificationType;
 import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.form.UpdateUserDetailsForm;
+import io.rewardsapp.repository.JdbcUserRepository;
 import io.rewardsapp.repository.RoleRepository;
-import io.rewardsapp.repository.UserRepository;
 import io.rewardsapp.rowmapper.UserRowMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -48,12 +48,12 @@ import static org.hibernate.type.descriptor.java.JdbcDateJavaType.DATE_FORMAT;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentContextPath;
 
 /**
- * Implementation of UserRepository and UserDetailsService for handling User-related database operations.
+ * Implementation of JdbcUserRepository and UserDetailsService for handling User-related database operations.
  */
 @Slf4j
 @Repository
 @RequiredArgsConstructor
-public class UserRepositoryImpl implements UserRepository<User>, UserDetailsService {
+public class JdbcUserRepositoryImpl implements JdbcUserRepository<User>, UserDetailsService {
 
     private final NamedParameterJdbcTemplate jdbc;
     private final RoleRepository<Role> roleRepository;
@@ -467,6 +467,7 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
      * @throws ApiException If there is an issue updating the user's profile image.
      */
     @Override
+    @Transactional
     public void updateImage(UserDTO user, MultipartFile image) {
         String userImageUrl = setUserImageUrl(user.email());
         saveImage(user.email(), image);

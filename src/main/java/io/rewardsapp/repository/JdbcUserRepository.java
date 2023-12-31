@@ -3,11 +3,12 @@ package io.rewardsapp.repository;
 import io.rewardsapp.domain.User;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.form.UpdateUserDetailsForm;
+import jakarta.transaction.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collection;
 
-public interface UserRepository<T extends User> {
+public interface JdbcUserRepository<T extends User> {
     T create(T date);
 
     Collection<T> list(int page, int pageSize);
