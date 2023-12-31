@@ -27,8 +27,8 @@ public class RewardPoints {
     @JsonIgnore
     private User user;
 
-    @Column(name = "total_points", nullable = false, columnDefinition = "INTEGER DEFAULT 0")
-    private Integer totalPoints;
+    @Column(name = "total_points", nullable = false)
+    private Long totalPoints;
 
     @Column(name = "last_updated", nullable = false)
     private LocalDateTime lastUpdated;

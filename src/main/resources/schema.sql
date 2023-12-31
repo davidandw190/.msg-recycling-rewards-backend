@@ -98,7 +98,7 @@ CREATE TABLE tfa_verifications (
 CREATE TABLE materials (
     material_id     BIGSERIAL PRIMARY KEY,
     name            VARCHAR(50) NOT NULL UNIQUE,
-    reward_points   INTEGER DEFAULT 0
+    reward_points   BIGINT DEFAULT 0
 );
 
 
@@ -141,7 +141,7 @@ CREATE TABLE user_recycling_activities (
 -- Reward Points Table
 CREATE TABLE reward_points (
     user_id         BIGINT PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE,
-    total_points    INTEGER DEFAULT 0,
+    total_points    BIGINT DEFAULT 0,
     last_updated    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_reward_points_user_id FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -170,7 +170,7 @@ CREATE TABLE educational_resources (
     title           VARCHAR(255) NOT NULL,
     content         TEXT NOT NULL,
     resource_type   VARCHAR(50) NOT NULL,
-    likes_count     INTEGER DEFAULT 0,
+    likes_count     BIGINT DEFAULT 0,
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

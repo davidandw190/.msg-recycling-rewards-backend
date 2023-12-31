@@ -26,7 +26,7 @@ public class RecyclableMaterial {
     private String name;
 
     @Column(name = "reward_points", nullable = false)
-    private String rewardPoints;
+    private Long rewardPoints;
 
     @OneToMany(mappedBy = "recycledMaterial", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference("recycledMaterial-activities")
