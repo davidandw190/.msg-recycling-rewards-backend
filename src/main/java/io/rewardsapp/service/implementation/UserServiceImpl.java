@@ -5,9 +5,9 @@ import io.rewardsapp.domain.User;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.dto.mapper.UserDTOMapper;
 import io.rewardsapp.form.UpdateUserDetailsForm;
+import io.rewardsapp.repository.JdbcUserRepository;
 import io.rewardsapp.repository.RoleRepository;
 import io.rewardsapp.service.UserService;
-import io.rewardsapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository<User> userRepository;
+    private final JdbcUserRepository<User> userRepository;
     private final RoleRepository<Role> roleRepository;
 
     @Override
