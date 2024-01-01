@@ -6,6 +6,9 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * RowMapper implementation for mapping ResultSet rows to UserStatsDTOs objects.
+ */
 public class UserStatsRowMapper implements RowMapper<UserStatsDTO> {
 
     @Override

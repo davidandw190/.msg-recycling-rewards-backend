@@ -22,9 +22,7 @@ import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-/**
- * Custom Authorization Filter for processing JWT tokens and setting up authentication in the security context.
- */
+
 @Slf4j
 @Component
 @RequiredArgsConstructor

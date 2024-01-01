@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 
 /**
- * The UserPrincipal class represents the authenticated principal (user) in the security context.
+ * Represents the authenticated principal (user) in the security context.
  */
 public record UserPrincipal(User user, Role role) implements UserDetails {
 

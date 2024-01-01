@@ -7,8 +7,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
 /**
- * The UserDTOMapper class provides static methods for mapping between User, Role, and UserDTO objects.
- * It facilitates the conversion of entities to data transfer objects and vice versa.
+ * The UserDTOMapper class provides static methods for mapping between User,
+ * Role, and UserDTO objects.
  */
 @Component
 public class UserDTOMapper {

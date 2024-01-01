@@ -1,7 +1,7 @@
 package io.rewardsapp.enums;
 
 /**
- * The VerificationType enum represents different types of verifications in the recycling rewards application.
+ * Represents different types of verifications in the RecyclingRewards application.
  */
 public enum VerificationType {
     ACCOUNT("ACCOUNT"),

@@ -41,6 +41,14 @@ public class CenterResource {
     private final HttpServletRequest request;
     private final HttpServletResponse response;
 
+    /**
+     * Retrieves a list of all recycling centers, user details, and statistics for the authenticated user.
+     *
+     * @param authenticatedUser The authenticated user details.
+     * @param page              Optional parameter for pagination (default: 0).
+     * @param size              Optional parameter for page size (default: 10).
+     * @return ResponseEntity with the list of recycling centers, user details, and statistics.
+     */
     @GetMapping("/list-all")
     public ResponseEntity<HttpResponse> listAllRecyclingCenters(
             @AuthenticationPrincipal UserDTO authenticatedUser,
@@ -62,6 +70,20 @@ public class CenterResource {
         );
     }
 
+    /**
+     * Searches for recycling centers based on specified criteria and retrieves the results.
+     *
+     * @param authenticatedUser The authenticated user details.
+     * @param name              Center name (optional).
+     * @param county            Center county (optional).
+     * @param city              Center city (optional).
+     * @param materials         List of accepted materials (optional).
+     * @param page              Page number for pagination.
+     * @param size              Page size for pagination.
+     * @param sortBy            Sorting field (default: createdAt).
+     * @param sortOrder         Sorting order (default: asc).
+     * @return ResponseEntity with the search results.
+     */
     @GetMapping("/search")
     public ResponseEntity<HttpResponse> searchCenters(
             @AuthenticationPrincipal UserDTO authenticatedUser,
@@ -97,6 +119,11 @@ public class CenterResource {
         );
     }
 
+    /**
+     * Retrieves a list of all materials accepted by recycling centers.
+     *
+     * @return ResponseEntity with the list of materials.
+     */
     @GetMapping("/materials/all")
     public ResponseEntity<HttpResponse> getAllMaterials() {
         return ResponseEntity.ok(
@@ -110,9 +137,19 @@ public class CenterResource {
         );
     }
 
+    /**
+     * Creates a new recycling center and returns the details.
+     *
+     * @param authenticatedUser The authenticated user details.
+     * @param form              Form containing details for creating a new center.
+     * @return ResponseEntity with the created center details.
+     */
     @Transactional
     @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<HttpResponse> createCustomer(@AuthenticationPrincipal UserDTO authenticatedUser, @RequestBody @Valid CreateCenterForm form) {
+    public ResponseEntity<HttpResponse> createCustomer(
+            @AuthenticationPrincipal UserDTO authenticatedUser,
+            @RequestBody @Valid CreateCenterForm form
+    ) {
         return ResponseEntity.created(URI.create(""))
                 .body(
                         HttpResponse.builder()
@@ -127,8 +164,18 @@ public class CenterResource {
                 );
     }
 
+    /**
+     * Retrieves details for a specific recycling center, user, activities, and reward points.
+     *
+     * @param authenticatedUser The authenticated user details.
+     * @param id                ID of the recycling center.
+     * @return ResponseEntity with the center details, user details, activities, and reward points.
+     */
     @GetMapping("/get/{id}")
-    public ResponseEntity<HttpResponse> getCustomer(@AuthenticationPrincipal UserDTO authenticatedUser, @PathVariable("id") Long id) {
+    public ResponseEntity<HttpResponse> getCustomer(
+            @AuthenticationPrincipal UserDTO authenticatedUser,
+            @PathVariable("id") Long id
+    ) {
         RecyclingCenter center = centerService.getCenter(id);
         User user = toUser(userService.getUser(authenticatedUser.id()));
         List<UserRecyclingActivity> activities = activityService.getUserRecyclingActivitiesAtCenter(user, center);
@@ -149,9 +196,19 @@ public class CenterResource {
         );
     }
 
+    /**
+     * Updates the details of a recycling center and returns the updated details.
+     *
+     * @param authenticatedUser The authenticated user details.
+     * @param form              Form containing details for updating a center.
+     * @return ResponseEntity with the updated center details.
+     */
     @Transactional
     @PutMapping("/update")
-    public ResponseEntity<HttpResponse> updateCenter(@AuthenticationPrincipal UserDTO authenticatedUser, @RequestBody UpdateCenterForm form) {
+    public ResponseEntity<HttpResponse> updateCenter(
+            @AuthenticationPrincipal UserDTO authenticatedUser,
+            @RequestBody UpdateCenterForm form
+    ) {
         RecyclingCenter updatedCenter = centerService.updateCenter(form);
         User user = toUser(userService.getUser(authenticatedUser.id()));
         List<UserRecyclingActivity> activities = activityService.getUserRecyclingActivitiesAtCenter(user, updatedCenter);
@@ -172,6 +229,13 @@ public class CenterResource {
                         .build());
     }
 
+    /**
+     * Records a user's contribution to recycling activities and returns the updated details.
+     *
+     * @param authenticatedUser The authenticated user details.
+     * @param form              Form containing details for the recycling activity.
+     * @return ResponseEntity with the updated user, center, reward points, and activities details.
+     */
     @Transactional
     @PostMapping("/contribute")
     public ResponseEntity<HttpResponse> contribute(@AuthenticationPrincipal UserDTO authenticatedUser, @RequestBody CreateRecyclingActivityForm form) {
