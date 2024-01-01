@@ -6,16 +6,19 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 /**
- * Represents the form data for user details update.
+ * Represents the form data for updating user details.
+ * Contains fields to specify user information such as first name, last name, email, contact details, and address.
  */
 public record UpdateUserDetailsForm(
         @NotNull(message = "ID field cannot be null or empty") Long id,
-        @NotEmpty(message = "First name field cannot be empty") String firstName,
-        @NotEmpty(message = "Last name field cannot be empty") String lastName,
-        @NotEmpty(message = "Email field cannot be empty") @Email(message = "Invalid email. Please enter a valid email address") String email,
-        @NotEmpty(message = "City field cannot be empty") String city,
-        @NotEmpty(message = "County field cannot be empty") String county,
+        @NotEmpty(message = "Please enter the first name.") String firstName,
+        @NotEmpty(message = "Please enter the last name.") String lastName,
+        @NotEmpty(message = "Please enter a valid email address.")
+        @Email(message = "Invalid email format. Please enter a valid email address.") String email,
+        @NotEmpty(message = "Please enter the city.") String city,
+        @NotEmpty(message = "Please enter the county.") String county,
         @Pattern(regexp = "^\\d{10}$", message = "Invalid phone number. The number should contain 10 digits.") String phone,
+
         String address,
         String bio
 ) {}
