@@ -12,12 +12,13 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Set;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_DEFAULT;
 
 /**
- * The User class represents a user in the recycling rewards application.
+ * Represents a user in the RecyclingRewards application.
  */
 @Data
 @Entity
@@ -87,7 +88,11 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     @JsonManagedReference
-    private Set<UserRecyclingActivity> recyclingActivities;
+    private Collection<UserRecyclingActivity> recyclingActivities;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private Collection<Voucher> vouchers;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
