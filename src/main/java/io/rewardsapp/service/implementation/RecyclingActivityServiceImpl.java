@@ -5,6 +5,7 @@ import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.form.CreateRecyclingActivityForm;
 import io.rewardsapp.repository.*;
 import io.rewardsapp.service.RecyclingActivityService;
+import io.rewardsapp.service.RewardPointsService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,17 +18,34 @@ import static io.rewardsapp.utils.RewardPointsUtils.computeRewardPointsByUnitsRe
 @Service
 @RequiredArgsConstructor
 public class RecyclingActivityServiceImpl implements RecyclingActivityService {
+
+    // Services
+    private final RewardPointsService rewardPointsService;
+
+    // Repositories
     private final UserRecyclingActivityRepository activityRepository;
-    private final RewardPointsRepository rewardPointsRepository;
-    private final CenterRepository centerRepository;
     private final JpaUserRepository userRepository;
+    private final CenterRepository centerRepository;
     private final MaterialsRepository materialsRepository;
 
+    /**
+     * Retrieves recycling activities of a user at a specific recycling center.
+     *
+     * @param user   The user for whom activities are retrieved.
+     * @param center The recycling center where activities are retrieved.
+     * @return A list of UserRecyclingActivity.
+     */
     @Override
     public List<UserRecyclingActivity> getUserRecyclingActivitiesAtCenter(User user, RecyclingCenter center) {
         return activityRepository.findAllByUserAndRecyclingCenter(user, center);
     }
 
+    /**
+     * Creates a new recycling activity based on the provided form.
+     *
+     * @param form The form containing recycling activity details.
+     * @throws ApiException if the user, recycling center, or recyclable material is not found.
+     */
     @Override
     @Transactional
     public void createActivity(CreateRecyclingActivityForm form) {
@@ -51,32 +69,7 @@ public class RecyclingActivityServiceImpl implements RecyclingActivityService {
 
         activityRepository.save(activity);
 
-        updateUserRewardPoints(user, form.amount(), material);
-    }
-
-
-    private void updateUserRewardPoints(User user, Long amountRecycledInUnits, RecyclableMaterial materialRecycled) {
-        Long updatedRewardPoints = computeRewardPointsByUnitsRecycled(amountRecycledInUnits, materialRecycled.getRewardPoints());
-
-        // Check if the user has existing reward points
-        RewardPoints existingRewardPoints = rewardPointsRepository.findRewardPointsByUserId(user.getId());
-
-        if (existingRewardPoints == null) {
-            // If the user doesn't have reward points entry, create a new one
-            RewardPoints newRewardPoints = RewardPoints.builder()
-                    .user(user)
-                    .totalPoints(updatedRewardPoints)
-                    .lastUpdated(LocalDateTime.now())
-                    .build();
-
-            rewardPointsRepository.save(newRewardPoints);
-        } else {
-            // If the user has existing reward points entry, update it
-            existingRewardPoints.setTotalPoints(existingRewardPoints.getTotalPoints() + updatedRewardPoints);
-            existingRewardPoints.setLastUpdated(LocalDateTime.now());
-
-            rewardPointsRepository.save(existingRewardPoints);
-        }
+        rewardPointsService.updateUserRewardPoints(user, form.amount(), material);
     }
 
 }

@@ -17,89 +17,190 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final JdbcUserRepository<User> userRepository;
+    // Repositories
+    private final JdbcUserRepository<User> jdbcUserRepository;
     private final RoleRepository<Role> roleRepository;
 
+    /**
+     * Creates a new user and sends an account verification code.
+     *
+     * @param user The user to be created.
+     * @return The created user as a {@link UserDTO}.
+     */
     @Override
     public UserDTO createUser(User user) {
-        UserDTO createdUser = mapToUserDTO(userRepository.create(user));
-        userRepository.createAccountVerificationCode(user);
+        UserDTO createdUser = mapToUserDTO(jdbcUserRepository.create(user));
+        jdbcUserRepository.createAccountVerificationCode(user);
         return createdUser;
     }
 
+    /**
+     * Retrieves a user by email.
+     *
+     * @param email The email of the user.
+     * @return The user as a {@link UserDTO}.
+     */
     @Override
     public UserDTO getUser(String email) {
-        return mapToUserDTO(userRepository.getUserByEmail(email));
+        return mapToUserDTO(jdbcUserRepository.getUserByEmail(email));
     }
 
+    /**
+     * Retrieves a user by user ID.
+     *
+     * @param userId The ID of the user.
+     * @return The user as a {@link UserDTO}.
+     */
     @Override
     public UserDTO getUser(Long userId) {
-        return mapToUserDTO(userRepository.get(userId));
+        return mapToUserDTO(jdbcUserRepository.get(userId));
     }
 
+    /**
+     * Sends an account verification code to the specified user.
+     *
+     * @param user The user to whom the code will be sent.
+     */
     @Override
     public void sendAccountVerificationCode(UserDTO user) {
-        userRepository.sendAccountVerificationCode(user);
+        jdbcUserRepository.sendAccountVerificationCode(user);
     }
 
+    /**
+     * Updates the details of a user.
+     *
+     * @param updateUserDetailsForm The form containing updated user details.
+     * @return The updated user as a {@link UserDTO}.
+     */
     @Override
     public UserDTO updateUserDetails(UpdateUserDetailsForm updateUserDetailsForm) {
-        return mapToUserDTO(userRepository.updateUserDetails(updateUserDetailsForm));
+        return mapToUserDTO(jdbcUserRepository.updateUserDetails(updateUserDetailsForm));
     }
 
+    /**
+     * Verifies the account verification code for a user.
+     *
+     * @param email The email of the user.
+     * @param code  The verification code.
+     * @return The user as a {@link UserDTO} if verification is successful.
+     */
     @Override
     public UserDTO verifyCode(String email, String code) {
-        return mapToUserDTO(userRepository.verifyCode(email, code));
+        return mapToUserDTO(jdbcUserRepository.verifyCode(email, code));
     }
+
+    /**
+     * Resets the forgotten password for a user based on the provided email.
+     *
+     * @param email The email of the user for whom the password will be reset.
+     */
 
     @Override
     public void resetForgottenPassword(String email) {
-        userRepository.resetForgottenPassword(email);
+        jdbcUserRepository.resetForgottenPassword(email);
     }
 
+    /**
+     * Verifies the reset password key and retrieves the corresponding user.
+     *
+     * @param key The reset password key.
+     * @return A UserDTO representing the user if the key is valid.
+     */
     @Override
     public UserDTO verifyResetPasswordKey(String key) {
-        return mapToUserDTO(userRepository.verifyResetPasswordKey(key));
+        return mapToUserDTO(jdbcUserRepository.verifyResetPasswordKey(key));
     }
 
+    /**
+     * Updates the password for a user based on the provided parameters.
+     *
+     * @param userId            The ID of the user for whom the password will be updated.
+     * @param password          The new password.
+     * @param confirmPassword   The confirmation of the new password.
+     */
     @Override
     public void updatePassword(Long userId, String password, String confirmPassword) {
-        userRepository.renewPassword(userId, password, confirmPassword);
+        jdbcUserRepository.renewPassword(userId, password, confirmPassword);
     }
 
+    /**
+     * Updates the password for a user based on the provided parameters.
+     *
+     * @param userId                The ID of the user for whom the password will be updated.
+     * @param currentPassword       The current password for verification.
+     * @param newPassword           The new password.
+     * @param confirmNewPassword    The confirmation of the new password.
+     */
     @Override
     public void updatePassword(Long userId, String currentPassword, String newPassword, String confirmNewPassword) {
-        userRepository.updatePassword(userId, currentPassword, newPassword, confirmNewPassword);
+        jdbcUserRepository.updatePassword(userId, currentPassword, newPassword, confirmNewPassword);
     }
 
+    /**
+     * Verifies the account key and retrieves the corresponding user.
+     *
+     * @param key The account key for verification.
+     * @return A UserDTO representing the user if the key is valid.
+     */
     @Override
     public UserDTO verifyAccountKey(String key) {
-        return mapToUserDTO(userRepository.verifyAccountKey(key));
+        return mapToUserDTO(jdbcUserRepository.verifyAccountKey(key));
     }
 
+    /**
+     * Toggles multi-factor authentication for a user based on the provided email.
+     *
+     * @param email The email of the user for whom MFA will be toggled.
+     * @return A UserDTO representing the user after the MFA toggle.
+     */
     @Override
     public UserDTO toggleMfa(String email) {
-        return mapToUserDTO(userRepository.toggleMfa(email));
+        return mapToUserDTO(jdbcUserRepository.toggleMfa(email));
     }
 
+    /**
+     * Updates the role of a user.
+     *
+     * @param userId    The ID of the user for whom the role will be updated.
+     * @param roleName  The name of the new role.
+     */
     @Override
     public void updateUserRole(Long userId, String roleName) {
         roleRepository.updateUserRole(userId, roleName);
     }
 
+    /**
+     * Updates the account settings for a user.
+     *
+     * @param userId    The ID of the user for whom the account settings will be updated.
+     * @param enabled   The new enabled status.
+     * @param notLocked The new not locked status.
+     */
     @Override
     public void updateAccountSettings(Long userId, Boolean enabled, Boolean notLocked) {
-        userRepository.updateAccountSettings(userId, enabled, notLocked);
+        jdbcUserRepository.updateAccountSettings(userId, enabled, notLocked);
     }
 
+    /**
+     * Toggles notifications for a user based on the provided email.
+     *
+     * @param email The email of the user for whom notifications will be toggled.
+     * @return A UserDTO representing the user after the notifications toggle.
+     */
     @Override
     public UserDTO toggleNotifications(String email) {
-        return mapToUserDTO(userRepository.toggleNotifications(email));
+        return mapToUserDTO(jdbcUserRepository.toggleNotifications(email));
     }
 
+    /**
+     * Updates the user's image.
+     *
+     * @param user  The user for whom the image will be updated.
+     * @param image The new image file.
+     */
     @Override
     public void updateImage(UserDTO user, MultipartFile image) {
-        userRepository.updateImage(user, image);
+        jdbcUserRepository.updateImage(user, image);
     }
 
     private UserDTO mapToUserDTO(User user) {
