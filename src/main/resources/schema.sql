@@ -150,17 +150,17 @@ CREATE TABLE reward_points (
 CREATE TABLE vouchers (
     voucher_id      BIGSERIAL PRIMARY KEY,
     user_id         BIGINT REFERENCES users(user_id) ON DELETE CASCADE,
-    total_points    INTEGER NOT NULL,
-    expiration_date TIMESTAMP NOT NULL,
-    unique_code     VARCHAR(20) UNIQUE,
+    unique_code     VARCHAR(20) UNIQUE NOT NULL,
+    redeemed        BOOLEAN NOT NULL DEFAULT FALSE,
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at      TIMESTAMP NOT NULL,
     CONSTRAINT fk_vouchers_user_id FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- Voucher History Table
 CREATE TABLE voucher_history (
     voucher_id      BIGINT REFERENCES vouchers(voucher_id) ON DELETE CASCADE,
-    download_date   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    redeem_date     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_voucher_history_voucher_id FOREIGN KEY (voucher_id) REFERENCES vouchers(voucher_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
