@@ -10,8 +10,8 @@ import java.util.Optional;
 @Repository
 public interface RewardPointsRepository extends JpaRepository<RewardPoints, Long> {
 
-     @Query("SELECT rp.totalPoints FROM RewardPoints rp WHERE rp.userId = :userId")
-     Optional<Long> findTotalPointsByUserId(Long userId);
+    @Query("SELECT rp.totalPoints FROM RewardPoints rp WHERE rp.userId = :userId")
+    Optional<Long> findTotalPointsByUserId(Long userId);
 
     RewardPoints findRewardPointsByUserId(Long userId);
 }

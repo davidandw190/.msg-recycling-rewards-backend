@@ -19,9 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static io.rewardsapp.dto.mapper.UserDTOMapper.toUser;
 import static io.rewardsapp.utils.ExceptionUtils.handleException;
@@ -64,6 +62,43 @@ public class CenterResource {
                                 "userStats", statsService.getUserStatsForLastMonth(authenticatedUser.id())
                                 ))
                         .message("Recycling centers retrieved successfully!")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build()
+        );
+    }
+
+    /**
+     * Retrieves a list of recycling centers near the authenticated user's location.
+     *
+     * @param authenticatedUser The authenticated user details.
+     * @param page              Page number for pagination.
+     * @param size              Page size for pagination.
+     * @return ResponseEntity with the list of recycling centers near the user.
+     */
+    @GetMapping("/list-nearby")
+    public ResponseEntity<HttpResponse> listRecyclingCentersNearby(
+            @AuthenticationPrincipal UserDTO authenticatedUser,
+            @RequestParam Optional<Integer> page,
+            @RequestParam Optional<Integer> size
+    ) {
+        Map<String, Object> searchData = null;
+        try {
+
+            searchData = Map.of(
+                    "user", userService.getUser(authenticatedUser.id()),
+                    "page", centerService.searchCenters("", authenticatedUser.county(), authenticatedUser.city(), new ArrayList<>(), page.orElse(0), size.orElse(5), "createdAt", "desc"),
+                    "userStats", statsService.getUserStatsForLastMonth(authenticatedUser.id())
+            );
+        } catch (Exception exception) {
+            handleException(request, response, exception);
+        }
+
+        return ResponseEntity.ok(
+                HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .data(searchData)
+                        .message("Centers retrieved successfully!")
                         .status(OK)
                         .statusCode(OK.value())
                         .build()
