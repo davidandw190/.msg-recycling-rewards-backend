@@ -50,15 +50,15 @@ public class CenterResource {
     @GetMapping("/list-all")
     public ResponseEntity<HttpResponse> listAllRecyclingCenters(
             @AuthenticationPrincipal UserDTO authenticatedUser,
-            @RequestParam Optional<Integer> page,
-            @RequestParam Optional<Integer> size) {
-
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timeStamp(LocalDateTime.now().toString())
                         .data(Map.of(
                                 "user", userService.getUser(authenticatedUser.id()),
-                                "page", centerService.getCenters(page.orElse(0), size.orElse(10)),
+                                "page", centerService.getCenters(page, size),
                                 "userStats", statsService.getUserStatsForLastMonth(authenticatedUser.id())
                                 ))
                         .message("Recycling centers retrieved successfully!")
@@ -74,20 +74,33 @@ public class CenterResource {
      * @param authenticatedUser The authenticated user details.
      * @param page              Page number for pagination.
      * @param size              Page size for pagination.
+     * @param sortBy            Sorting field (default: createdAt).
+     * @param sortOrder         Sorting order (default: asc).
      * @return ResponseEntity with the list of recycling centers near the user.
      */
     @GetMapping("/list-nearby")
     public ResponseEntity<HttpResponse> listRecyclingCentersNearby(
             @AuthenticationPrincipal UserDTO authenticatedUser,
-            @RequestParam Optional<Integer> page,
-            @RequestParam Optional<Integer> size
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortOrder
     ) {
         Map<String, Object> searchData = null;
         try {
 
             searchData = Map.of(
                     "user", userService.getUser(authenticatedUser.id()),
-                    "page", centerService.searchCenters("", authenticatedUser.county(), authenticatedUser.city(), new ArrayList<>(), page.orElse(0), size.orElse(5), "createdAt", "desc"),
+                    "page", centerService.searchCenters(
+                            "",
+                            authenticatedUser.county(),
+                            authenticatedUser.city(),
+                            new ArrayList<>(),
+                            page,
+                            size,
+                            sortBy,
+                            sortOrder
+                    ),
                     "userStats", statsService.getUserStatsForLastMonth(authenticatedUser.id())
             );
         } catch (Exception exception) {
