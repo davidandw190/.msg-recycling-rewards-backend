@@ -1,6 +1,10 @@
 package io.rewardsapp.resource;
 
-import io.rewardsapp.domain.*;
+import io.rewardsapp.domain.HttpResponse;
+import io.rewardsapp.domain.RecyclingCenter;
+import io.rewardsapp.domain.User;
+import io.rewardsapp.domain.UserRecyclingActivity;
+import io.rewardsapp.dto.CenterStatsDTO;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.form.CreateCenterForm;
 import io.rewardsapp.form.CreateRecyclingActivityForm;
@@ -19,7 +23,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static io.rewardsapp.dto.mapper.UserDTOMapper.toUser;
 import static io.rewardsapp.utils.ExceptionUtils.handleException;
@@ -216,18 +222,19 @@ public class CenterResource {
      * Retrieves details for a specific recycling center, user, activities, and reward points.
      *
      * @param authenticatedUser The authenticated user details.
-     * @param id                ID of the recycling center.
+     * @param centerId          ID of the recycling center.
      * @return ResponseEntity with the center details, user details, activities, and reward points.
      */
     @GetMapping("/get/{id}")
-    public ResponseEntity<HttpResponse> getCustomer(
+    public ResponseEntity<HttpResponse> getCenter(
             @AuthenticationPrincipal UserDTO authenticatedUser,
-            @PathVariable("id") Long id
+            @PathVariable("id") Long centerId
     ) {
-        RecyclingCenter center = centerService.getCenter(id);
+        RecyclingCenter center = centerService.getCenter(centerId);
         User user = toUser(userService.getUser(authenticatedUser.id()));
         List<UserRecyclingActivity> activities = activityService.getUserRecyclingActivitiesAtCenter(user, center);
         Long rewardPoints = rewardPointsService.getRewardPointsAmount(authenticatedUser.id());
+        CenterStatsDTO centerStats = statsService.getCenterTotalStats(centerId);
 
         return ResponseEntity.ok(
                 HttpResponse.builder()
@@ -236,7 +243,9 @@ public class CenterResource {
                                 "user", user,
                                 "center", center,
                                 "activities", activities,
-                                "rewardPoints", rewardPoints))
+                                "rewardPoints", rewardPoints,
+                                "centerStats", centerStats
+                        ))
                         .message("Center retrieved successfully!")
                         .status(OK)
                         .statusCode(OK.value())

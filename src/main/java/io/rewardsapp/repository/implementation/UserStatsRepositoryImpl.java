@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.rewardsapp.query.UserStatsQuery.GET_USER_STATS_FOR_LAST_MONTH;
+import static io.rewardsapp.query.StatsQuery.GET_USER_STATS_FOR_LAST_MONTH;
 
 @Repository
 @RequiredArgsConstructor
