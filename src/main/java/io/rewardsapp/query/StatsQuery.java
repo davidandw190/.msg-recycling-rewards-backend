@@ -26,7 +26,7 @@ public class StatsQuery {
                     "COALESCE(SUM(CASE WHEN m.name = 'metals' THEN ura.amount END), 0) AS metalsRecycled, " +
                     "COALESCE(SUM(CASE WHEN m.name = 'electronics' THEN ura.amount END), 0) AS electronicsRecycled " +
                     "FROM user_recycling_activities ura " +
-                    "LEFT JOIN recyclable_materials m ON ura.material_id = m.material_id " +
+                    "LEFT JOIN materials m ON ura.material_id = m.material_id " +
                     "WHERE ura.center_id = :centerId";
 
     public static final String GET_APP_TOTAL_STATS =

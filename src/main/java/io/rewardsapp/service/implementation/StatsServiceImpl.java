@@ -1,7 +1,9 @@
 package io.rewardsapp.service.implementation;
 
+import io.rewardsapp.dto.AppStatsDTO;
 import io.rewardsapp.dto.CenterStatsDTO;
 import io.rewardsapp.dto.UserStatsDTO;
+import io.rewardsapp.repository.AppStatsRepository;
 import io.rewardsapp.repository.CenterStatsRepository;
 import io.rewardsapp.repository.UserStatsRepository;
 import io.rewardsapp.service.StatsService;
@@ -18,6 +20,7 @@ public class StatsServiceImpl implements StatsService {
 
     private final UserStatsRepository userStatsRepository;
     private final CenterStatsRepository centerStatsRepository;
+    private final AppStatsRepository appStatsRepository;
 
     @Override
     @Transactional
@@ -29,5 +32,10 @@ public class StatsServiceImpl implements StatsService {
     @Transactional
     public CenterStatsDTO getCenterTotalStats(Long centerId) {
         return centerStatsRepository.getCenterTotalStats(centerId);
+    }
+
+    @Override
+    public AppStatsDTO getAppStats() {
+        return appStatsRepository.getAppTotalStats();
     }
 }

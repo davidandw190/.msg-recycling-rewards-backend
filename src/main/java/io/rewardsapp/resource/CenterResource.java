@@ -82,7 +82,7 @@ public class CenterResource {
      * @param size              Page size for pagination.
      * @param sortBy            Sorting field (default: createdAt).
      * @param sortOrder         Sorting order (default: asc).
-     * @return ResponseEntity with the list of recycling centers near the user.
+     * @return ResponseEntity with the list of recycling centers near the user, user statistics and app statistics.
      */
     @GetMapping("/list-nearby")
     public ResponseEntity<HttpResponse> listRecyclingCentersNearby(
@@ -107,7 +107,8 @@ public class CenterResource {
                             sortBy,
                             sortOrder
                     ),
-                    "userStats", statsService.getUserStatsForLastMonth(authenticatedUser.id())
+                    "userStats", statsService.getUserStatsForLastMonth(authenticatedUser.id()),
+                    "appStats", statsService.getAppStats()
             );
         } catch (Exception exception) {
             handleException(request, response, exception);
@@ -196,7 +197,7 @@ public class CenterResource {
      *
      * @param authenticatedUser The authenticated user details.
      * @param form              Form containing details for creating a new center.
-     * @return ResponseEntity with the created center details.
+     * @return ResponseEntity with the created center details and the user.
      */
     @Transactional
     @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -223,7 +224,8 @@ public class CenterResource {
      *
      * @param authenticatedUser The authenticated user details.
      * @param centerId          ID of the recycling center.
-     * @return ResponseEntity with the center details, user details, activities, and reward points.
+     * @return ResponseEntity with the center details, user details, recycling activities of the user to the center,
+     * user reward points for the last month and center statistics.
      */
     @GetMapping("/get/{id}")
     public ResponseEntity<HttpResponse> getCenter(
