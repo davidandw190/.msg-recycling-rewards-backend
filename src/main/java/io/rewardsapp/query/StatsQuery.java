@@ -28,4 +28,10 @@ public class StatsQuery {
                     "FROM user_recycling_activities ura " +
                     "LEFT JOIN recyclable_materials m ON ura.material_id = m.material_id " +
                     "WHERE ura.center_id = :centerId";
+
+    public static final String GET_APP_TOTAL_STATS =
+            "SELECT COUNT(DISTINCT u.user_id) AS activeRecyclersNumber, " +
+                    "COALESCE(SUM(rp.total_points), 0) AS monthlyRewardPoints " +
+                    "FROM users u " +
+                    "LEFT JOIN reward_points rp ON u.user_id = rp.user_id";
 }
