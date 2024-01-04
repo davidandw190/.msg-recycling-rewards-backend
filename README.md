@@ -8,7 +8,6 @@ Users can actively engage with participating recycling centers, contribute recyc
 
 The project is built as part of a competition amongst 2nd and 3rd Year CS Student, organised by [.msg Systems Romania](https://www.msg-systems.ro/en/). The curated list of requirements for the application can be found in [REQUIREMENTS.md](REQUIREMENTS.md).
 
----
 
 ## Backend Tech Stack
 
@@ -20,3 +19,11 @@ The project is built as part of a competition amongst 2nd and 3rd Year CS Studen
 - **Maven**
 - **Docker** (soon)
 - **AWS** (soon)
+
+## License
+
+This project is licensed under the [Apache License, Version 2.0](LICENSE).
+
+---
+
+**Apache License, Version 2.0**
