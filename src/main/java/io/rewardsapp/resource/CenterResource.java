@@ -6,6 +6,7 @@ import io.rewardsapp.domain.User;
 import io.rewardsapp.domain.UserRecyclingActivity;
 import io.rewardsapp.dto.CenterStatsDTO;
 import io.rewardsapp.dto.UserDTO;
+import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.form.CreateCenterForm;
 import io.rewardsapp.form.CreateRecyclingActivityForm;
 import io.rewardsapp.form.UpdateCenterForm;
@@ -321,9 +322,9 @@ public class CenterResource {
                         .build());
     }
 
-    private void validatePageAndSize(int page, int size) throws BadRequestException {
+    private void validatePageAndSize(int page, int size) {
         if (page < 0 || size <= 0 || size > 100) {
-            throw new BadRequestException("Invalid page or size parameters");
+            throw new ApiException("Invalid page or size parameters");
         }
     }
 }

@@ -33,7 +33,7 @@ public class RewardPointsServiceImpl implements RewardPointsService {
     @Override
     @Transactional
     public void updateUserRewardPoints(User user, Long amountRecycledInUnits, RecyclableMaterial materialRecycled) {
-        Long updatedRewardPoints = computeRewardPointsByUnitsRecycled(amountRecycledInUnits, materialRecycled.getRewardPoints());
+        Long additionalRewardPoints = computeRewardPointsByUnitsRecycled(amountRecycledInUnits, materialRecycled.getRewardPoints());
 
         // Check if the user has existing reward points
         RewardPoints existingRewardPoints = rewardPointsRepository.findRewardPointsByUserId(user.getId());
@@ -42,14 +42,15 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             // If the user doesn't have reward points entry, create a new one
             RewardPoints newRewardPoints = RewardPoints.builder()
                     .user(user)
-                    .totalPoints(updatedRewardPoints)
+                    .totalPoints(additionalRewardPoints)
                     .lastUpdated(LocalDateTime.now())
                     .build();
 
             rewardPointsRepository.save(newRewardPoints);
+
         } else {
             // If the user has existing reward points entry, update it
-            existingRewardPoints.setTotalPoints(existingRewardPoints.getTotalPoints() + updatedRewardPoints);
+            existingRewardPoints.setTotalPoints(existingRewardPoints.getTotalPoints() + additionalRewardPoints);
             existingRewardPoints.setLastUpdated(LocalDateTime.now());
 
             rewardPointsRepository.save(existingRewardPoints);

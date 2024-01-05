@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "/voucher_types")
+@Table(name = "voucher_types")
 public class VoucherType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

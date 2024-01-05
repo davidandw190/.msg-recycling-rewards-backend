@@ -19,12 +19,12 @@ public class StatsQuery {
             "SELECT " +
                     "COUNT(DISTINCT ura.user_id) AS recyclersNumber, " +
                     "COUNT(ura.activity_id) AS activitiesNumber, " +
-                    "COALESCE(SUM(CASE WHEN m.name = 'paper' THEN ura.amount END), 0) AS paperRecycled, " +
-                    "COALESCE(SUM(CASE WHEN m.name = 'plastic' THEN ura.amount END), 0) AS plasticRecycled, " +
-                    "COALESCE(SUM(CASE WHEN m.name = 'glass' THEN ura.amount END), 0) AS glassRecycled, " +
-                    "COALESCE(SUM(CASE WHEN m.name = 'aluminum' THEN ura.amount END), 0) AS aluminumRecycled, " +
-                    "COALESCE(SUM(CASE WHEN m.name = 'metals' THEN ura.amount END), 0) AS metalsRecycled, " +
-                    "COALESCE(SUM(CASE WHEN m.name = 'electronics' THEN ura.amount END), 0) AS electronicsRecycled " +
+                    "COALESCE(SUM(CASE WHEN m.name = 'PAPER' THEN ura.amount END), 0) AS paperRecycled, " +
+                    "COALESCE(SUM(CASE WHEN m.name = 'PLASTIC' THEN ura.amount END), 0) AS plasticRecycled, " +
+                    "COALESCE(SUM(CASE WHEN m.name = 'GLASS' THEN ura.amount END), 0) AS glassRecycled, " +
+                    "COALESCE(SUM(CASE WHEN m.name = 'ALUMINUM' THEN ura.amount END), 0) AS aluminumRecycled, " +
+                    "COALESCE(SUM(CASE WHEN m.name = 'METALS' THEN ura.amount END), 0) AS metalsRecycled, " +
+                    "COALESCE(SUM(CASE WHEN m.name = 'ELECTRONICS' THEN ura.amount END), 0) AS electronicsRecycled " +
                     "FROM user_recycling_activities ura " +
                     "LEFT JOIN materials m ON ura.material_id = m.material_id " +
                     "WHERE ura.center_id = :centerId";

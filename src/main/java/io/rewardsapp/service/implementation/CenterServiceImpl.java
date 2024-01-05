@@ -1,4 +1,4 @@
-package io.rewardsapp.repository.implementation;
+package io.rewardsapp.service.implementation;
 
 import io.rewardsapp.domain.RecyclableMaterial;
 import io.rewardsapp.domain.RecyclingCenter;
@@ -75,16 +75,10 @@ public class CenterServiceImpl implements CenterService {
             String sortOrder
     ) {
 
-        System.out.println("searching by: " + name + " " + county + " " + city + page + " " + size);
         Sort sort = Sort.by(Sort.Direction.fromString(sortOrder), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        System.out.println(" <<<<<<<<<< " + centerRepository.findAll().size());
-
-
         Specification<RecyclingCenter> specification = RecyclingCenterSpecification.searchCenters(name, county, city, materials);
-
-        System.out.println(" >>>>>>>>>>> " + centerRepository.findAll(specification, pageable).getSize());
 
         return centerRepository.findAll(specification, pageable);
     }

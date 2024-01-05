@@ -9,7 +9,10 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CenterRepository extends PagingAndSortingRepository<RecyclingCenter, Long>, ListCrudRepository<RecyclingCenter, Long>, JpaSpecificationExecutor<RecyclingCenter> {
+public interface CenterRepository extends
+        PagingAndSortingRepository<RecyclingCenter, Long>,
+        ListCrudRepository<RecyclingCenter, Long>,
+        JpaSpecificationExecutor<RecyclingCenter> {
 
     Page<RecyclingCenter> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
