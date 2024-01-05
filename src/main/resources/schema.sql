@@ -19,6 +19,7 @@ DROP TABLE IF EXISTS    rewards_app.users,
                         rewards_app.reward_points,
                         rewards_app.vouchers,
                         rewards_app.voucher_history,
+                        rewards_app.voucher_types,
                         rewards_app.educational_resources,
                         rewards_app.user_saved_resources,
                         rewards_app.challenges,
@@ -150,11 +151,20 @@ CREATE TABLE reward_points (
 CREATE TABLE vouchers (
     voucher_id      BIGSERIAL PRIMARY KEY,
     user_id         BIGINT REFERENCES users(user_id) ON DELETE CASCADE,
+    voucher_type_id BIGINT REFERENCES voucher_types(voucher_type_id) ON DELETE RESTRICT,
     unique_code     VARCHAR(20) UNIQUE NOT NULL,
     redeemed        BOOLEAN NOT NULL DEFAULT FALSE,
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     expires_at      TIMESTAMP NOT NULL,
-    CONSTRAINT fk_vouchers_user_id FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT fk_vouchers_user_id FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_vouchers_voucher_type_id FOREIGN KEY (voucher_type_id) REFERENCES voucher_types(voucher_type_id) ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- Voucher Types Table
+CREATE TABLE voucher_types (
+    voucher_type_id   BIGSERIAL PRIMARY KEY,
+    name              VARCHAR(50) NOT NULL,
+    threshold_points  INT NOT NULL
 );
 
 -- Voucher History Table
@@ -227,17 +237,17 @@ CREATE INDEX idx_leaderboard_total_points ON leaderboard(total_points);
 -- Insert records into the 'roles' table
 INSERT INTO roles (name, permission)
 VALUES
-    ('ROLE_USER', 'READ:ALL,UPDATE:USER_PROFILE,CREATE:RECYCLING_ACTIVITY,READ:SAVED_RESOURCES,CREATE:SAVED_RESOURCES,JOIN:CHALLENGE'),
-    ('ROLE_ADMIN', 'READ:ALL,CREATE:ALL,UPDATE:ALL,DELETE:ALL,MANAGE:USER_PROFILE,MANAGE:USER_ACTIVITIES'),
-    ('ROLE_SYSADMIN', 'READ:ALL,CREATE:ALL,UPDATE:ALL,DELETE:ALL,MANAGE:ROLES_PERMISSIONS,ACCESS:ADVANCED_FEATURES');
+    ('ROLE_USER', 'READ:VOUCHERS,READ:CENTERS,READ:ACTIVITIES,UPDATE:PROFILE,CREATE:ACTIVITY,CREATE:SAVED_RESOURCES,JOIN:CHALLENGE'),
+    ('ROLE_ADMIN', 'READ:ALL,CREATE:CENTER,CREATE:RESOURCE,UPDATE:CENTER,UPDATE:PROFILE,DELETE:ALL'),
+    ('ROLE_SYSADMIN', 'READ:ALL,CREATE:ALL,UPDATE:ALL,DELETE:ALL,MANAGE:ROLES,MANAGE:USER_STATUS');
 
 
 -- Insert some sample data with points per unit
 INSERT INTO materials (name, reward_points)
 VALUES
-    ('PLASTIC', 8),
-    ('ALUMINIUM', 10),
-    ('METALS', 8),
+    ('PLASTIC', 10),
+    ('ALUMINIUM', 6),
+    ('METALS', 5),
     ('GLASS', 6),
-    ('PAPER', 5),
-    ('ELECTRONIC', 15);
+    ('PAPER', 10),
+    ('ELECTRONICS', 12);
