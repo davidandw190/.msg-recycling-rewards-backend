@@ -24,6 +24,10 @@ public class Voucher {
     @JsonBackReference
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "voucher_type_id", nullable = false)
+    private VoucherType voucherType;
+
     @OneToOne(mappedBy = "voucher", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference
     private VoucherHistory voucherHistory;
