@@ -1,5 +1,7 @@
 # .msgRecyclingRewards - BACKEND (Work in progress...)
 
+**[!] The DB schma for the app is documented on [dbdocs.io](https://dbdocs.io/nandavid190/RECYCLING-REWARDS-DB).** (updates will likely be made)
+
 ## Overview
 
 RecyclingRewards is a robust, scalable, and secure fullstack application designed to foster more sustainable activities within the community.
@@ -8,6 +10,9 @@ Users can actively engage with participating recycling centers, contribute recyc
 
 The project is built as part of a competition amongst 2nd and 3rd Year CS Student, organised by [.msg Systems Romania](https://www.msg-systems.ro/en/). The curated list of requirements for the application can be found in [REQUIREMENTS.md](REQUIREMENTS.md).
 
+## Database Schema Overview
+
+<img src="REWARDS-APP-DB.png" width="700">
 
 ## Backend Tech Stack
 
