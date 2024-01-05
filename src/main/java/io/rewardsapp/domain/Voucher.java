@@ -24,7 +24,7 @@ public class Voucher {
     @JsonBackReference
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "voucher_type_id", nullable = false)
     private VoucherType voucherType;
 

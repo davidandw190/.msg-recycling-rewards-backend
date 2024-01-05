@@ -8,6 +8,8 @@ import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+
 @Repository
 public interface VoucherRepository extends
         PagingAndSortingRepository<Voucher, Long>,
@@ -16,4 +18,7 @@ public interface VoucherRepository extends
 
     Page<Voucher> findByUniqueCodeContainingIgnoreCase(String uniqueCode, Pageable pageable);
 
+    int countDistinctByUserIdAndRedeemedFalseAndExpiresAtIsBefore(Long userId, LocalDateTime currentTime);
+
+    boolean existsByUniqueCode(String code);
 }
