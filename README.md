@@ -12,7 +12,7 @@ The project is built as part of a competition amongst 2nd and 3rd Year CS Studen
 
 ## Database Schema Overview
 
-<img src="assets/REWARDS-APP-DB.png" width="650">
+<img src="assets/DB-SCHEMA.png" width="700">
 
 ## Backend Tech Stack
 
