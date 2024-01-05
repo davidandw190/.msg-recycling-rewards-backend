@@ -34,8 +34,8 @@ public class VoucherResource {
     public ResponseEntity<HttpResponse> searchVouchers(
             @AuthenticationPrincipal UserDTO authenticatedUser,
             @RequestParam(defaultValue = "") String code,
-            @RequestParam(required = false) Boolean redeemed,
-            @RequestParam(required = false) Boolean expired,
+            @RequestParam(required = false) boolean redeemed,
+            @RequestParam(required = false) boolean expired,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
