@@ -3,6 +3,7 @@ package io.rewardsapp.service.implementation;
 import io.rewardsapp.domain.User;
 import io.rewardsapp.domain.Voucher;
 import io.rewardsapp.domain.VoucherType;
+import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.repository.VoucherRepository;
 import io.rewardsapp.service.VoucherService;
 import io.rewardsapp.specs.VoucherSpecification;
@@ -49,6 +50,13 @@ public class VoucherServiceImpl implements VoucherService {
     @Override
     public int checkForUnretrievedVouchers(User user) {
         return voucherRepository.countDistinctByUserIdAndRedeemedFalseAndExpiresAtIsBefore(user.getId(), LocalDateTime.now());
+    }
+
+    @Override
+    public Voucher getVoucher(String voucherCode) {
+        return voucherRepository.findFirstByUniqueCode(voucherCode).orElseThrow(
+                () -> new ApiException("No voucher found by supplied unique code.")
+        );
     }
 
     private void createNewVouchers(User user, VoucherType... voucherTypes) {

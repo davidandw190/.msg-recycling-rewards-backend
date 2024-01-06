@@ -19,4 +19,6 @@ public interface VoucherService {
     );
 
     int checkForUnretrievedVouchers(User user);
+
+    Voucher getVoucher(String voucherCode);
 }

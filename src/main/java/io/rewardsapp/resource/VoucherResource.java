@@ -1,6 +1,7 @@
 package io.rewardsapp.resource;
 
-import io.rewardsapp.domain.HttpResponse;
+import io.rewardsapp.domain.*;
+import io.rewardsapp.dto.CenterStatsDTO;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.service.UserService;
@@ -10,15 +11,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.rewardsapp.dto.mapper.UserDTOMapper.toUser;
 import static io.rewardsapp.utils.ExceptionUtils.handleException;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -63,6 +63,27 @@ public class VoucherResource {
                         .timeStamp(LocalDateTime.now().toString())
                         .data(searchData)
                         .message("Vouchers retrieved successfully!")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build()
+        );
+    }
+
+    @GetMapping("/get/{code}")
+    public ResponseEntity<HttpResponse> getVoucher(
+            @AuthenticationPrincipal UserDTO authenticatedUser,
+            @PathVariable("code") String voucherCode
+    ) {
+        Voucher voucher = voucherService.getVoucher(voucherCode);
+        User user = toUser(userService.getUser(authenticatedUser.id()));
+
+        return ResponseEntity.ok(
+                HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .data(Map.of(
+                                "user", user,
+                                "voucher", voucher))
+                        .message("Voucher details retrieved successfully!")
                         .status(OK)
                         .statusCode(OK.value())
                         .build()
