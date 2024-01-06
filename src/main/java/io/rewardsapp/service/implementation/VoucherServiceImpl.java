@@ -3,10 +3,12 @@ package io.rewardsapp.service.implementation;
 import io.rewardsapp.domain.User;
 import io.rewardsapp.domain.Voucher;
 import io.rewardsapp.domain.VoucherType;
+import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.repository.VoucherRepository;
 import io.rewardsapp.service.VoucherService;
 import io.rewardsapp.specs.VoucherSpecification;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -53,10 +55,41 @@ public class VoucherServiceImpl implements VoucherService {
     }
 
     @Override
-    public Voucher getVoucher(String voucherCode) {
-        return voucherRepository.findFirstByUniqueCode(voucherCode).orElseThrow(
+    public Voucher getVoucher(Long userId, String voucherCode) {
+        Voucher voucher = voucherRepository.findFirstByUniqueCode(voucherCode).orElseThrow(
                 () -> new ApiException("No voucher found by supplied unique code.")
         );
+
+        if (!userOwnsVoucher(userId, voucher)) {
+            throw new ApiException("No voucher found by supplied unique code.");
+        }
+
+        return voucher;
+    }
+
+    @Override
+    @Transactional
+    public Voucher redeemVoucher(UserDTO authenticatedUser, String voucherCode) {
+        Voucher voucher = getVoucher(authenticatedUser.id(), voucherCode);
+
+        if (!userOwnsVoucher(authenticatedUser.id(), voucher)) {
+            throw new ApiException("No voucher found by supplied unique code.");
+        }
+
+        if (voucher.isRedeemed()) {
+            throw new ApiException("Voucher already redeemed.");
+        }
+
+        if (voucher.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new ApiException("Seems like you voucher has expired..");
+        }
+
+        voucher.setRedeemed(true);
+        return voucherRepository.save(voucher);
+    }
+
+    private boolean userOwnsVoucher(Long userId, Voucher voucher) {
+        return voucher.getUser().getId().equals(userId);
     }
 
     private void createNewVouchers(User user, VoucherType... voucherTypes) {

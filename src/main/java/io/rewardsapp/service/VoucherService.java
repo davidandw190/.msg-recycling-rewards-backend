@@ -2,6 +2,7 @@ package io.rewardsapp.service;
 
 import io.rewardsapp.domain.User;
 import io.rewardsapp.domain.Voucher;
+import io.rewardsapp.dto.UserDTO;
 import org.springframework.data.domain.Page;
 
 import java.util.Optional;
@@ -20,5 +21,7 @@ public interface VoucherService {
 
     int checkForUnretrievedVouchers(User user);
 
-    Voucher getVoucher(String voucherCode);
+    Voucher getVoucher(Long userId, String voucherCode);
+
+    Voucher redeemVoucher(UserDTO authenticatedUser, String voucherCode);
 }

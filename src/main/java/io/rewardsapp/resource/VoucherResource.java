@@ -74,8 +74,8 @@ public class VoucherResource {
             @AuthenticationPrincipal UserDTO authenticatedUser,
             @PathVariable("code") String voucherCode
     ) {
-        Voucher voucher = voucherService.getVoucher(voucherCode);
         User user = toUser(userService.getUser(authenticatedUser.id()));
+        Voucher voucher = voucherService.getVoucher(authenticatedUser.id(), voucherCode);
 
         return ResponseEntity.ok(
                 HttpResponse.builder()
@@ -90,9 +90,32 @@ public class VoucherResource {
         );
     }
 
+    @PostMapping("/redeem/{code}/")
+    public ResponseEntity<HttpResponse> redeemVoucher(
+            @AuthenticationPrincipal UserDTO authenticatedUser,
+            @PathVariable("code") String voucherCode
+    ) {
+        User user = toUser(userService.getUser(authenticatedUser.id()));
+        Voucher voucher = voucherService.redeemVoucher(authenticatedUser, voucherCode);
+
+
+        return ResponseEntity.ok(
+                HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .data(Map.of(
+                                "user", user,
+                                "voucher", voucher))
+                        .message("Voucher redeemed successfully!")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build()
+        );
+    }
+
     private void validatePageAndSize(int page, int size) {
         if (page < 0 || size <= 0 || size > 100) {
             throw new ApiException("Invalid page or size parameters");
         }
     }
+
 }
