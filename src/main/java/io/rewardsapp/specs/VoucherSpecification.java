@@ -9,6 +9,7 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class VoucherSpecification {
@@ -16,8 +17,8 @@ public class VoucherSpecification {
     public static Specification<Voucher> searchVouchers(
             Long userId,
             String uniqueCode,
-            Boolean redeemed,
-            Boolean expired
+            Optional<Boolean> redeemed,
+            Optional<Boolean> expired
     ) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -30,13 +31,12 @@ public class VoucherSpecification {
                 predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("uniqueCode")), "%" + uniqueCode.toLowerCase() + "%"));
             }
 
-            if (redeemed != null) {
-                predicates.add(criteriaBuilder.equal(root.get("redeemed"), redeemed));
-            }
+            redeemed.ifPresent(aBoolean -> predicates.add(criteriaBuilder.equal(root.get("redeemed"), aBoolean)));
 
-            if (expired != null) {
+            if (expired.isPresent()) {
                 LocalDateTime currentDateTime = LocalDateTime.now();
-                if (expired) {
+
+                if (expired.get()) {
                     predicates.add(criteriaBuilder.lessThan(root.get("expiresAt"), currentDateTime));
                 } else {
                     predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("expiresAt"), currentDateTime));
@@ -46,4 +46,6 @@ public class VoucherSpecification {
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }
+
+
 }

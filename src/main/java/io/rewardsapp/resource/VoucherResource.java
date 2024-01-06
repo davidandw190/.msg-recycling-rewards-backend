@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Optional;
 
 import static io.rewardsapp.utils.ExceptionUtils.handleException;
 import static org.springframework.http.HttpStatus.OK;
@@ -34,21 +35,23 @@ public class VoucherResource {
     public ResponseEntity<HttpResponse> searchVouchers(
             @AuthenticationPrincipal UserDTO authenticatedUser,
             @RequestParam(defaultValue = "") String code,
-            @RequestParam(required = false) boolean redeemed,
-            @RequestParam(required = false) boolean expired,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String sortOrder
+            @RequestParam(defaultValue = "desc") String sortOrder,
+
+            @RequestParam(required = false) Boolean redeemed,
+            @RequestParam(required = false) Boolean expired
     ) {
         Map<String, Object> searchData = null;
 
         try {
             validatePageAndSize(page, size);
 
+
             searchData = Map.of(
                     "user", userService.getUser(authenticatedUser.id()),
-                    "page", voucherService.searchVouchers(authenticatedUser.id(), code, redeemed, expired, page, size, sortBy, sortOrder
+                    "page", voucherService.searchVouchers(authenticatedUser.id(), code, Optional.ofNullable(redeemed), Optional.ofNullable(expired), page, size, sortBy, sortOrder
                     )
             );
         } catch (Exception exception) {

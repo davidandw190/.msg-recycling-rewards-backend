@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
@@ -30,8 +31,8 @@ public class VoucherServiceImpl implements VoucherService {
     public Page<Voucher> searchVouchers(
             Long userId,
             String code,
-            Boolean redeemed,
-            Boolean expired,
+            Optional<Boolean> redeemed,
+            Optional<Boolean> expired,
             int page,
             int size,
             String sortBy,
