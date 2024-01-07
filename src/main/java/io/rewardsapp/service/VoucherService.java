@@ -26,6 +26,6 @@ public interface VoucherService {
 
     Voucher redeemVoucher(UserDTO authenticatedUser, String voucherCode);
 
-    boolean checkForEarnedVouchers(User user, long rewardsPointsBeforeActivity);
+    int checkForEarnedVouchers(User user, long rewardsPointsBeforeActivity);
 
 }

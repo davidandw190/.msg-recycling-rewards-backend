@@ -49,7 +49,7 @@ public class RecyclingActivityServiceImpl implements RecyclingActivityService {
      */
     @Override
     @Transactional
-    public boolean createActivity(CreateRecyclingActivityForm form) {
+    public int createActivity(CreateRecyclingActivityForm form) {
         User user = userRepository.findById(form.userId()).orElseThrow(
                 () -> new ApiException("User not found")
         );

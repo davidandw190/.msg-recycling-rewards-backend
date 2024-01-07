@@ -200,7 +200,6 @@ public class CenterResource {
      * @param form              Form containing details for creating a new center.
      * @return ResponseEntity with the created center details and the user.
      */
-    @Transactional
     @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HttpResponse> createCustomer(
             @AuthenticationPrincipal UserDTO authenticatedUser,
@@ -263,7 +262,6 @@ public class CenterResource {
      * @param form              Form containing details for updating a center.
      * @return ResponseEntity with the updated center details.
      */
-    @Transactional
     @PutMapping("/update")
     public ResponseEntity<HttpResponse> updateCenter(
             @AuthenticationPrincipal UserDTO authenticatedUser,
@@ -296,17 +294,22 @@ public class CenterResource {
      * @param form              Form containing details for the recycling activity.
      * @return ResponseEntity with the updated user, center, reward points, and activities details.
      */
-    @Transactional
     @PostMapping("/contribute")
-    public ResponseEntity<HttpResponse> contribute(@AuthenticationPrincipal UserDTO authenticatedUser, @RequestBody CreateRecyclingActivityForm form) {
-
-        boolean vouchersEarned = activityService.createActivity(form);
+    public ResponseEntity<HttpResponse> contribute(
+            @AuthenticationPrincipal UserDTO authenticatedUser,
+            @RequestBody CreateRecyclingActivityForm form
+    ) {
+        int vouchersEarned = activityService.createActivity(form);
 
         RecyclingCenter updatedCenter = centerService.getCenter(form.centerId());
         User user = toUser(userService.getUser(authenticatedUser.id()));
         List<UserRecyclingActivity> activities = activityService.getUserRecyclingActivitiesAtCenter(user, updatedCenter);
         Long rewardPoints = rewardPointsService.getRewardPointsAmount(authenticatedUser.id());
 
+        String voucherMessage = (vouchersEarned == 1) ? "voucher" : "vouchers";
+        String contributionMessage = (vouchersEarned > 0)
+                ? String.format("Your contribution was received successfully, and you earned %d %s!", vouchersEarned, voucherMessage)
+                : "Your contribution was received!";
 
         return ResponseEntity.ok(
                 HttpResponse.builder()
@@ -316,11 +319,13 @@ public class CenterResource {
                                 "center", updatedCenter,
                                 "rewardPoints", rewardPoints,
                                 "activities", activities))
-                        .message("You contribution was recieved!")
+                        .message(contributionMessage)
                         .status(OK)
                         .statusCode(OK.value())
                         .build());
     }
+
+
 
     private void validatePageAndSize(int page, int size) {
         if (page < 0 || size <= 0 || size > 100) {

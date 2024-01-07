@@ -21,7 +21,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,7 +32,6 @@ import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 public class VoucherServiceImpl implements VoucherService {
     private final VoucherRepository voucherRepository;
     private final RewardPointsService rewardPointsService;
-    private final RewardPointsRepository rewardPointsRepository;
     private final VoucherTypeRepository voucherTypeRepository;
 
     @Override
@@ -56,11 +54,13 @@ public class VoucherServiceImpl implements VoucherService {
     }
 
     @Override
+    @Transactional
     public int checkForUnretrievedVouchers(User user) {
         return voucherRepository.countDistinctByUserIdAndRedeemedFalseAndExpiresAtIsBefore(user.getId(), LocalDateTime.now());
     }
 
     @Override
+    @Transactional
     public Voucher getVoucher(Long userId, String voucherCode) {
         Voucher voucher = voucherRepository.findFirstByUniqueCode(voucherCode).orElseThrow(
                 () -> new ApiException("No voucher found by supplied unique code.")
@@ -96,35 +96,24 @@ public class VoucherServiceImpl implements VoucherService {
 
     @Override
     @Transactional
-    public boolean checkForEarnedVouchers(User user, long rewardsPointsBeforeActivity) {
-
+    public int checkForEarnedVouchers(User user, long rewardsPointsBeforeActivity) {
         long rewardPointsAfterActivity = rewardPointsService.getRewardPointsAmount(user.getId());
         List<VoucherType> earnedVoucherTypes = voucherTypeRepository.findVoucherTypesByThresholdPointsBetween(rewardsPointsBeforeActivity, rewardPointsAfterActivity);
 
-        if (earnedVoucherTypes.isEmpty()) {
-            return false;
-        } else {
-            for (VoucherType voucherType : earnedVoucherTypes) {
-                voucherRepository.save(buildVoucher(user, voucherType));
-            }
+        if (!earnedVoucherTypes.isEmpty()) {
+            List<Voucher> newVouchers = earnedVoucherTypes.stream()
+                    .map(type -> buildVoucher(user, type))
+                    .collect(Collectors.toList());
 
-            return true;
+            List<Voucher> savedVouchers = voucherRepository.saveAll(newVouchers);
+            return savedVouchers.size();
         }
 
+        return 0;
     }
 
     private boolean userOwnsVoucher(Long userId, Voucher voucher) {
         return voucher.getUser().getId().equals(userId);
-    }
-
-    private void createNewVouchers(User user, VoucherType... voucherTypes) {
-        if (voucherTypes.length > 0) {
-            List<Voucher> vouchers = Arrays.stream(voucherTypes)
-                    .map(type -> buildVoucher(user, type))
-                    .collect(Collectors.toList());
-
-            voucherRepository.saveAll(vouchers);
-        }
     }
 
     private Voucher buildVoucher(User user, VoucherType type) {

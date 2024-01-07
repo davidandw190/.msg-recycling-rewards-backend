@@ -10,5 +10,5 @@ import java.util.List;
 public interface RecyclingActivityService {
     List<UserRecyclingActivity> getUserRecyclingActivitiesAtCenter(User user, RecyclingCenter center);
 
-    boolean createActivity(CreateRecyclingActivityForm form);
+    int createActivity(CreateRecyclingActivityForm form);
 }
