@@ -31,6 +31,19 @@ public class VoucherResource {
     private final HttpServletRequest request;
     private final HttpServletResponse response;
 
+    /**
+     * Searches for vouchers based on specified criteria and retrieves the results.
+     *
+     * @param authenticatedUser The authenticated user details.
+     * @param code              Voucher code (optional).
+     * @param page              Page number for pagination.
+     * @param size              Page size for pagination.
+     * @param sortBy            Sorting field (default: createdAt).
+     * @param sortOrder         Sorting order (default: desc).
+     * @param redeemed          Filter for redeemed vouchers (default: null, optional -> can be set True or False based on needs).
+     * @param expired           Filter for expired vouchers (default: null, optional -> can be set True or False based on needs).
+     * @return ResponseEntity with the search results.
+     */
     @GetMapping("/search")
     public ResponseEntity<HttpResponse> searchVouchers(
             @AuthenticationPrincipal UserDTO authenticatedUser,
@@ -69,6 +82,13 @@ public class VoucherResource {
         );
     }
 
+    /**
+     * Retrieves details for a specific voucher.
+     *
+     * @param authenticatedUser The authenticated user details.
+     * @param voucherCode       Code of the voucher.
+     * @return ResponseEntity with the user and voucher details.
+     */
     @GetMapping("/get/{code}")
     public ResponseEntity<HttpResponse> getVoucher(
             @AuthenticationPrincipal UserDTO authenticatedUser,
@@ -90,6 +110,13 @@ public class VoucherResource {
         );
     }
 
+    /**
+     * Redeems a voucher for the authenticated user.
+     *
+     * @param authenticatedUser The authenticated user details.
+     * @param voucherCode       Code of the voucher to redeem.
+     * @return ResponseEntity with the user and redeemed voucher details.
+     */
     @PostMapping("/redeem/{code}/")
     public ResponseEntity<HttpResponse> redeemVoucher(
             @AuthenticationPrincipal UserDTO authenticatedUser,

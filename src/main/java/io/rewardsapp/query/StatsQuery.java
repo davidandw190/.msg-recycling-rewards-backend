@@ -1,5 +1,8 @@
 package io.rewardsapp.query;
 
+/**
+ * Contains queries related to statistics.
+ */
 public class StatsQuery {
 
     public static final String GET_USER_STATS_FOR_LAST_MONTH =

@@ -1,7 +1,7 @@
 package io.rewardsapp.query;
 
 /**
- * Contains SQL queries related to roles in the SnapInvoice platform.
+ * Contains SQL queries related to roles.
  */
 public class RoleQuery {
 
