@@ -3,6 +3,7 @@ package io.rewardsapp.service;
 import io.rewardsapp.domain.User;
 import io.rewardsapp.domain.Voucher;
 import io.rewardsapp.dto.UserDTO;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 
 import java.util.Optional;
@@ -24,4 +25,7 @@ public interface VoucherService {
     Voucher getVoucher(Long userId, String voucherCode);
 
     Voucher redeemVoucher(UserDTO authenticatedUser, String voucherCode);
+
+    boolean checkForEarnedVouchers(User user, long rewardsPointsBeforeActivity);
+
 }

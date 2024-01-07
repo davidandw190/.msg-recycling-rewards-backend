@@ -1,7 +1,8 @@
 package io.rewardsapp.resource;
 
-import io.rewardsapp.domain.*;
-import io.rewardsapp.dto.CenterStatsDTO;
+import io.rewardsapp.domain.HttpResponse;
+import io.rewardsapp.domain.User;
+import io.rewardsapp.domain.Voucher;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.service.UserService;
@@ -14,7 +15,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 

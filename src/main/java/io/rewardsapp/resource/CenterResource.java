@@ -300,7 +300,7 @@ public class CenterResource {
     @PostMapping("/contribute")
     public ResponseEntity<HttpResponse> contribute(@AuthenticationPrincipal UserDTO authenticatedUser, @RequestBody CreateRecyclingActivityForm form) {
 
-        activityService.createActivity(form);
+        boolean vouchersEarned = activityService.createActivity(form);
 
         RecyclingCenter updatedCenter = centerService.getCenter(form.centerId());
         User user = toUser(userService.getUser(authenticatedUser.id()));

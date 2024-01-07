@@ -5,7 +5,10 @@ import io.rewardsapp.domain.Voucher;
 import io.rewardsapp.domain.VoucherType;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.exception.ApiException;
+import io.rewardsapp.repository.RewardPointsRepository;
 import io.rewardsapp.repository.VoucherRepository;
+import io.rewardsapp.repository.VoucherTypeRepository;
+import io.rewardsapp.service.RewardPointsService;
 import io.rewardsapp.service.VoucherService;
 import io.rewardsapp.specs.VoucherSpecification;
 import jakarta.transaction.Transactional;
@@ -29,6 +32,9 @@ import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 @AllArgsConstructor
 public class VoucherServiceImpl implements VoucherService {
     private final VoucherRepository voucherRepository;
+    private final RewardPointsService rewardPointsService;
+    private final RewardPointsRepository rewardPointsRepository;
+    private final VoucherTypeRepository voucherTypeRepository;
 
     @Override
     public Page<Voucher> searchVouchers(
@@ -86,6 +92,25 @@ public class VoucherServiceImpl implements VoucherService {
 
         voucher.setRedeemed(true);
         return voucherRepository.save(voucher);
+    }
+
+    @Override
+    @Transactional
+    public boolean checkForEarnedVouchers(User user, long rewardsPointsBeforeActivity) {
+
+        long rewardPointsAfterActivity = rewardPointsService.getRewardPointsAmount(user.getId());
+        List<VoucherType> earnedVoucherTypes = voucherTypeRepository.findVoucherTypesByThresholdPointsBetween(rewardsPointsBeforeActivity, rewardPointsAfterActivity);
+
+        if (earnedVoucherTypes.isEmpty()) {
+            return false;
+        } else {
+            for (VoucherType voucherType : earnedVoucherTypes) {
+                voucherRepository.save(buildVoucher(user, voucherType));
+            }
+
+            return true;
+        }
+
     }
 
     private boolean userOwnsVoucher(Long userId, Voucher voucher) {

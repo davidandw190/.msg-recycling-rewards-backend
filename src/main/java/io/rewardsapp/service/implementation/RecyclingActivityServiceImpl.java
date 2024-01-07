@@ -6,6 +6,7 @@ import io.rewardsapp.form.CreateRecyclingActivityForm;
 import io.rewardsapp.repository.*;
 import io.rewardsapp.service.RecyclingActivityService;
 import io.rewardsapp.service.RewardPointsService;
+import io.rewardsapp.service.VoucherService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,14 +14,13 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static io.rewardsapp.utils.RewardPointsUtils.computeRewardPointsByUnitsRecycled;
-
 @Service
 @RequiredArgsConstructor
 public class RecyclingActivityServiceImpl implements RecyclingActivityService {
 
     // Services
     private final RewardPointsService rewardPointsService;
+    private final VoucherService voucherService;
 
     // Repositories
     private final UserRecyclingActivityRepository activityRepository;
@@ -44,11 +44,12 @@ public class RecyclingActivityServiceImpl implements RecyclingActivityService {
      * Creates a new recycling activity based on the provided form.
      *
      * @param form The form containing recycling activity details.
+     * @return
      * @throws ApiException if the user, recycling center, or recyclable material is not found.
      */
     @Override
     @Transactional
-    public void createActivity(CreateRecyclingActivityForm form) {
+    public boolean createActivity(CreateRecyclingActivityForm form) {
         User user = userRepository.findById(form.userId()).orElseThrow(
                 () -> new ApiException("User not found")
         );
@@ -69,7 +70,11 @@ public class RecyclingActivityServiceImpl implements RecyclingActivityService {
 
         activityRepository.save(activity);
 
+        long rewardPointsBeforeActivity = rewardPointsService.getRewardPointsAmount(form.userId());
+
         rewardPointsService.updateUserRewardPoints(user, form.amount(), material);
+
+        return voucherService.checkForEarnedVouchers(user, rewardPointsBeforeActivity);
     }
 
 }
