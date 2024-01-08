@@ -179,7 +179,7 @@ CREATE TABLE educational_resources (
     resource_id     BIGSERIAL PRIMARY KEY,
     title           VARCHAR(255) NOT NULL,
     content         TEXT NOT NULL,
-    resource_type   VARCHAR(50) NOT NULL,
+    content_type_id BIGINT REFERENCES content_types(content_type_id) ON DELETE RESTRICT,
     likes_count     BIGINT DEFAULT 0,
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -193,35 +193,41 @@ CREATE TABLE user_saved_resources (
     CONSTRAINT fk_user_saved_resources_resource_id FOREIGN KEY (resource_id) REFERENCES educational_resources(resource_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- Challenges Table
-CREATE TABLE challenges (
-    challenge_id    BIGSERIAL PRIMARY KEY,
-    title           VARCHAR(255) NOT NULL,
-    description     TEXT,
-    points_reward   INTEGER,
-    target_amount   INTEGER,
-    material_id     BIGINT REFERENCES materials(material_id) ON DELETE SET NULL,
-    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
 
--- User Participation In Challenges Table
-CREATE TABLE user_challenges (
-    user_id         BIGINT REFERENCES users(user_id) ON DELETE CASCADE,
-    challenge_id    BIGINT REFERENCES challenges(challenge_id) ON DELETE CASCADE,
-    progress        INTEGER DEFAULT 0,
-    completed_at    TIMESTAMP,
-    PRIMARY KEY(user_id, challenge_id),
-    CONSTRAINT fk_user_challenges_user_id FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_user_challenges_challenge_id FOREIGN KEY (challenge_id) REFERENCES challenges(challenge_id) ON DELETE CASCADE ON UPDATE CASCADE
+-- Educational Resource Content Types Table
+CREATE TABLE content_types (
+    content_type_id BIGSERIAL PRIMARY KEY,
+    type_name      VARCHAR(50) NOT NULL UNIQUE
 );
 
 
--- Leaderboard Table
-CREATE TABLE leaderboard (
-    user_id         BIGINT PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE,
-    total_points    INTEGER DEFAULT 0,
-    CONSTRAINT fk_leaderboard_user_id FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+-- Educational Resource Categories Table
+CREATE TABLE categories (
+    category_id    BIGSERIAL PRIMARY KEY,
+    category_name  VARCHAR(50) NOT NULL UNIQUE
 );
+
+
+-- Educational Resource Categories Mapping Table
+CREATE TABLE resource_categories (
+    resource_id    BIGINT REFERENCES educational_resources(resource_id) ON DELETE CASCADE,
+    category_id    BIGINT REFERENCES categories(category_id) ON DELETE CASCADE,
+    PRIMARY KEY(resource_id, category_id)
+);
+
+
+-- User Engagement with Educational Resources Table
+CREATE TABLE user_engagement (
+    user_id        BIGINT REFERENCES users(user_id) ON DELETE CASCADE,
+    resource_id    BIGINT REFERENCES educational_resources(resource_id) ON DELETE CASCADE,
+    like_status    BOOLEAN DEFAULT FALSE,
+    share_status   BOOLEAN DEFAULT FALSE,
+    saved_status   BOOLEAN DEFAULT FALSE,
+    PRIMARY KEY(user_id, resource_id),
+    CONSTRAINT fk_user_engagement_user_id FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_user_engagement_resource_id FOREIGN KEY (resource_id) REFERENCES educational_resources(resource_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
 
 -- Index creation
 CREATE INDEX idx_user_recycling_activities_user_id ON user_recycling_activities(user_id);
@@ -230,9 +236,6 @@ CREATE INDEX idx_user_recycling_activities_center_id ON user_recycling_activitie
 CREATE INDEX idx_user_recycling_activities_material_id ON user_recycling_activities(material_id);
 CREATE INDEX idx_user_saved_resources_user_id ON user_saved_resources(user_id);
 CREATE INDEX idx_user_saved_resources_resource_id ON user_saved_resources(resource_id);
-CREATE INDEX idx_user_challenges_user_id ON user_challenges(user_id);
-CREATE INDEX idx_user_challenges_challenge_id ON user_challenges(challenge_id);
-CREATE INDEX idx_leaderboard_total_points ON leaderboard(total_points);
 
 -- Insert records into the 'roles' table
 INSERT INTO roles (name, permission)

@@ -117,7 +117,7 @@ public class VoucherResource {
      * @param voucherCode       Code of the voucher to redeem.
      * @return ResponseEntity with the user and redeemed voucher details.
      */
-    @PostMapping("/redeem/{code}/")
+    @PostMapping("/redeem/{code}")
     public ResponseEntity<HttpResponse> redeemVoucher(
             @AuthenticationPrincipal UserDTO authenticatedUser,
             @PathVariable("code") String voucherCode

@@ -36,6 +36,8 @@ public class VoucherServiceImpl implements VoucherService {
     private final VoucherRepository voucherRepository;
     private final VoucherTypeRepository voucherTypeRepository;
 
+    private static final int VOUCHER_LIFETIME_IN_DAYS = 30;
+
     /**
      * Searches for vouchers based on specified criteria and returns a paginated result.
      *
@@ -92,7 +94,7 @@ public class VoucherServiceImpl implements VoucherService {
     @Transactional
     public Voucher getVoucher(Long userId, String voucherCode) {
         Voucher voucher = voucherRepository.findFirstByUniqueCode(voucherCode).orElseThrow(
-                () -> new ApiException("No voucher found by supplied unique code.")
+                () -> new ApiException(">>>>> No voucher found by supplied unique code.")
         );
 
         if (!userOwnsVoucher(userId, voucher)) {
@@ -178,6 +180,7 @@ public class VoucherServiceImpl implements VoucherService {
         return Voucher.builder()
                 .voucherType(type)
                 .user(user)
+                .expiresAt(LocalDateTime.now().plusDays(VOUCHER_LIFETIME_IN_DAYS))
                 .uniqueCode(generateValidUniqueCode())
                 .build();
     }
