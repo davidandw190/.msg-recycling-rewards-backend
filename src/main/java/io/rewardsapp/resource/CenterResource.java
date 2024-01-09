@@ -10,6 +10,7 @@ import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.form.CreateCenterForm;
 import io.rewardsapp.form.CreateRecyclingActivityForm;
 import io.rewardsapp.form.UpdateCenterForm;
+import io.rewardsapp.report.CenterReport;
 import io.rewardsapp.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,6 +18,8 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,8 +33,10 @@ import java.util.Map;
 
 import static io.rewardsapp.dto.mapper.UserDTOMapper.toUser;
 import static io.rewardsapp.utils.ExceptionUtils.handleException;
+import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.parseMediaType;
 
 @RestController
 @RequestMapping(path = "/centers")
@@ -323,6 +328,18 @@ public class CenterResource {
                         .status(OK)
                         .statusCode(OK.value())
                         .build());
+    }
+
+    @GetMapping("/download/report")
+    public ResponseEntity<Resource> downloadReport() {
+        List<RecyclingCenter> centers = new ArrayList<>();
+        centerService.getCenters().iterator().forEachRemaining(centers::add);
+        CenterReport report = new CenterReport(centers);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("File-Name", "centers-report.xlsx");
+        headers.add(CONTENT_DISPOSITION, "attachment;File-Name=customer-report.xlsx");
+        return ResponseEntity.ok().contentType(parseMediaType("application/vnd.ms-excel"))
+                .headers(headers).body(report.export());
     }
 
 
