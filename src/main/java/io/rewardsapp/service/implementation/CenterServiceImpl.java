@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.springframework.data.domain.PageRequest.of;
@@ -119,7 +120,6 @@ public class CenterServiceImpl implements CenterService {
                 .city(form.city())
                 .address(form.address())
                 .acceptedMaterials(materials)
-                .createdAt(LocalDateTime.now())
                 .alwaysOpen(form.alwaysOpen())
                 .openingHour(parseLocalTime(form.openingHour()))
                 .closingHour(parseLocalTime(form.closingHour()))
@@ -135,7 +135,7 @@ public class CenterServiceImpl implements CenterService {
                 .city(form.city())
                 .address(form.address())
                 .acceptedMaterials(materials)
-                .createdAt(LocalDateTime.now())
+                .createdAt(new Date())
                 .alwaysOpen(form.alwaysOpen())
                 .openingHour(parseLocalTime(form.openingHour()))
                 .closingHour(parseLocalTime(form.closingHour()))
