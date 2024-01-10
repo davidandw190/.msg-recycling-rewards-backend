@@ -10,9 +10,12 @@ import io.rewardsapp.form.UserRegistrationForm;
 import io.rewardsapp.repository.JdbcUserRepository;
 import io.rewardsapp.repository.RoleRepository;
 import io.rewardsapp.service.UserService;
+import io.rewardsapp.utils.EmailUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import static io.rewardsapp.enums.VerificationType.ACCOUNT;
 
 
 @Service
@@ -22,6 +25,8 @@ public class UserServiceImpl implements UserService {
     // Repositories
     private final JdbcUserRepository<User> jdbcUserRepository;
     private final RoleRepository<Role> roleRepository;
+
+    private final EmailUtils emailUtils;
 
     /**
      * Creates a new user and sends an account verification code.
@@ -44,7 +49,9 @@ public class UserServiceImpl implements UserService {
                 .password(form.password())
                 .build();
         UserDTO createdUser = mapToUserDTO(jdbcUserRepository.create(newUser));
-        jdbcUserRepository.createAccountVerificationCode(newUser);
+        String accountEnableUrl = jdbcUserRepository.createEnableAccountUrl(newUser);
+
+        emailUtils.sendEmail(form.firstName(), form.email(), accountEnableUrl, ACCOUNT);
         return createdUser;
     }
 

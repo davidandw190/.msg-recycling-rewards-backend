@@ -3,7 +3,6 @@ package io.rewardsapp.repository;
 import io.rewardsapp.domain.User;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.form.UpdateUserDetailsForm;
-import jakarta.transaction.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collection;
@@ -23,7 +22,7 @@ public interface JdbcUserRepository<T extends User> {
 
     void sendAccountVerificationCode(UserDTO user);
 
-    void createAccountVerificationCode(User user);
+    String createEnableAccountUrl(User user);
 
     T updateUserDetails(UpdateUserDetailsForm updateUserDetailsForm);
 

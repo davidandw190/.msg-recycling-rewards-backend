@@ -86,7 +86,6 @@ public class JdbcUserRepositoryImpl implements JdbcUserRepository<User>, UserDet
             user.setId(key.longValue());
             roleRepository.addRoleToUser(user.getId(), ROLE_USER.name());
             log.info("added role");
-//            sendEmail(user.getFirstName(), user.getEmail(), verificationUrl, ACCOUNT);
             user.setEnabled(true);
             user.setNotLocked(true);
             log.info("returning..");
@@ -209,6 +208,7 @@ public class JdbcUserRepositoryImpl implements JdbcUserRepository<User>, UserDet
             log.error(e.getMessage());
             throw new ApiException("An error occurred. Please try again.");
         }
+
     }
 
     /**
@@ -217,12 +217,14 @@ public class JdbcUserRepositoryImpl implements JdbcUserRepository<User>, UserDet
      * type. The generated URL is associated with the user in the database for account
      * verification purposes.
      *
-     * @param user The user for whom the verification code is created.
+     * @param user  The user for whom the verification code is created.
+     * @return      The verification url
      */
     @Override
-    public void createAccountVerificationCode(User user) {
+    public String createEnableAccountUrl(User user) {
         String verificationUrl = getVerificationUrl(UUID.randomUUID().toString(), ACCOUNT.getType());
         jdbc.update(INSERT_VERIFICATION_QUERY, Map.of("userId", user.getId(), "url", verificationUrl));
+        return verificationUrl;
     }
 
     /**
