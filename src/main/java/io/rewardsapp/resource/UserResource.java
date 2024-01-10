@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -64,17 +65,17 @@ public class UserResource {
     /**
      * Registers a new user in the system.
      *
-     * @param newUser The {@code User} object representing the new user.
+     * @param registrationForm  Registration form containing the user registration information.
      * @return ResponseEntity with the registration result.
      */
-    @PostMapping("/register")
-    public ResponseEntity<HttpResponse> registerUser(@RequestBody @Valid User newUser) {
-        UserDTO createdUser = userService.createUser(newUser);
+    @PostMapping(path = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HttpResponse> registerUser(@RequestBody @Valid UserRegistrationForm registrationForm) {
+        UserDTO createdUser = userService.createUser(registrationForm);
         return ResponseEntity.created(getUri()).body(
                 HttpResponse.builder()
                         .timeStamp(LocalDateTime.now().toString())
                         .data(Map.of("user", createdUser))
-                        .message("User created successfully!")
+                        .message("Recycler Account created successfully!")
                         .status(CREATED)
                         .statusCode(CREATED.value())
                         .build()
@@ -83,7 +84,6 @@ public class UserResource {
 
     /**
      * Retrieves the profile of the authenticated user.
-     *
      *
      * @return ResponseEntity containing the user profile response.
      */
@@ -97,7 +97,7 @@ public class UserResource {
                         .data(Map.of(
                                 "user", authenticatedUser,
                                 "roles", roleService.getRoles()))
-                        .message("User profile retrieved successfully!")
+                        .message("Profile retrieved successfully!")
                         .status(OK)
                         .statusCode(OK.value())
                         .build()
@@ -120,7 +120,7 @@ public class UserResource {
                         .data(Map.of(
                                 "user", updatedUser,
                                 "roles", roleService.getRoles()))
-                        .message("User updated successfully!")
+                        .message("Profile updated successfully!")
                         .status(OK)
                         .statusCode(OK.value())
                         .build()
@@ -162,7 +162,7 @@ public class UserResource {
                                 "user", user,
                                 "access_token", tokenProvider.createAccessToken(getUserPrincipal(user)),
                                 "refresh_token", tokenProvider.createRefreshToken(getUserPrincipal(user))))
-                        .message("Login success!")
+                        .message("Login successful!")
                         .status(OK)
                         .statusCode(OK.value())
                         .build()
@@ -244,7 +244,7 @@ public class UserResource {
                         .data(Map.of(
                                 "user", userService.getUser(authenticatedUser.id()),
                                 "roles", roleService.getRoles()))
-                        .message("Password Updated Successfully")
+                        .message("Password updated successfully")
                         .status(OK)
                         .statusCode(OK.value())
                         .build()

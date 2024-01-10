@@ -4,7 +4,9 @@ import io.rewardsapp.domain.Role;
 import io.rewardsapp.domain.User;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.dto.mapper.UserDTOMapper;
+import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.form.UpdateUserDetailsForm;
+import io.rewardsapp.form.UserRegistrationForm;
 import io.rewardsapp.repository.JdbcUserRepository;
 import io.rewardsapp.repository.RoleRepository;
 import io.rewardsapp.service.UserService;
@@ -24,13 +26,25 @@ public class UserServiceImpl implements UserService {
     /**
      * Creates a new user and sends an account verification code.
      *
-     * @param user The user to be created.
+     * @param form The registration form with the new user details.
      * @return The created user as a {@link UserDTO}.
      */
     @Override
-    public UserDTO createUser(User user) {
-        UserDTO createdUser = mapToUserDTO(jdbcUserRepository.create(user));
-        jdbcUserRepository.createAccountVerificationCode(user);
+    public UserDTO createUser(UserRegistrationForm form) {
+        if (!form.password().equals(form.confirmPassword())) {
+            throw new ApiException("Password does not matches the confirmation password");
+        }
+
+        User newUser = User.builder()
+                .firstName(form.firstName())
+                .lastName(form.lastName())
+                .email(form.email())
+                .city(form.city())
+                .county(form.county())
+                .password(form.password())
+                .build();
+        UserDTO createdUser = mapToUserDTO(jdbcUserRepository.create(newUser));
+        jdbcUserRepository.createAccountVerificationCode(newUser);
         return createdUser;
     }
 

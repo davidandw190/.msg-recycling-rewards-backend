@@ -1,14 +1,14 @@
 package io.rewardsapp.service;
 
-import io.rewardsapp.domain.User;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.form.UpdateUserDetailsForm;
+import io.rewardsapp.form.UserRegistrationForm;
 import org.springframework.web.multipart.MultipartFile;
 
 
 public interface UserService {
 
-    UserDTO createUser(User user);
+    UserDTO createUser(UserRegistrationForm form);
 
     UserDTO getUser(String email);
 
