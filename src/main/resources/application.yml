@@ -4,7 +4,7 @@ spring:
 
 
   datasource:
-    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?currentSchema=${POSTGRES_CURRENT_SCHEMA}
+    url: jdbc:${POSTGRESQL}://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?currentSchema=${POSTGRES_CURRENT_SCHEMA}
     name: ${POSTGRES_DB}
     username: ${POSTGRES_USERNAME}
     password: ${POSTGRES_PASSWORD}
@@ -24,6 +24,22 @@ spring:
   sql:
     init:
       mode: ${SQL_INIT_MODE}
+
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          writetimeout: ${MAIL_WRITE_TIMEOUT}
+          connectiontimeout: ${MAIL_CONN_TIMEOUT}
+          timeout: ${MAIL_TIMEOUT}
+          auth: ${MAIL_AUTH_ENABLED}
+          starttls:
+            enable: ${TLS_ENABLED}
+            required: ${TLS_REQUIRED}
 
 
 # Application
@@ -50,4 +66,6 @@ mfa:
 
 jwt:
   secret: ${JWT_SECRET}
+
+
 
