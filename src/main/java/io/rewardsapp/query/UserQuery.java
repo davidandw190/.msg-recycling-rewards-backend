@@ -23,7 +23,7 @@ public class UserQuery {
     public static final String UPDATE_USER_PASSWORD_BY_USER_ID_QUERY = "UPDATE users SET password = :password WHERE user_id = :userId";
     public static final String UPDATE_USER_PASSWORD_BY_ID_QUERY = "UPDATE users SET password = :password WHERE user_id = :userId";
     public static final String SELECT_USER_BY_ACCOUNT_URL_QUERY = "SELECT * FROM users WHERE user_id = (SELECT user_id FROM account_verifications WHERE url = :url)";
-    public static final String UPDATE_USER_ENABLED_QUERY = "UPDATE users SET enabled = :enabled WHERE userId = :userId";
+    public static final String UPDATE_USER_ENABLED_QUERY = "UPDATE users SET enabled = :enabled WHERE user_id = :userId";
     public static final String TOGGLE_USER_MFA_QUERY = "UPDATE users SET using_mfa = :isUsingMfa WHERE email = :email";
     public static final String UPDATE_USER_SETTINGS_QUERY = "UPDATE users SET enabled = :enabled, non_locked = :notLocked WHERE user_id = :userId";
     public static final String TOGGLE_USER_NOTIFICATIONS_QUERY = "UPDATE users SET notif_enabled = :notifEnabled WHERE email = :email";

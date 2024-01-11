@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import static io.rewardsapp.enums.VerificationType.ACCOUNT;
+import static io.rewardsapp.enums.VerificationType.PASSWORD;
 
 
 @Service
@@ -111,14 +112,15 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Resets the forgotten password for a user based on the provided email.
+     * Creates and sends a password reset URL for a user to reset his password externally.
      *
      * @param email The email of the user for whom the password will be reset.
      */
 
     @Override
     public void resetForgottenPassword(String email) {
-        jdbcUserRepository.resetForgottenPassword(email);
+        String passwordResetUrl = jdbcUserRepository.resetForgottenPassword(email);
+        emailUtils.sendEmail("Recycler", email, passwordResetUrl, PASSWORD);
     }
 
     /**

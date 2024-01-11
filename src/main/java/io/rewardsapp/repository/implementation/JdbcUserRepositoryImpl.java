@@ -291,9 +291,10 @@ public class JdbcUserRepositoryImpl implements JdbcUserRepository<User>, UserDet
      *
      * @param email The email address of the user.
      * @throws ApiException If there is an issue sending the reset link.
+     * @return The Reset Password URL that the user can access to reset his password externally.
      */
     @Override
-    public void resetForgottenPassword(String email) {
+    public String resetForgottenPassword(String email) {
         if (getEmailCount(email.trim().toLowerCase()) <= 0) throw new ApiException("There is no account for this email address");
 
         try {
@@ -302,8 +303,9 @@ public class JdbcUserRepositoryImpl implements JdbcUserRepository<User>, UserDet
             String verificationUrl = getVerificationUrl(UUID.randomUUID().toString(), PASSWORD.getType());
             jdbc.update(DELETE_PASSWORD_VERIFICATION_BY_USER_ID_QUERY, Map.of("userId",  user.getId()));
             jdbc.update(INSERT_PASSWORD_VERIFICATION_QUERY, Map.of("userId",  user.getId(), "url", verificationUrl, "expirationDate", expirationDate));
-//            sendEmail(user.getFirstName(), email, verificationUrl, PASSWORD);
             log.info("Verification URL: {}", verificationUrl);
+
+            return verificationUrl;
 
         } catch (Exception exception) {
             throw new ApiException("An error occurred. Please try again.");
@@ -406,6 +408,7 @@ public class JdbcUserRepositoryImpl implements JdbcUserRepository<User>, UserDet
             throw new ApiException("The link is invalid.");
 
         } catch (Exception exception) {
+            System.out.println(exception.getMessage());
             throw new ApiException("An error occurred. Please try again.");
         }
     }

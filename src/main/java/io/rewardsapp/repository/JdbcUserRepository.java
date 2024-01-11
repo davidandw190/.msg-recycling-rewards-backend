@@ -28,7 +28,7 @@ public interface JdbcUserRepository<T extends User> {
 
     T verifyCode(String email, String code);
 
-    void resetForgottenPassword(String email);
+    String resetForgottenPassword(String email);
 
     T verifyResetPasswordKey(String key);
 
