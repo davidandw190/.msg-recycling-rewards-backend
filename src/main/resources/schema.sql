@@ -43,6 +43,7 @@ CREATE TABLE users (
     non_locked     BOOLEAN DEFAULT TRUE,
     using_mfa      BOOLEAN DEFAULT FALSE,
     created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_login     TIMESTAMP,
     image_url      VARCHAR(255)
 );
 

@@ -45,4 +45,6 @@ public interface JdbcUserRepository<T extends User> {
     T toggleNotifications(String email);
 
     void updateImage(UserDTO user, MultipartFile image);
+
+    void updateLastLogin(Long userId);
 }

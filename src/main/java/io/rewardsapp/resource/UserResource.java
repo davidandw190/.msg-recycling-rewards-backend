@@ -429,7 +429,9 @@ public class UserResource {
 
     private UserDTO authenticate(String email, String password) {
         try {
-            return getLoggedInUser(authenticationManager.authenticate(unauthenticated(email, password)));
+            UserDTO loggedInUser = getLoggedInUser(authenticationManager.authenticate(unauthenticated(email, password)));
+            userService.updateLastLogin(loggedInUser.id());
+            return loggedInUser;
 
         } catch (Exception exception) {
             handleException(request, response, exception);

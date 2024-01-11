@@ -108,7 +108,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserDTO verifyCode(String email, String code) {
-        return mapToUserDTO(jdbcUserRepository.verifyCode(email, code));
+        UserDTO loggedInUser = mapToUserDTO(jdbcUserRepository.verifyCode(email, code));
+        jdbcUserRepository.updateLastLogin(loggedInUser.id());
+        return loggedInUser;
     }
 
     /**
@@ -224,6 +226,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateImage(UserDTO user, MultipartFile image) {
         jdbcUserRepository.updateImage(user, image);
+    }
+
+    @Override
+    public void updateLastLogin(Long userId) {
+        jdbcUserRepository.updateLastLogin(userId);
     }
 
     private UserDTO mapToUserDTO(User user) {

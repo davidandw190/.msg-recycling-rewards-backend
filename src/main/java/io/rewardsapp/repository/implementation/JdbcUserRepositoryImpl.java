@@ -7,6 +7,7 @@ import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.enums.VerificationType;
 import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.form.UpdateUserDetailsForm;
+import io.rewardsapp.query.UserQuery;
 import io.rewardsapp.repository.JdbcUserRepository;
 import io.rewardsapp.repository.RoleRepository;
 import io.rewardsapp.rowmapper.UserRowMapper;
@@ -477,6 +478,12 @@ public class JdbcUserRepositoryImpl implements JdbcUserRepository<User>, UserDet
         String userImageUrl = setUserImageUrl(user.email());
         saveImage(user.email(), image);
         jdbc.update(UPDATE_USER_PROFILE_IMAGE_QUERY, of("imageUrl", userImageUrl, "userId", user.id()));
+    }
+
+    @Override
+    @Transactional
+    public void updateLastLogin(Long userId) {
+        jdbc.update(UserQuery.UPDATE_LAST_LOGIN_QUERY, of( "userId", userId));
     }
 
     /**
