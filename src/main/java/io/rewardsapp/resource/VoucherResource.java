@@ -3,6 +3,7 @@ package io.rewardsapp.resource;
 import io.rewardsapp.domain.HttpResponse;
 import io.rewardsapp.domain.User;
 import io.rewardsapp.domain.Voucher;
+import io.rewardsapp.domain.VoucherType;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.service.UserService;
@@ -15,6 +16,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -104,6 +106,24 @@ public class VoucherResource {
                                 "user", user,
                                 "voucher", voucher))
                         .message("Voucher details retrieved successfully!")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build()
+        );
+    }
+
+    @GetMapping("/get/types")
+    public ResponseEntity<HttpResponse> getAvailableVoucherTypes() {
+
+        List<VoucherType> availableVoucherTypes = voucherService.getVoucherTypes();
+
+        return ResponseEntity.ok(
+                HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .data(Map.of(
+                                "availableVoucherTypes", availableVoucherTypes
+                        ))
+                        .message("Available voucher types retrieved successfully!")
                         .status(OK)
                         .statusCode(OK.value())
                         .build()

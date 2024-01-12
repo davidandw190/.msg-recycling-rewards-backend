@@ -2,10 +2,12 @@ package io.rewardsapp.service;
 
 import io.rewardsapp.domain.User;
 import io.rewardsapp.domain.Voucher;
+import io.rewardsapp.domain.VoucherType;
 import io.rewardsapp.dto.UserDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface VoucherService {
@@ -28,4 +30,5 @@ public interface VoucherService {
 
     int checkForEarnedVouchers(User user, long rewardsPointsBeforeActivity);
 
+    List<VoucherType> getVoucherTypes();
 }

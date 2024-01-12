@@ -113,11 +113,12 @@ public class CenterResource {
                             sortBy,
                             sortOrder
                     ),
+                    "userRewardPoints", rewardPointsService.getRewardPointsAmount(authenticatedUser.id()),
                     "userStats", statsService.getUserStatsForLastMonth(authenticatedUser.id()),
                     "appStats", statsService.getAppStats(),
                     "ecoTip", tipsService.getRandomRecyclingTip()
             );
-            log.info(">>>>>>>  userStats: " + searchData.get("userStats").toString());
+            log.info(">>>>>>>  userStats: " + searchData.get("appStats").toString());
         } catch (Exception exception) {
             handleException(request, response, exception);
         }

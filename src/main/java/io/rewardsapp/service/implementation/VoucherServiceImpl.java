@@ -158,6 +158,11 @@ public class VoucherServiceImpl implements VoucherService {
         return 0;
     }
 
+    @Override
+    public List<VoucherType> getVoucherTypes() {
+        return voucherTypeRepository.findAll();
+    }
+
     /**
      * Checks if a user owns a particular voucher.
      *
