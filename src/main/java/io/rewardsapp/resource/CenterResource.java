@@ -1,9 +1,6 @@
 package io.rewardsapp.resource;
 
-import io.rewardsapp.domain.HttpResponse;
-import io.rewardsapp.domain.RecyclingCenter;
-import io.rewardsapp.domain.User;
-import io.rewardsapp.domain.UserRecyclingActivity;
+import io.rewardsapp.domain.*;
 import io.rewardsapp.dto.CenterStatsDTO;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.exception.ApiException;
@@ -17,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -38,6 +36,7 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.parseMediaType;
 
+@Slf4j
 @RestController
 @RequestMapping(path = "/centers")
 @RequiredArgsConstructor
@@ -48,6 +47,7 @@ public class CenterResource {
     private final MaterialsService materialsService;
     private final RewardPointsService rewardPointsService;
     private final RecyclingActivityService activityService;
+    private final TipsService tipsService;
     private final HttpServletRequest request;
     private final HttpServletResponse response;
 
@@ -114,8 +114,10 @@ public class CenterResource {
                             sortOrder
                     ),
                     "userStats", statsService.getUserStatsForLastMonth(authenticatedUser.id()),
-                    "appStats", statsService.getAppStats()
+                    "appStats", statsService.getAppStats(),
+                    "ecoTip", tipsService.getRandomRecyclingTip()
             );
+            log.info(">>>>>>>  userStats: " + searchData.get("userStats").toString());
         } catch (Exception exception) {
             handleException(request, response, exception);
         }
