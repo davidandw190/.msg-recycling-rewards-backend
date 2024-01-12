@@ -104,7 +104,6 @@ CREATE TABLE materials (
 );
 
 
-
 -- Create recycling_centers table
 CREATE TABLE recycling_centers (
     center_id       BIGSERIAL PRIMARY KEY,
@@ -215,6 +214,13 @@ CREATE TABLE resource_categories (
     category_id    BIGINT REFERENCES categories(category_id) ON DELETE CASCADE,
     PRIMARY KEY(resource_id, category_id)
 );
+
+-- Eco Tips Table
+CREATE TABLE eco_tips (
+    tip_id    BIGSERIAL PRIMARY KEY,
+    content   TEXT NOT NULL
+);
+
 
 
 -- User Engagement with Educational Resources Table
