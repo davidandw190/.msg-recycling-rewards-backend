@@ -97,8 +97,7 @@ public class User {
     @JsonManagedReference
     private Collection<Voucher> vouchers;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+    @OneToOne( fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private RewardPoints rewardPoints;
 
 }

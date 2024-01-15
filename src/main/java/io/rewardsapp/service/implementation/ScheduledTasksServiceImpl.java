@@ -28,11 +28,16 @@ public class ScheduledTasksServiceImpl implements ScheduledTasksService {
         LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
         List<UserDTO> inactiveUsers = userService.findInactiveUsers(oneWeekAgo);
 
-        try (ForkJoinPool forkJoinPool = new ForkJoinPool()) {
+        ForkJoinPool forkJoinPool = new ForkJoinPool();
+
+        try {
             forkJoinPool.submit(() ->
                     inactiveUsers.parallelStream()
                             .forEach(user -> emailService.sendInactiveUserEmail(user.firstName(), user.lastName()))
             ).join();
+
+        } finally {
+            forkJoinPool.shutdown();
         }
     }
 }
