@@ -279,6 +279,7 @@ public class CenterResource {
         User user = toUser(userService.getUser(authenticatedUser.id()));
         List<UserRecyclingActivity> activities = activityService.getUserRecyclingActivitiesAtCenter(user, updatedCenter);
         Long rewardPoints = rewardPointsService.getRewardPointsAmount(authenticatedUser.id());
+        CenterStatsDTO centerStats = statsService.getCenterTotalStats(form.centerId());
 
 
         return ResponseEntity.ok(
@@ -288,7 +289,9 @@ public class CenterResource {
                                 "user", user,
                                 "center", updatedCenter,
                                 "activities", activities,
-                                "rewardPoints", rewardPoints))
+                                "rewardPoints", rewardPoints,
+                                "centerStats", centerStats)
+                        )
                         .message("Center updated successfully!")
                         .status(OK)
                         .statusCode(OK.value())

@@ -64,6 +64,6 @@ public class RecyclingCenter {
     private Collection<RecyclableMaterial> acceptedMaterials;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "recyclingCenter", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "recyclingCenter", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval = true)
     private Collection<UserRecyclingActivity> recyclingActivities;
 }

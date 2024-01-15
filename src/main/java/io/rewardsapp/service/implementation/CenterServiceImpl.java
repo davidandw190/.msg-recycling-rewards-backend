@@ -10,6 +10,7 @@ import io.rewardsapp.repository.MaterialsRepository;
 import io.rewardsapp.service.CenterService;
 import io.rewardsapp.specs.RecyclingCenterSpecification;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +27,7 @@ import java.util.List;
 
 import static org.springframework.data.domain.PageRequest.of;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class CenterServiceImpl implements CenterService {
@@ -91,22 +93,37 @@ public class CenterServiceImpl implements CenterService {
 
     @Override
     public RecyclingCenter updateCenter(UpdateCenterForm form) {
-        checkCenterValidity(form.name(), form.city());
-        if (!centerRepository.existsById(form.centerId())) {
-            throw new ApiException("No center found by specified id.");
-        }
+//        checkCenterValidityExcludeCurrent(form.centerId(), form.name(), form.city());
+
+        RecyclingCenter existingCenter = centerRepository.findById(form.centerId()).orElseThrow(
+                () -> new ApiException("No center found by specified id.")
+        );
+
+        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> AFTER EXISTS CHECK");
 
         List<RecyclableMaterial> materials = mapMaterialNamesToEntities(form.materials());
 
-        return centerRepository.save(buildUpdatedRecyclingCenter(form, materials));
 
+        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> AFTER MAP");
+
+        buildUpdatedRecyclingCenter(form, existingCenter, materials);
+
+        return centerRepository.save(existingCenter);
+    }
+
+    private void checkCenterValidityExcludeCurrent(Long currentCenterId, String name, String city) {
+        if (centerRepository.existsRecyclingCenterByNameAndCityAndCenterIdNot(name, city, currentCenterId)) {
+            throw new ApiException("A recycling center with the same name already exists in this county.");
+        }
     }
 
     private List<RecyclableMaterial> mapMaterialNamesToEntities(String[] materialNames) {
         List<RecyclableMaterial> materials = new ArrayList<>(materialNames.length);
+
         for (String materialName : materialNames) {
             RecyclableMaterial material = materialsRepository.findFirstByName(materialName)
                     .orElseThrow(() -> new ApiException("Material not found: " + materialName));
+
             materials.add(material);
         }
         return materials;
@@ -126,20 +143,15 @@ public class CenterServiceImpl implements CenterService {
                 .build();
     }
 
-    private RecyclingCenter buildUpdatedRecyclingCenter(UpdateCenterForm form, List<RecyclableMaterial> materials) {
-        return RecyclingCenter.builder()
-                .centerId(form.centerId())
-                .name(form.name())
-                .contact(form.contact())
-                .county(form.county())
-                .city(form.city())
-                .address(form.address())
-                .acceptedMaterials(materials)
-                .createdAt(new Date())
-                .alwaysOpen(form.alwaysOpen())
-                .openingHour(parseLocalTime(form.openingHour()))
-                .closingHour(parseLocalTime(form.closingHour()))
-                .build();
+    private void buildUpdatedRecyclingCenter(UpdateCenterForm form, RecyclingCenter center, List<RecyclableMaterial> materials) {
+
+        center.setCity(form.city());
+        center.setCounty(form.county());
+        center.setAddress(form.address());
+        center.setContact(form.contact());
+        center.setName(form.name());
+        center.setAlwaysOpen(form.alwaysOpen());
+        center.setAcceptedMaterials(materials);
     }
 
     private LocalTime parseLocalTime(String time) {

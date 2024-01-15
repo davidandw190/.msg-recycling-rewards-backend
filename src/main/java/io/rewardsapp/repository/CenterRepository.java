@@ -17,4 +17,6 @@ public interface CenterRepository extends
     Page<RecyclingCenter> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
     boolean existsRecyclingCenterByNameAndCity(String name, String city);
+
+    boolean existsRecyclingCenterByNameAndCityAndCenterIdNot(String name, String city, Long centerId);
 }
