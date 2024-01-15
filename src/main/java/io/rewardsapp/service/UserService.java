@@ -5,6 +5,9 @@ import io.rewardsapp.form.UpdateUserDetailsForm;
 import io.rewardsapp.form.UserRegistrationForm;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 
 public interface UserService {
 
@@ -41,4 +44,6 @@ public interface UserService {
     void updateImage(UserDTO user, MultipartFile image);
 
     void updateLastLogin(Long userId);
+
+    List<UserDTO> findInactiveUsers(LocalDateTime oneWeekAgo);
 }

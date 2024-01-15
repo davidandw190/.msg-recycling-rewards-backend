@@ -5,7 +5,9 @@ import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.form.UpdateUserDetailsForm;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 
 public interface JdbcUserRepository<T extends User> {
     T create(T date);
@@ -47,4 +49,6 @@ public interface JdbcUserRepository<T extends User> {
     void updateImage(UserDTO user, MultipartFile image);
 
     void updateLastLogin(Long userId);
+
+    List<User> getInactiveUsers(LocalDateTime oneWeekAgo);
 }

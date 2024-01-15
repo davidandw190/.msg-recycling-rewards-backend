@@ -29,4 +29,5 @@ public class UserQuery {
     public static final String TOGGLE_USER_NOTIFICATIONS_QUERY = "UPDATE users SET notif_enabled = :notifEnabled WHERE email = :email";
     public static final String UPDATE_USER_PROFILE_IMAGE_QUERY = "UPDATE users SET image_url = :imageUrl WHERE user_id = :userId";
     public static final String UPDATE_LAST_LOGIN_QUERY = "UPDATE users SET last_login = NOW() WHERE user_id = :userId";
+    public static final String SELECT_INACTIVE_USERS_QUERY = "SELECT user_id, first_name, last_name, email, enabled, not_locked, notif_enabled, last_login FROM users WHERE last_login < :lastLogin";
 }

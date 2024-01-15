@@ -15,6 +15,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static io.rewardsapp.enums.VerificationType.ACCOUNT;
 import static io.rewardsapp.enums.VerificationType.PASSWORD;
 
@@ -231,6 +235,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateLastLogin(Long userId) {
         jdbcUserRepository.updateLastLogin(userId);
+    }
+
+    @Override
+    public List<UserDTO> findInactiveUsers(LocalDateTime oneWeekAgo) {
+        List<User> inactiveUsers = jdbcUserRepository.getInactiveUsers(oneWeekAgo);
+
+        return inactiveUsers.stream()
+                .filter(user -> user.isEnabled() && user.isNotificationsEnabled() && user.isNotLocked())
+                .map(this::mapToUserDTO)
+                .collect(Collectors.toList());
     }
 
     private UserDTO mapToUserDTO(User user) {

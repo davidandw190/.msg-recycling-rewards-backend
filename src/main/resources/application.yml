@@ -41,7 +41,8 @@ spring:
             enable: ${TLS_ENABLED}
             required: ${TLS_REQUIRED}
 
-
+scheduled-jobs:
+  inactivity_email_cron: ${INACTIVITY_EMAIL_CRON}
 # Application
 application:
   title: ${APP_TITLE}

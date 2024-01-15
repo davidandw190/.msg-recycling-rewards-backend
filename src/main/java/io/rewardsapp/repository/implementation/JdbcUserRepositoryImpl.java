@@ -4,6 +4,7 @@ import io.rewardsapp.domain.Role;
 import io.rewardsapp.domain.User;
 import io.rewardsapp.domain.UserPrincipal;
 import io.rewardsapp.dto.UserDTO;
+import io.rewardsapp.dto.mapper.UserDTOMapper;
 import io.rewardsapp.enums.VerificationType;
 import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.form.UpdateUserDetailsForm;
@@ -487,6 +488,25 @@ public class JdbcUserRepositoryImpl implements JdbcUserRepository<User>, UserDet
     }
 
     /**
+     * Retrieves a list of inactive users from the database. Users are considered inactive if their last login
+     * is before the specified date (one week ago).
+     *
+     * @param oneWeekAgo The threshold date for considering users as inactive.
+     * @return A list of inactive users.
+     * @throws ApiException If there is an issue retrieving inactive users.
+     */
+    @Override
+    public List<User> getInactiveUsers(LocalDateTime oneWeekAgo) {
+        try {
+            return jdbc.query(SELECT_INACTIVE_USERS_QUERY, Map.of("lastLogin", oneWeekAgo), new UserRowMapper());
+
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            throw new ApiException("An error occurred while fetching inactive users. Please try again.");
+        }
+    }
+
+    /**
      * Verifies the expiration status of a given verification link based on the provided key
      * and verification type.
      *
@@ -577,6 +597,10 @@ public class JdbcUserRepositoryImpl implements JdbcUserRepository<User>, UserDet
                 .addValue("email", user.getEmail())
                 .addValue("county", user.getCounty())
                 .addValue("city", user.getCity())
+                .addValue("address", user.getAddress())
+                .addValue("phone", user.getPhone())
+                .addValue("lastLogin", user.getLastLogin())
+                .addValue("createdAt", user.getCreatedAt())
                 .addValue("password", encoder.encode(user.getPassword()));
     }
 
