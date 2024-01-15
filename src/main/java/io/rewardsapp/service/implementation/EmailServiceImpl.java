@@ -26,7 +26,8 @@ public class EmailServiceImpl implements EmailService {
     private String FROM;
 
     public static final String UTF_8_ENCODING = "UTF-8";
-    public static final String EMAIL_TEMPLATE = "verification-email-template";
+    public static final String VERIFICATION_EMAIL_TEMPLATE = "verification-email-template";
+    public static final String INACTIVITY_EMAIL_TEMPLATE = "inactivity-email-template";
     public static final String TEXT_HTML_ENCODING = "text/html";
 
     private final JavaMailSender mailSender;
@@ -44,7 +45,7 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(FROM);
             helper.setTo(email);
 
-            String emailContent = getEmailMessage(firstName, verificationUrl, verificationType);
+            String emailContent = getVerificationEmailMessage(verificationType);
 
             Context context = new Context();
             context.setVariable("name", firstName);
@@ -52,7 +53,7 @@ public class EmailServiceImpl implements EmailService {
             context.setVariable("emailContent", emailContent);
             context.setVariable("verificationType", verificationType.name());
 
-            String text = templateEngine.process(EMAIL_TEMPLATE, context);
+            String text = templateEngine.process(VERIFICATION_EMAIL_TEMPLATE, context);
 
             MimeMultipart mimeMultipart = new MimeMultipart("related");
 
@@ -78,7 +79,51 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
-    private String getEmailMessage(String firstName, String verificationUrl, VerificationType verificationType) {
+    @Async
+    @Override
+    public void sendInactiveUserEmail(String email, String firstName) {
+        try {
+            MimeMessage message = getMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, UTF_8_ENCODING);
+
+            helper.setPriority(2);
+            helper.setSubject(".msgRecyclingRewards - Make A Change In The Environment");
+            helper.setFrom(FROM);
+            helper.setTo(email);
+
+            String emailContent = getInactivityEmailMessage();
+
+            Context context = new Context();
+            context.setVariable("name", firstName);
+            context.setVariable("emailContent", emailContent);
+
+            String text = templateEngine.process(INACTIVITY_EMAIL_TEMPLATE, context);
+
+            MimeMultipart mimeMultipart = new MimeMultipart("related");
+
+            BodyPart messageBodyPart = new MimeBodyPart();
+            messageBodyPart.setContent(text, TEXT_HTML_ENCODING);
+            mimeMultipart.addBodyPart(messageBodyPart);
+
+            message.setContent(mimeMultipart);
+
+            mailSender.send(message);
+
+            log.info("Inactive user notification email sent to {}", firstName);
+
+        } catch (Exception exception) {
+            log.error("Error sending inactive user notification email to {}: {}", firstName, exception.getMessage());
+            throw new RuntimeException("Error sending inactive user notification email", exception);
+        }
+    }
+
+    private String getInactivityEmailMessage() {
+        return "<br/>We noticed that you haven't logged into your RecyclingRewards account for a week. "
+                + "<p>Recycling plays a crucial role in building a sustainable future, and your participation makes a positive impact. Reconnect with us to explore the latest recycling challenges, community initiatives, and exciting rewards awaiting you.</p>"
+                + "<p>Log in today to contribute to a greener environment and enjoy the benefits of recycling with RecyclingRewards. Your involvement is instrumental in creating a better world through responsible recycling practices.</p>";
+    }
+
+    private String getVerificationEmailMessage(VerificationType verificationType) {
         switch (verificationType) {
             case PASSWORD -> {
                 return "<br/>We have received a request to reset your account password. Please click the link below to securely reset your password:<br/>";

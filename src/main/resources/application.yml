@@ -43,6 +43,7 @@ spring:
 
 scheduled-jobs:
   inactivity_email_cron: ${INACTIVITY_EMAIL_CRON}
+
 # Application
 application:
   title: ${APP_TITLE}

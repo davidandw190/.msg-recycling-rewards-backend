@@ -11,9 +11,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
 
 @Service
-@EnableScheduling
 @RequiredArgsConstructor
 public class ScheduledTasksServiceImpl implements ScheduledTasksService {
 
@@ -23,20 +23,16 @@ public class ScheduledTasksServiceImpl implements ScheduledTasksService {
 
 
     @Override
-    @Scheduled(cron = "${scheduled-tasks.inactive-users-cron}")  // to run every Monday at midnight
+    @Scheduled(cron = "0 0 0 * * MON")  // to run every Monday at midnight
     public void sendEmailToInactiveUsers() {
         LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
         List<UserDTO> inactiveUsers = userService.findInactiveUsers(oneWeekAgo);
 
-        inactiveUsers.forEach(this::sendInactiveUserEmail);
-    }
-
-    private void sendInactiveUserEmail(UserDTO user) {
-        String subject = "Inactive Account Notification";
-        String message = "Dear " + user.firstName() + ",\n\n"
-                + "We noticed that you haven't logged into your RecyclingRewards account for a week. "
-                + "Please log in to stay connected with our community.\n\n"
-                + "Thank you,\nRecyclingRewards Team";
-
+        try (ForkJoinPool forkJoinPool = new ForkJoinPool()) {
+            forkJoinPool.submit(() ->
+                    inactiveUsers.parallelStream()
+                            .forEach(user -> emailService.sendInactiveUserEmail(user.firstName(), user.lastName()))
+            ).join();
+        }
     }
 }
