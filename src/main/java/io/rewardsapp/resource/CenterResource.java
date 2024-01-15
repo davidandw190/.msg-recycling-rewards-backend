@@ -11,11 +11,9 @@ import io.rewardsapp.report.CenterReport;
 import io.rewardsapp.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -44,6 +42,7 @@ public class CenterResource {
     private final UserService userService;
     private final CenterService centerService;
     private final StatsService statsService;
+    private final RoleService roleService;
     private final MaterialsService materialsService;
     private final RewardPointsService rewardPointsService;
     private final RecyclingActivityService activityService;
@@ -69,10 +68,10 @@ public class CenterResource {
                 HttpResponse.builder()
                         .timeStamp(LocalDateTime.now().toString())
                         .data(Map.of(
-                                "user", userService.getUser(authenticatedUser.id()),
+                                "user", authenticatedUser,
                                 "page", centerService.getCenters(page, size),
                                 "userStats", statsService.getUserStatsForLastMonth(authenticatedUser.id())
-                                ))
+                        ))
                         .message("Recycling centers retrieved successfully!")
                         .status(OK)
                         .statusCode(OK.value())
@@ -102,7 +101,7 @@ public class CenterResource {
         try {
 
             searchData = Map.of(
-                    "user", userService.getUser(authenticatedUser.id()),
+                    "user", authenticatedUser,
                     "page", centerService.searchCenters(
                             "",
                             authenticatedUser.county(),
@@ -165,7 +164,7 @@ public class CenterResource {
             validatePageAndSize(page, size);
 
             searchData = Map.of(
-                    "user", userService.getUser(authenticatedUser.id()),
+                    "user", authenticatedUser,
                     "page", centerService.searchCenters(name, county, city, materials, page, size, sortBy, sortOrder)
             );
         } catch (Exception exception) {
@@ -218,7 +217,7 @@ public class CenterResource {
                         HttpResponse.builder()
                                 .timeStamp(LocalDateTime.now().toString())
                                 .data(Map.of(
-                                        "user", userService.getUser(authenticatedUser.id()),
+                                        "user", authenticatedUser,
                                         "center", centerService.createCenter(form)))
                                 .message("Recycling center created successfully!")
                                 .status(CREATED)
@@ -241,8 +240,7 @@ public class CenterResource {
             @PathVariable("id") Long centerId
     ) {
         RecyclingCenter center = centerService.getCenter(centerId);
-        User user = toUser(userService.getUser(authenticatedUser.id()));
-        List<UserRecyclingActivity> activities = activityService.getUserRecyclingActivitiesAtCenter(user, center);
+        List<UserRecyclingActivity> activities = activityService.getUserRecyclingActivitiesAtCenter(toUser(authenticatedUser), center);
         Long rewardPoints = rewardPointsService.getRewardPointsAmount(authenticatedUser.id());
         CenterStatsDTO centerStats = statsService.getCenterTotalStats(centerId);
 
@@ -250,7 +248,7 @@ public class CenterResource {
                 HttpResponse.builder()
                         .timeStamp(LocalDateTime.now().toString())
                         .data(Map.of(
-                                "user", user,
+                                "user", authenticatedUser,
                                 "center", center,
                                 "activities", activities,
                                 "rewardPoints", rewardPoints,
@@ -276,8 +274,7 @@ public class CenterResource {
             @RequestBody UpdateCenterForm form
     ) {
         RecyclingCenter updatedCenter = centerService.updateCenter(form);
-        User user = toUser(userService.getUser(authenticatedUser.id()));
-        List<UserRecyclingActivity> activities = activityService.getUserRecyclingActivitiesAtCenter(user, updatedCenter);
+        List<UserRecyclingActivity> activities = activityService.getUserRecyclingActivitiesAtCenter(toUser(authenticatedUser), updatedCenter);
         Long rewardPoints = rewardPointsService.getRewardPointsAmount(authenticatedUser.id());
         CenterStatsDTO centerStats = statsService.getCenterTotalStats(form.centerId());
 
@@ -286,7 +283,7 @@ public class CenterResource {
                 HttpResponse.builder()
                         .timeStamp(LocalDateTime.now().toString())
                         .data(Map.of(
-                                "user", user,
+                                "user", authenticatedUser,
                                 "center", updatedCenter,
                                 "activities", activities,
                                 "rewardPoints", rewardPoints,
@@ -295,7 +292,8 @@ public class CenterResource {
                         .message("Center updated successfully!")
                         .status(OK)
                         .statusCode(OK.value())
-                        .build());
+                        .build()
+        );
     }
 
     /**
@@ -314,6 +312,7 @@ public class CenterResource {
 
         RecyclingCenter updatedCenter = centerService.getCenter(form.centerId());
         User user = toUser(userService.getUser(authenticatedUser.id()));
+        Role userRole = roleService.getRoleByUserId(authenticatedUser.id());
         List<UserRecyclingActivity> activities = activityService.getUserRecyclingActivitiesAtCenter(user, updatedCenter);
         Long rewardPoints = rewardPointsService.getRewardPointsAmount(authenticatedUser.id());
 
@@ -327,6 +326,7 @@ public class CenterResource {
                         .timeStamp(LocalDateTime.now().toString())
                         .data(Map.of(
                                 "user", user,
+                                "userRole", userRole,
                                 "center", updatedCenter,
                                 "rewardPoints", rewardPoints,
                                 "activities", activities))

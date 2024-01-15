@@ -89,8 +89,6 @@ public class UserResource {
      */
     @GetMapping("/profile")
     public ResponseEntity<HttpResponse> profile(@AuthenticationPrincipal UserDTO authenticatedUser) {
-        log.info(roleService.getRoles().toString());
-        log.info(authenticatedUser.roleName() + "        " + authenticatedUser.permissions());
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(LocalDateTime.now().toString())
