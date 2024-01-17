@@ -11,5 +11,5 @@ public record LeaderboardEntryDTO(
         String county,
         String city,
         String imageUrl,
-        Long totalRewardPoints
+        Long rewardPoints
 ) {}

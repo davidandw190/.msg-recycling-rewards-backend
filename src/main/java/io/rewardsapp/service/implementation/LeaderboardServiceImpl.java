@@ -2,10 +2,9 @@ package io.rewardsapp.service.implementation;
 
 import io.rewardsapp.domain.User;
 import io.rewardsapp.dto.LeaderboardEntryDTO;
+import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.repository.JpaUserRepository;
 import io.rewardsapp.service.LeaderboardService;
-import io.rewardsapp.service.RewardPointsService;
-import io.rewardsapp.service.UserService;
 import io.rewardsapp.specs.LeaderboardSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -15,53 +14,55 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class LeaderboardServiceImpl implements LeaderboardService {
-    private final UserService userService;
-    private final RewardPointsService rewardPointsService;
     private final JpaUserRepository userRepository;
 
-
-
+    /**
+     * Retrieves a paginated list of leaderboard entries based on specified criteria.
+     *
+     * @param county     The county for which the leaderboard entries are to be fetched.
+     * @param page       The page number (zero-based) of the leaderboard results to retrieve.
+     * @param size       The number of leaderboard entries to retrieve per page.
+     * @param sortBy     The field by which the results should be sorted.
+     * @param sortOrder  The order in which the results should be sorted (asc or desc).
+     * @return A paginated list of leaderboard entries.
+     * @throws ApiException If an error occurs during the retrieval process.
+     */
     @Override
-    public List<LeaderboardEntryDTO> getLeaderboard(String county, int page, int size, String sortBy, String sortOrder) {
-        Sort sort = Sort.by(Sort.Direction.fromString(sortOrder), sortBy);
-        Pageable pageable = PageRequest.of(page, size, sort);
+    public Page<LeaderboardEntryDTO> getLeaderboard(String county, int page, int size, String sortBy, String sortOrder) {
+        try {
+            Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(sortOrder), sortBy));
+            Specification<User> specification = LeaderboardSpecification.buildLeaderboardSpecification(county, sortBy, sortOrder);
+            Page<User> userPage = userRepository.findAll(specification, pageable);
 
-        Specification<User> specification = LeaderboardSpecification.buildLeaderboardSpecification(county, sortBy, sortOrder);
+            return userPage.map(this::mapToLeaderboardEntryDTO);
 
-        Page<User> userPage = userRepository.findAll(specification, pageable);
+        } catch (Exception exception) {
+            throw new ApiException("Error occurred while fetching leaderboard. Please try again later." + exception.getMessage());
+        }
+    }
 
-        return userPage.getContent().stream()
-                .map(user -> {
-                    if (user.getRewardPoints() != null) {
-                        return LeaderboardEntryDTO.builder()
-                                .userId(user.getId())
-                                .firstName(user.getFirstName())
-                                .lastName(user.getLastName())
-                                .email(user.getEmail())
-                                .county(user.getCounty())
-                                .city(user.getCity())
-                                .imageUrl(user.getImageUrl())
-                                .totalRewardPoints(user.getRewardPoints().getTotalPoints())
-                                .build();
-                    } else {
-                        return LeaderboardEntryDTO.builder()
-                                .userId(user.getId())
-                                .firstName(user.getFirstName())
-                                .lastName(user.getLastName())
-                                .email(user.getEmail())
-                                .county(user.getCounty())
-                                .city(user.getCity())
-                                .imageUrl(user.getImageUrl())
-                                .totalRewardPoints(0L)
-                                .build();
-                    }
-                })
-                .collect(Collectors.toList());
+
+    /**
+     * Maps a User entity to a LeaderboardEntryDTO.
+     *
+     * @param user The user entity to be mapped.
+     * @return The leaderboard entry DTO representing the user.
+     */
+    private LeaderboardEntryDTO mapToLeaderboardEntryDTO(User user) {
+        return LeaderboardEntryDTO.builder()
+                .userId(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .county(user.getCounty())
+                .city(user.getCity())
+                .imageUrl(user.getImageUrl())
+                .rewardPoints(user.getRewardPoints() != null
+                        ? user.getRewardPoints().getTotalPoints()
+                        : 0L)
+                .build();
     }
 }
