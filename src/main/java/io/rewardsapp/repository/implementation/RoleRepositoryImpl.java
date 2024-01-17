@@ -102,4 +102,20 @@ public class RoleRepositoryImpl implements RoleRepository<Role> {
         }
     }
 
+    @Override
+    public boolean checkIfAdministrativeByUserId(Long userId) {
+        try {
+            Role role = jdbc.queryForObject(SELECT_ROLE_BY_ID_QUERY, of("userId", userId), new RoleRowMapper());
+            return role != null &&
+                    !(ROLE_USER.name().equals(role.getName()));
+
+        } catch (EmptyResultDataAccessException exception) {
+            throw new ApiException("No role found for user id: " + userId);
+
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            throw new ApiException("An error occurred. Please try again.");
+        }
+    }
+
 }

@@ -5,6 +5,7 @@ import io.rewardsapp.dto.LeaderboardEntryDTO;
 import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.repository.JpaUserRepository;
 import io.rewardsapp.service.LeaderboardService;
+import io.rewardsapp.service.RoleService;
 import io.rewardsapp.specs.LeaderboardSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -12,12 +13,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class LeaderboardServiceImpl implements LeaderboardService {
     private final JpaUserRepository userRepository;
+    private final RoleService roleService;
 
     /**
      * Retrieves a paginated list of leaderboard entries based on specified criteria.
@@ -37,13 +43,29 @@ public class LeaderboardServiceImpl implements LeaderboardService {
             Specification<User> specification = LeaderboardSpecification.buildLeaderboardSpecification(county, sortBy, sortOrder);
             Page<User> userPage = userRepository.findAll(specification, pageable);
 
-            return userPage.map(this::mapToLeaderboardEntryDTO);
+            List<LeaderboardEntryDTO> leaderboardEntries = userPage.getContent().stream()
+                    .map(this::mapToLeaderboardEntryDTO)
+                    .collect(Collectors.toList());
+
+            calculateRank(leaderboardEntries);
+
+            return PageableExecutionUtils.getPage(leaderboardEntries, pageable, userPage::getTotalElements);
 
         } catch (Exception exception) {
             throw new ApiException("Error occurred while fetching leaderboard. Please try again later." + exception.getMessage());
         }
     }
 
+    private void calculateRank(List<LeaderboardEntryDTO> leaderboardEntries) {
+        List<LeaderboardEntryDTO> sortedEntries = leaderboardEntries.stream()
+                .sorted((entry1, entry2) -> Long.compare(entry2.getRewardPoints(), entry1.getRewardPoints()))
+                .collect(Collectors.toList());
+
+        long rank = 1L;
+        for (LeaderboardEntryDTO entry : sortedEntries) {
+            entry.setRank(rank++);
+        }
+    }
 
     /**
      * Maps a User entity to a LeaderboardEntryDTO.
@@ -63,6 +85,7 @@ public class LeaderboardServiceImpl implements LeaderboardService {
                 .rewardPoints(user.getRewardPoints() != null
                         ? user.getRewardPoints().getTotalPoints()
                         : 0L)
+                .isAdministration(roleService.checkIfIsAdministrative(user.getId()))
                 .build();
     }
 }

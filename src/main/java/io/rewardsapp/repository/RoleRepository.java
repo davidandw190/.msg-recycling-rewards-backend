@@ -22,4 +22,6 @@ public interface RoleRepository<T extends Role> {
     Role getRoleByUserEmail(Long email);
 
     void updateUserRole(Long userId, String roleName);
+
+    boolean checkIfAdministrativeByUserId(Long id);
 }

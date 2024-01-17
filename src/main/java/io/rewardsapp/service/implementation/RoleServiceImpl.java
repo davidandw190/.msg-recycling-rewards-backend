@@ -19,6 +19,11 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    public boolean checkIfIsAdministrative(Long userId) {
+        return roleRoleRepository.checkIfAdministrativeByUserId(userId);
+    }
+
+    @Override
     public Collection<Role> getRoles() {
         return roleRoleRepository.list();
     }
