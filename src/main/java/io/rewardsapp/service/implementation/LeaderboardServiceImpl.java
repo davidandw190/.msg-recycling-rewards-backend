@@ -59,7 +59,7 @@ public class LeaderboardServiceImpl implements LeaderboardService {
     private void calculateRank(List<LeaderboardEntryDTO> leaderboardEntries) {
         List<LeaderboardEntryDTO> sortedEntries = leaderboardEntries.stream()
                 .sorted((entry1, entry2) -> Long.compare(entry2.getRewardPoints(), entry1.getRewardPoints()))
-                .collect(Collectors.toList());
+                .toList();
 
         long rank = 1L;
         for (LeaderboardEntryDTO entry : sortedEntries) {
@@ -85,7 +85,7 @@ public class LeaderboardServiceImpl implements LeaderboardService {
                 .rewardPoints(user.getRewardPoints() != null
                         ? user.getRewardPoints().getTotalPoints()
                         : 0L)
-                .isAdministration(roleService.checkIfIsAdministrative(user.getId()))
+                .administration(roleService.checkIfIsAdministrative(user.getId()))
                 .build();
     }
 }

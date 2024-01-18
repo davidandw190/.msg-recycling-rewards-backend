@@ -14,6 +14,6 @@ public class LeaderboardEntryDTO {
     private final String city;
     private final String imageUrl;
     private final Long rewardPoints;
-    private final boolean isAdministration;
-    private Long rank; // Added for rank
+    private final boolean administration;
+    private Long rank;
 }
