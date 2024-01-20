@@ -1,12 +1,15 @@
 package io.rewardsapp.service.implementation;
 
+import io.rewardsapp.domain.auth.User;
 import io.rewardsapp.domain.educational.Category;
 import io.rewardsapp.domain.educational.ContentType;
 import io.rewardsapp.domain.educational.EducationalResource;
+import io.rewardsapp.domain.educational.UserEngagement;
 import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.repository.CategoryRepository;
 import io.rewardsapp.repository.ContentTypeRepository;
 import io.rewardsapp.repository.EducationalResourceRepository;
+import io.rewardsapp.repository.UserEngagementRepository;
 import io.rewardsapp.service.EducationalResourcesService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -14,10 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -25,6 +25,7 @@ import java.util.Set;
 public class EducationalResourcesServiceImpl implements EducationalResourcesService {
 
     private final EducationalResourceRepository educationalResourceRepository;
+    private final UserEngagementRepository userEngagementRepository;
     private final ContentTypeRepository contentTypeRepository;
     private final CategoryRepository categoryRepository;
 
@@ -50,6 +51,29 @@ public class EducationalResourcesServiceImpl implements EducationalResourcesServ
         return educationalResourceRepository.save(educationalResource);
     }
 
+    @Transactional
+    @Override
+    public void likeResource(User user, Long resourceId) {
+        try {
+            EducationalResource resource = getResourceById(resourceId);
+
+            Optional<UserEngagement> existingEngagement = userEngagementRepository.findByUserAndEducationalResource(user, resource);
+            if (existingEngagement.isPresent()) {
+                existingEngagement.get().setLikeStatus(true);
+                userEngagementRepository.save(existingEngagement.get());
+
+            } else {
+                userEngagementRepository.save(new UserEngagement(user, resource, true, false));
+            }
+
+            log.info("User with ID {} liked educational resource with ID {}", user.getId(), resourceId);
+
+        } catch (Exception e) {
+            log.error("Error occurred while liking resource", e);
+            throw new ApiException("Error occurred while liking resource");
+        }
+    }
+
     private List<Category> getCategoriesByNames(Set<String> categoryNames) {
         List<Category> chosenCategories = new ArrayList<>(categoryNames.size());
 
@@ -64,6 +88,11 @@ public class EducationalResourcesServiceImpl implements EducationalResourcesServ
         }
 
         return chosenCategories;
+    }
+
+    private EducationalResource getResourceById(Long resourceId) {
+        return educationalResourceRepository.findById(resourceId)
+                .orElseThrow(() -> new ApiException("Educational resource not found"));
     }
 
 }
