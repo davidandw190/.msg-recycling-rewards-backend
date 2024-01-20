@@ -1,6 +1,6 @@
 package io.rewardsapp.specs;
 
-import io.rewardsapp.domain.UserRecyclingActivity;
+import io.rewardsapp.domain.recycling.UserRecyclingActivity;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;

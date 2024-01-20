@@ -1,6 +1,6 @@
 package io.rewardsapp.utils;
 
-import io.rewardsapp.domain.UserPrincipal;
+import io.rewardsapp.domain.auth.UserPrincipal;
 import io.rewardsapp.dto.UserDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;

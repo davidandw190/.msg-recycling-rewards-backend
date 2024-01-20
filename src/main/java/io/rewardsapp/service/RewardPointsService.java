@@ -1,7 +1,7 @@
 package io.rewardsapp.service;
 
-import io.rewardsapp.domain.RecyclableMaterial;
-import io.rewardsapp.domain.User;
+import io.rewardsapp.domain.recycling.RecyclableMaterial;
+import io.rewardsapp.domain.auth.User;
 
 public interface RewardPointsService {
 

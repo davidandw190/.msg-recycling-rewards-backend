@@ -1,8 +1,8 @@
 package io.rewardsapp.service;
 
-import io.rewardsapp.domain.RecyclingCenter;
-import io.rewardsapp.domain.User;
-import io.rewardsapp.domain.UserRecyclingActivity;
+import io.rewardsapp.domain.recycling.RecyclingCenter;
+import io.rewardsapp.domain.auth.User;
+import io.rewardsapp.domain.recycling.UserRecyclingActivity;
 import io.rewardsapp.form.CreateRecyclingActivityForm;
 
 import java.util.List;

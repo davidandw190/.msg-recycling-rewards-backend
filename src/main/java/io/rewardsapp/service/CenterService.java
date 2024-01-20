@@ -1,7 +1,6 @@
 package io.rewardsapp.service;
 
-import io.rewardsapp.domain.RecyclingCenter;
-import io.rewardsapp.dto.UserDTO;
+import io.rewardsapp.domain.recycling.RecyclingCenter;
 import io.rewardsapp.form.CreateCenterForm;
 import io.rewardsapp.form.UpdateCenterForm;
 import org.springframework.data.domain.Page;

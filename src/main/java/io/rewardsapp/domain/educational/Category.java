@@ -1,4 +1,4 @@
-package io.rewardsapp.domain;
+package io.rewardsapp.domain.educational;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;

@@ -1,8 +1,8 @@
 package io.rewardsapp.service.implementation;
 
-import io.rewardsapp.domain.RecyclableMaterial;
-import io.rewardsapp.domain.RewardPoints;
-import io.rewardsapp.domain.User;
+import io.rewardsapp.domain.recycling.RecyclableMaterial;
+import io.rewardsapp.domain.recycling.RewardPoints;
+import io.rewardsapp.domain.auth.User;
 import io.rewardsapp.repository.RewardPointsRepository;
 import io.rewardsapp.service.RewardPointsService;
 import jakarta.transaction.Transactional;

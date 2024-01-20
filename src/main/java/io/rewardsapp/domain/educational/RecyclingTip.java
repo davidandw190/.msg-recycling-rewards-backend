@@ -1,4 +1,4 @@
-package io.rewardsapp.domain;
+package io.rewardsapp.domain.educational;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

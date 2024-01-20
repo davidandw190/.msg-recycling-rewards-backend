@@ -1,6 +1,6 @@
 package io.rewardsapp.repository;
 
-import io.rewardsapp.domain.RecyclingCenter;
+import io.rewardsapp.domain.recycling.RecyclingCenter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

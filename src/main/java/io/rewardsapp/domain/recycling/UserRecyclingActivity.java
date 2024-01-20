@@ -1,11 +1,11 @@
-package io.rewardsapp.domain;
+package io.rewardsapp.domain.recycling;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.rewardsapp.domain.auth.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity

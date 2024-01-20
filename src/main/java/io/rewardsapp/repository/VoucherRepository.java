@@ -1,6 +1,6 @@
 package io.rewardsapp.repository;
 
-import io.rewardsapp.domain.Voucher;
+import io.rewardsapp.domain.vouchers.Voucher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

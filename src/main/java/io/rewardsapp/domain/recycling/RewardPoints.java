@@ -1,6 +1,7 @@
-package io.rewardsapp.domain;
+package io.rewardsapp.domain.recycling;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.rewardsapp.domain.auth.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

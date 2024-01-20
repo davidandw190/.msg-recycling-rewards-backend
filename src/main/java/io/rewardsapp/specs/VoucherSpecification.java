@@ -1,6 +1,6 @@
 package io.rewardsapp.specs;
 
-import io.rewardsapp.domain.Voucher;
+import io.rewardsapp.domain.vouchers.Voucher;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;

@@ -1,10 +1,9 @@
 package io.rewardsapp.service;
 
-import io.rewardsapp.domain.User;
-import io.rewardsapp.domain.Voucher;
-import io.rewardsapp.domain.VoucherType;
+import io.rewardsapp.domain.auth.User;
+import io.rewardsapp.domain.vouchers.Voucher;
+import io.rewardsapp.domain.vouchers.VoucherType;
 import io.rewardsapp.dto.UserDTO;
-import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 
 import java.util.List;

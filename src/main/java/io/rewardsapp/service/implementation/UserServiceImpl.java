@@ -1,7 +1,7 @@
 package io.rewardsapp.service.implementation;
 
-import io.rewardsapp.domain.Role;
-import io.rewardsapp.domain.User;
+import io.rewardsapp.domain.auth.Role;
+import io.rewardsapp.domain.auth.User;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.dto.mapper.UserDTOMapper;
 import io.rewardsapp.exception.ApiException;

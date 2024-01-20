@@ -1,6 +1,6 @@
 package io.rewardsapp.service.implementation;
 
-import io.rewardsapp.domain.User;
+import io.rewardsapp.domain.auth.User;
 import io.rewardsapp.dto.LeaderboardEntryDTO;
 import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.repository.JpaUserRepository;

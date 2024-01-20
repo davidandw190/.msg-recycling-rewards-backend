@@ -1,6 +1,6 @@
 package io.rewardsapp.rowmapper;
 
-import io.rewardsapp.domain.Role;
+import io.rewardsapp.domain.auth.Role;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;

@@ -1,6 +1,6 @@
 package io.rewardsapp.repository;
 
-import io.rewardsapp.domain.VoucherType;
+import io.rewardsapp.domain.vouchers.VoucherType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

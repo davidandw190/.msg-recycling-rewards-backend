@@ -1,6 +1,6 @@
 package io.rewardsapp.service;
 
-import io.rewardsapp.domain.RecyclableMaterial;
+import io.rewardsapp.domain.recycling.RecyclableMaterial;
 
 import java.util.List;
 

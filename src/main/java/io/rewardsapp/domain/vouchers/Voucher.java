@@ -1,7 +1,8 @@
-package io.rewardsapp.domain;
+package io.rewardsapp.domain.vouchers;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.rewardsapp.domain.auth.User;
 import jakarta.persistence.*;
 import lombok.*;
 

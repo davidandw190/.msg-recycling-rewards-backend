@@ -1,6 +1,6 @@
 package io.rewardsapp.service.implementation;
 
-import io.rewardsapp.domain.Role;
+import io.rewardsapp.domain.auth.Role;
 import io.rewardsapp.repository.RoleRepository;
 import io.rewardsapp.service.RoleService;
 import lombok.RequiredArgsConstructor;

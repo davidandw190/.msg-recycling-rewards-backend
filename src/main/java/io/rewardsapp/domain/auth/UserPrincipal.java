@@ -1,4 +1,4 @@
-package io.rewardsapp.domain;
+package io.rewardsapp.domain.auth;
 
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.dto.mapper.UserDTOMapper;

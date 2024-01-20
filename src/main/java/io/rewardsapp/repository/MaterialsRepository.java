@@ -1,6 +1,6 @@
 package io.rewardsapp.repository;
 
-import io.rewardsapp.domain.RecyclableMaterial;
+import io.rewardsapp.domain.recycling.RecyclableMaterial;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

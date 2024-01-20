@@ -1,6 +1,9 @@
 package io.rewardsapp.service.implementation;
 
-import io.rewardsapp.domain.*;
+import io.rewardsapp.domain.auth.User;
+import io.rewardsapp.domain.recycling.RecyclableMaterial;
+import io.rewardsapp.domain.recycling.RecyclingCenter;
+import io.rewardsapp.domain.recycling.UserRecyclingActivity;
 import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.form.CreateRecyclingActivityForm;
 import io.rewardsapp.repository.*;

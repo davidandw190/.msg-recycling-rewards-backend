@@ -1,12 +1,9 @@
 package io.rewardsapp.service;
 
-import io.rewardsapp.domain.EducationalResource;
+import io.rewardsapp.domain.educational.EducationalResource;
 import jakarta.transaction.Transactional;
-
-import java.util.List;
 
 public interface EducationalResourcesService {
     @Transactional
-    EducationalResource createEducationalResource(String title, String content, Long contentTypeId,
-                                                  List<Long> categoryIds);
+    EducationalResource createEducationalResource(String title, String content, String contentType, String[] categories);
 }

@@ -1,8 +1,8 @@
 package io.rewardsapp.service.implementation;
 
-import io.rewardsapp.domain.User;
-import io.rewardsapp.domain.Voucher;
-import io.rewardsapp.domain.VoucherType;
+import io.rewardsapp.domain.auth.User;
+import io.rewardsapp.domain.vouchers.Voucher;
+import io.rewardsapp.domain.vouchers.VoucherType;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.repository.VoucherRepository;

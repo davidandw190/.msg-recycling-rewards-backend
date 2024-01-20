@@ -1,4 +1,4 @@
-package io.rewardsapp.domain;
+package io.rewardsapp.domain.vouchers;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;

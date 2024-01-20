@@ -1,8 +1,11 @@
-package io.rewardsapp.domain;
+package io.rewardsapp.domain.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import io.rewardsapp.domain.recycling.RewardPoints;
+import io.rewardsapp.domain.vouchers.Voucher;
+import io.rewardsapp.domain.recycling.UserRecyclingActivity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -13,7 +16,6 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Set;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_DEFAULT;
 

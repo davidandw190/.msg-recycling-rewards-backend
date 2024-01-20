@@ -1,6 +1,10 @@
 package io.rewardsapp.resource;
 
 import io.rewardsapp.domain.*;
+import io.rewardsapp.domain.auth.Role;
+import io.rewardsapp.domain.auth.User;
+import io.rewardsapp.domain.recycling.RecyclingCenter;
+import io.rewardsapp.domain.recycling.UserRecyclingActivity;
 import io.rewardsapp.dto.CenterStatsDTO;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.exception.ApiException;
@@ -117,7 +121,6 @@ public class CenterResource {
                     "appStats", statsService.getAppStats(),
                     "ecoTip", tipsService.getRandomRecyclingTip()
             );
-            log.info(">>>>>>>  userStats: " + searchData.get("appStats").toString());
         } catch (Exception exception) {
             handleException(request, response, exception);
         }

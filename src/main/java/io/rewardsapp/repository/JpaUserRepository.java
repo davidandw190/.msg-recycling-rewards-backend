@@ -1,8 +1,6 @@
 package io.rewardsapp.repository;
 
-import io.rewardsapp.domain.RecyclingCenter;
-import io.rewardsapp.domain.User;
-import org.springframework.data.jpa.repository.JpaRepository;
+import io.rewardsapp.domain.auth.User;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;

@@ -1,6 +1,6 @@
 package io.rewardsapp.repository.implementation;
 
-import io.rewardsapp.domain.Role;
+import io.rewardsapp.domain.auth.Role;
 import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.repository.RoleRepository;
 import io.rewardsapp.rowmapper.RoleRowMapper;

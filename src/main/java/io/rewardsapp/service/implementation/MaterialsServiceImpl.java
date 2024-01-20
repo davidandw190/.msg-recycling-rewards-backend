@@ -1,6 +1,6 @@
 package io.rewardsapp.service.implementation;
 
-import io.rewardsapp.domain.RecyclableMaterial;
+import io.rewardsapp.domain.recycling.RecyclableMaterial;
 import io.rewardsapp.repository.MaterialsRepository;
 import io.rewardsapp.service.MaterialsService;
 import lombok.RequiredArgsConstructor;

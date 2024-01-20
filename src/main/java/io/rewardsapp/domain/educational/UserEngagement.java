@@ -1,5 +1,6 @@
-package io.rewardsapp.domain;
+package io.rewardsapp.domain.educational;
 
+import io.rewardsapp.domain.auth.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,8 +27,8 @@ public class UserEngagement {
 
     @Column(name = "share_status", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean shareStatus;
-
-    @Column(name = "saved_status", columnDefinition = "BOOLEAN DEFAULT FALSE")
-    private boolean savedStatus;
+//
+//    @Column(name = "saved_status", columnDefinition = "BOOLEAN DEFAULT FALSE")
+//    private boolean savedStatus;
 }
 

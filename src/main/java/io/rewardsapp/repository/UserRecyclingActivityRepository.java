@@ -1,8 +1,8 @@
 package io.rewardsapp.repository;
 
-import io.rewardsapp.domain.RecyclingCenter;
-import io.rewardsapp.domain.User;
-import io.rewardsapp.domain.UserRecyclingActivity;
+import io.rewardsapp.domain.recycling.RecyclingCenter;
+import io.rewardsapp.domain.auth.User;
+import io.rewardsapp.domain.recycling.UserRecyclingActivity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

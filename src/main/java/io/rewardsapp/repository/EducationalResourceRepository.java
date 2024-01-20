@@ -1,6 +1,6 @@
 package io.rewardsapp.repository;
 
-import io.rewardsapp.domain.EducationalResource;
+import io.rewardsapp.domain.educational.EducationalResource;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;

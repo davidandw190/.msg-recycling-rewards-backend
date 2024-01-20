@@ -1,6 +1,7 @@
-package io.rewardsapp.domain;
+package io.rewardsapp.domain.educational;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import io.rewardsapp.domain.auth.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

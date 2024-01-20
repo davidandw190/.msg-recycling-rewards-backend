@@ -1,10 +1,9 @@
 package io.rewardsapp.repository.implementation;
 
-import io.rewardsapp.domain.Role;
-import io.rewardsapp.domain.User;
-import io.rewardsapp.domain.UserPrincipal;
+import io.rewardsapp.domain.auth.Role;
+import io.rewardsapp.domain.auth.User;
+import io.rewardsapp.domain.auth.UserPrincipal;
 import io.rewardsapp.dto.UserDTO;
-import io.rewardsapp.dto.mapper.UserDTOMapper;
 import io.rewardsapp.enums.VerificationType;
 import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.form.UpdateUserDetailsForm;

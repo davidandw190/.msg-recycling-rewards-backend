@@ -1,7 +1,7 @@
 package io.rewardsapp.service.implementation;
 
-import io.rewardsapp.domain.RecyclableMaterial;
-import io.rewardsapp.domain.RecyclingCenter;
+import io.rewardsapp.domain.recycling.RecyclableMaterial;
+import io.rewardsapp.domain.recycling.RecyclingCenter;
 import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.form.CreateCenterForm;
 import io.rewardsapp.form.UpdateCenterForm;
@@ -18,11 +18,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static org.springframework.data.domain.PageRequest.of;

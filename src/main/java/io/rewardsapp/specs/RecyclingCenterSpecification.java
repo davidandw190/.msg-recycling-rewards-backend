@@ -1,7 +1,7 @@
 package io.rewardsapp.specs;
 
-import io.rewardsapp.domain.RecyclableMaterial;
-import io.rewardsapp.domain.RecyclingCenter;
+import io.rewardsapp.domain.recycling.RecyclableMaterial;
+import io.rewardsapp.domain.recycling.RecyclingCenter;
 import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;

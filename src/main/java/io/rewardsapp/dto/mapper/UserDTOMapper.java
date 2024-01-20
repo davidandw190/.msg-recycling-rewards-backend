@@ -1,7 +1,7 @@
 package io.rewardsapp.dto.mapper;
 
-import io.rewardsapp.domain.Role;
-import io.rewardsapp.domain.User;
+import io.rewardsapp.domain.auth.Role;
+import io.rewardsapp.domain.auth.User;
 import io.rewardsapp.dto.UserDTO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;

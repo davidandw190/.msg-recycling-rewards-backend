@@ -1,7 +1,6 @@
 package io.rewardsapp.service;
 
-import io.rewardsapp.domain.Role;
-import io.rewardsapp.dto.UserDTO;
+import io.rewardsapp.domain.auth.Role;
 
 import java.util.Collection;
 

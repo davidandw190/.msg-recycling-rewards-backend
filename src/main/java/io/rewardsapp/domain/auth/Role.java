@@ -1,4 +1,4 @@
-package io.rewardsapp.domain;
+package io.rewardsapp.domain.auth;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;

@@ -1,8 +1,8 @@
 package io.rewardsapp.report;
 
-import io.rewardsapp.domain.RecyclableMaterial;
-import io.rewardsapp.domain.RecyclingCenter;
-import io.rewardsapp.domain.UserRecyclingActivity;
+import io.rewardsapp.domain.recycling.RecyclableMaterial;
+import io.rewardsapp.domain.recycling.RecyclingCenter;
+import io.rewardsapp.domain.recycling.UserRecyclingActivity;
 import io.rewardsapp.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateFormatUtils;

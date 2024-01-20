@@ -1,6 +1,6 @@
 package io.rewardsapp.repository;
 
-import io.rewardsapp.domain.Role;
+import io.rewardsapp.domain.auth.Role;
 
 import java.util.Collection;
 

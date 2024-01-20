@@ -1,6 +1,6 @@
 package io.rewardsapp.repository;
 
-import io.rewardsapp.domain.User;
+import io.rewardsapp.domain.auth.User;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.form.UpdateUserDetailsForm;
 import org.springframework.web.multipart.MultipartFile;
