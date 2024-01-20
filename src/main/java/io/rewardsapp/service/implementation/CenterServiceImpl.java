@@ -25,6 +25,9 @@ import java.util.List;
 
 import static org.springframework.data.domain.PageRequest.of;
 
+/**
+ * Service implementation for managing recycling centers.
+ */
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -33,19 +36,37 @@ public class CenterServiceImpl implements CenterService {
     private final CenterRepository centerRepository;
     private final MaterialsRepository materialsRepository;
 
+    /**
+     * Retrieves a paginated list of recycling centers.
+     *
+     * @param page The page number.
+     * @param size The number of items per page.
+     * @return A paginated list of recycling centers.
+     */
     @Override
     public Page<RecyclingCenter> getCenters(Integer page, Integer size) {
         return centerRepository.findAll(PageRequest.of(page, size));
     }
 
+    /**
+     * Retrieves a list of all recycling centers.
+     *
+     * @return A list of recycling centers.
+     */
     @Override
     public Iterable<RecyclingCenter> getCenters() {
         return centerRepository.findAll();
     }
 
+    /**
+     * Creates a new recycling center based on the provided form.
+     *
+     * @param form The form containing information for creating a new center.
+     * @return The created recycling center.
+     * @throws ApiException If there is an issue creating the recycling center.
+     */
     @Override
     public RecyclingCenter createCenter(CreateCenterForm form) {
-//        validateForm(form);
         checkCenterValidity(form.name(), form.city());
 
         List<RecyclableMaterial> materials = mapMaterialNamesToEntities(form.materials());
@@ -53,17 +74,32 @@ public class CenterServiceImpl implements CenterService {
         return centerRepository.save(buildRecyclingCenter(form, materials));
     }
 
-    private void checkCenterValidity(String name, String city) {
-        if (centerRepository.existsRecyclingCenterByNameAndCity(name, city)) {
-            throw new ApiException("Center name already exists");
-        }
-    }
-
+    /**
+     * Searches for recycling centers based on the provided name, page, and size.
+     *
+     * @param name The name to search for.
+     * @param page The page number.
+     * @param size The number of items per page.
+     * @return A paginated list of recycling centers matching the search criteria.
+     */
     @Override
     public Page<RecyclingCenter> searchCenters(String name, int page, int size) {
         return centerRepository.findByNameContainingIgnoreCase(name, of(page, size));
     }
 
+    /**
+     * Searches for recycling centers based on various criteria, including name, county, city, materials, and sorting options.
+     *
+     * @param name      The name to search for.
+     * @param county    The county to filter by.
+     * @param city      The city to filter by.
+     * @param materials The list of materials accepted by the centers.
+     * @param page      The page number.
+     * @param size      The number of items per page.
+     * @param sortBy    The field to sort by.
+     * @param sortOrder The sorting order (ASC or DESC).
+     * @return A paginated list of recycling centers matching the search criteria.
+     */
     @Override
     public Page<RecyclingCenter> searchCenters(
             String name,
@@ -75,7 +111,6 @@ public class CenterServiceImpl implements CenterService {
             String sortBy,
             String sortOrder
     ) {
-
         Sort sort = Sort.by(Sort.Direction.fromString(sortOrder), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
@@ -84,29 +119,45 @@ public class CenterServiceImpl implements CenterService {
         return centerRepository.findAll(specification, pageable);
     }
 
+    /**
+     * Retrieves a recycling center by its ID.
+     *
+     * @param id The ID of the recycling center.
+     * @return The recycling center with the specified ID.
+     * @throws ApiException If no center is found by the specified ID.
+     */
     @Override
     public RecyclingCenter getCenter(Long id) {
-        return centerRepository.findById(id).orElseThrow(() -> new RuntimeException("No center found."));
+        return centerRepository.findById(id).orElseThrow(() -> new ApiException("No center found."));
     }
 
+    /**
+     * Updates an existing recycling center based on the provided form.
+     *
+     * @param form The form containing information for updating the center.
+     * @return The updated recycling center.
+     * @throws ApiException If there is an issue updating the recycling center.
+     */
     @Override
     public RecyclingCenter updateCenter(UpdateCenterForm form) {
-//        checkCenterValidityExcludeCurrent(form.centerId(), form.name(), form.city());
 
         RecyclingCenter existingCenter = centerRepository.findById(form.centerId()).orElseThrow(
                 () -> new ApiException("No center found by specified id.")
         );
 
-        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> AFTER EXISTS CHECK");
+        checkCenterValidityExcludeCurrent(form.centerId(), form.name(), form.city());
 
         List<RecyclableMaterial> materials = mapMaterialNamesToEntities(form.materials());
-
-
-        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> AFTER MAP");
 
         buildUpdatedRecyclingCenter(form, existingCenter, materials);
 
         return centerRepository.save(existingCenter);
+    }
+
+    private void checkCenterValidity(String name, String city) {
+        if (centerRepository.existsRecyclingCenterByNameAndCity(name, city)) {
+            throw new ApiException("A recycling center with the same name already exists in this county.");
+        }
     }
 
     private void checkCenterValidityExcludeCurrent(Long currentCenterId, String name, String city) {
@@ -142,7 +193,6 @@ public class CenterServiceImpl implements CenterService {
     }
 
     private void buildUpdatedRecyclingCenter(UpdateCenterForm form, RecyclingCenter center, List<RecyclableMaterial> materials) {
-
         center.setCity(form.city());
         center.setCounty(form.county());
         center.setAddress(form.address());

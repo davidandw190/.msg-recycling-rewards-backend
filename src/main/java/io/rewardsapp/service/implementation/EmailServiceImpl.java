@@ -18,10 +18,14 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+/**
+ * Service implementation for handling email-related operations.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
+
     @Value("${spring.mail.username}")
     private String FROM;
 
@@ -33,6 +37,15 @@ public class EmailServiceImpl implements EmailService {
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
 
+    /**
+     * Sends a verification email to the user asynchronously.
+     *
+     * @param firstName        The first name of the user.
+     * @param email            The email address of the user.
+     * @param verificationUrl  The verification URL for the user.
+     * @param verificationType The type of verification (e.g., PASSWORD or ACCOUNT).
+     * @throws ApiException If there is an issue sending the email.
+     */
     @Async
     @Override
     public void sendVerificationEmail(String firstName, String email, String verificationUrl, VerificationType verificationType) {
@@ -61,12 +74,6 @@ public class EmailServiceImpl implements EmailService {
             messageBodyPart.setContent(text, TEXT_HTML_ENCODING);
             mimeMultipart.addBodyPart(messageBodyPart);
 
-//            BodyPart imageBodyPart = new MimeBodyPart();
-//            DataSource dataSource = new FileDataSource(System.getProperty("user.home") + "/Downloads/images/dog.jpg");
-//            imageBodyPart.setDataHandler(new DataHandler(dataSource));
-//            imageBodyPart.setHeader("Content-ID", "<image>");
-//            mimeMultipart.addBodyPart(imageBodyPart);
-
             message.setContent(mimeMultipart);
 
             mailSender.send(message);
@@ -74,11 +81,18 @@ public class EmailServiceImpl implements EmailService {
             log.info("HTML Email with embedded files sent to {}", firstName);
 
         } catch (Exception exception) {
-            log.error(exception.getMessage());
-            throw new RuntimeException(exception.getMessage());
+            log.error("Error sending verification email to {}: {}", firstName, exception.getMessage());
+            throw new ApiException("Error sending verification email");
         }
     }
 
+    /**
+     * Sends an inactive user notification email asynchronously.
+     *
+     * @param email    The email address of the inactive user.
+     * @param firstName The first name of the inactive user.
+     * @throws ApiException If there is an issue sending the email.
+     */
     @Async
     @Override
     public void sendInactiveUserEmail(String email, String firstName) {
@@ -113,7 +127,7 @@ public class EmailServiceImpl implements EmailService {
 
         } catch (Exception exception) {
             log.error("Error sending inactive user notification email to {}: {}", firstName, exception.getMessage());
-            throw new RuntimeException("Error sending inactive user notification email", exception);
+            throw new ApiException("Error sending inactive user notification email");
         }
     }
 

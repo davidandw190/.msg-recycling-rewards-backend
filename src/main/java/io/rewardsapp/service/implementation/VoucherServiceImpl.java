@@ -94,7 +94,7 @@ public class VoucherServiceImpl implements VoucherService {
     @Transactional
     public Voucher getVoucher(Long userId, String voucherCode) {
         Voucher voucher = voucherRepository.findFirstByUniqueCode(voucherCode).orElseThrow(
-                () -> new ApiException(">>>>> No voucher found by supplied unique code.")
+                () -> new ApiException("No voucher found by supplied unique code.")
         );
 
         if (!userOwnsVoucher(userId, voucher)) {
