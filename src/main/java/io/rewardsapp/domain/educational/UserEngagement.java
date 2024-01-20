@@ -27,8 +27,8 @@ public class UserEngagement {
 
     @Column(name = "share_status", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean shareStatus;
-//
-//    @Column(name = "saved_status", columnDefinition = "BOOLEAN DEFAULT FALSE")
-//    private boolean savedStatus;
+
+    @Column(name = "saved_status", columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private boolean savedStatus;
 }
 

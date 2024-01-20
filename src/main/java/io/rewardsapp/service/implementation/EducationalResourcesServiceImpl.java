@@ -17,7 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -29,70 +32,143 @@ public class EducationalResourcesServiceImpl implements EducationalResourcesServ
     private final ContentTypeRepository contentTypeRepository;
     private final CategoryRepository categoryRepository;
 
-
+    /**
+     * Creates a new eco-learn educational resource with the provided information.
+     *
+     * @param title          The title of the educational resource.
+     * @param content        The content of the educational resource.
+     * @param contentTypeName The name of the content type for the educational resource.
+     * @param categoryNames  The names of the categories associated with the educational resource.
+     * @return The created educational resource.
+     * @throws ApiException If there is an issue creating the educational resource.
+     */
     @Transactional
     @Override
-    public EducationalResource createEducationalResource(String title, String content, String contentType, String[] categories) {
-
-        ContentType chosenContentType = contentTypeRepository.findFirstByTypeName(contentType)
-                .orElseThrow(() -> new ApiException("No valid content type found by name: " + contentType));
-
-        List<Category> chosenCategories = getCategoriesByNames(new HashSet<>(List.of(categories)));
+    public EducationalResource createEducationalResource(String title, String content, String contentTypeName, String[] categoryNames) {
+        ContentType contentType = findContentTypeByName(contentTypeName);
+        Set<Category> categories = findCategoriesByNames(categoryNames);
 
         EducationalResource educationalResource = EducationalResource.builder()
                 .title(title)
                 .content(content)
-                .contentType(chosenContentType)
+                .contentType(contentType)
                 .likesCount(0L)
                 .createdAt(LocalDateTime.now())
-                .categories(chosenCategories)
+                .categories(categories)
                 .build();
 
         return educationalResourceRepository.save(educationalResource);
     }
 
+    /**
+     * Allows a user to like a specific educational resource.
+     *
+     * @param user      The user who is performing the action.
+     * @param resourceId The ID of the educational resource being liked.
+     * @throws ApiException If there is an issue performing the action.
+     */
     @Transactional
     @Override
     public void likeResource(User user, Long resourceId) {
-        try {
-            EducationalResource resource = getResourceById(resourceId);
-
-            Optional<UserEngagement> existingEngagement = userEngagementRepository.findByUserAndEducationalResource(user, resource);
-            if (existingEngagement.isPresent()) {
-                existingEngagement.get().setLikeStatus(true);
-                userEngagementRepository.save(existingEngagement.get());
-
-            } else {
-                userEngagementRepository.save(new UserEngagement(user, resource, true, false));
-            }
-
-            log.info("User with ID {} liked educational resource with ID {}", user.getId(), resourceId);
-
-        } catch (Exception e) {
-            log.error("Error occurred while liking resource", e);
-            throw new ApiException("Error occurred while liking resource");
-        }
+        EducationalResource resource = getResourceById(resourceId);
+        updateUserEngagement(user, resource, true, false, false);
+        log.info("User with ID {} liked educational resource with ID {}", user.getId(), resourceId);
     }
 
-    private List<Category> getCategoriesByNames(Set<String> categoryNames) {
-        List<Category> chosenCategories = new ArrayList<>(categoryNames.size());
+    /**
+     * Allows a user to save a specific educational resource.
+     *
+     * @param user      The user who is performing the action.
+     * @param resourceId The ID of the educational resource being saved.
+     * @throws ApiException If there is an issue performing the action.
+     */
+    @Transactional
+    @Override
+    public void saveResource(User user, Long resourceId) {
+        EducationalResource resource = getResourceById(resourceId);
+        updateUserEngagement(user, resource, false, false, true);
+        log.info("User with ID {} saved educational resource with ID {}", user.getId(), resourceId);
+    }
 
-        for (String categoryName : categoryNames) {
-            chosenCategories.add(
-                    categoryRepository.findFirstByCategoryName(categoryName)
-                            .orElseThrow( () -> new ApiException("No valid category type found by name: " + categoryName)));
-        }
+    /**
+     * Allows a user to share a specific educational resource.
+     *
+     * @param user      The user who is performing the action.
+     * @param resourceId The ID of the educational resource being shared.
+     * @throws ApiException If there is an issue performing the action.
+     */
+    @Transactional
+    @Override
+    public void shareResource(User user, Long resourceId) {
+        EducationalResource resource = getResourceById(resourceId);
+        updateUserEngagement(user, resource, false, true, false);
+        log.info("User with ID {} shared educational resource with ID {}", user.getId(), resourceId);
 
-        if (chosenCategories.size() != categoryNames.size()) {
-            throw new ApiException("Invalid category Names");
-        }
+    }
 
-        return chosenCategories;
+    /**
+     * Updates or creates a user engagement for a specific educational resource.
+     *
+     * <p>
+     * It checks if an engagement already exists for the given user and educational resource.
+     * If an existing engagement is found, it updates the engagement status based on the provided parameters.
+     * If no engagement is found, a new user engagement is created with the specified engagement statuses.
+     * </p>
+     *
+     * @param user         The user performing the action.
+     * @param resource     The educational resource being engaged with.
+     * @param likeStatus   The like status to be set.
+     * @param shareStatus  The share status to be set.
+     * @param savedStatus  The saved status to be set.
+     *
+     * @throws ApiException If an error occurs while updating or saving the user engagement.
+     */
+    private void updateUserEngagement(User user, EducationalResource resource, boolean likeStatus, boolean shareStatus, boolean savedStatus) {
+        Optional<UserEngagement> existingEngagement = userEngagementRepository.findByUserAndEducationalResource(user, resource);
+
+        UserEngagement engagement = existingEngagement.orElseGet(
+                () -> new UserEngagement(user, resource, false, false, false)
+        );
+        engagement.setLikeStatus(likeStatus);
+        engagement.setShareStatus(shareStatus);
+        engagement.setSavedStatus(savedStatus);
+
+        userEngagementRepository.save(engagement);
+    }
+
+    /**
+     * Finds a content type by its name.
+     *
+     * @param contentTypeName The name of the content type.
+     * @return The found content type.
+     * @throws ApiException If no valid content type is found.
+     */
+    private ContentType findContentTypeByName(String contentTypeName) {
+        return contentTypeRepository.findFirstByTypeName(contentTypeName)
+                .orElseThrow(() -> new ApiException("No valid content type found by name: " + contentTypeName));
+    }
+
+    /**
+     * Finds categories by their names.
+     *
+     * @param categoryNames The names of the categories.
+     * @return The set of found categories.
+     * @throws ApiException If no valid categories are found.
+     */
+    private Set<Category> findCategoriesByNames(String[] categoryNames) {
+        return Arrays.stream(categoryNames)
+                .map(this::findCategoryByName)
+                .collect(Collectors.toSet());
+    }
+
+    private Category findCategoryByName(String categoryName) {
+        return categoryRepository.findFirstByCategoryName(categoryName)
+                .orElseThrow(() -> new ApiException("No valid category found by name: " + categoryName));
     }
 
     private EducationalResource getResourceById(Long resourceId) {
         return educationalResourceRepository.findById(resourceId)
-                .orElseThrow(() -> new ApiException("Educational resource not found"));
+                .orElseThrow(() -> new ApiException("Educational resource not found with ID: " + resourceId));
     }
 
 }

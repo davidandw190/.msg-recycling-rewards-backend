@@ -10,4 +10,10 @@ public interface EducationalResourcesService {
 
     @Transactional
     void likeResource(User user, Long resourceId);
+
+    @Transactional
+    void saveResource(User user, Long resourceId);
+
+    @Transactional
+    void shareResource(User user, Long resourceId);
 }
