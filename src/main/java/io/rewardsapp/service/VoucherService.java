@@ -21,8 +21,6 @@ public interface VoucherService {
             String sortOrder
     );
 
-    int checkForUnretrievedVouchers(User user);
-
     Voucher getVoucher(Long userId, String voucherCode);
 
     Voucher redeemVoucher(UserDTO authenticatedUser, String voucherCode);

@@ -71,18 +71,6 @@ public class VoucherServiceImpl implements VoucherService {
     }
 
     /**
-     * Checks and returns the count of unredeemed vouchers that are expired for a given user.
-     *
-     * @param user The user to check for unredeemed vouchers.
-     * @return The count of unredeemed expired vouchers for the user.
-     */
-    @Override
-    @Transactional
-    public int checkForUnretrievedVouchers(User user) {
-        return voucherRepository.countDistinctByUserIdAndRedeemedFalseAndExpiresAtIsBefore(user.getId(), LocalDateTime.now());
-    }
-
-    /**
      * Retrieves a voucher by its unique code, validating ownership by the specified user.
      *
      * @param userId      The ID of the user attempting to retrieve the voucher.

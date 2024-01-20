@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@IdClass(UserEngagementId.class)
 @Table(name = "user_engagement")
 public class UserEngagement {
     @Id

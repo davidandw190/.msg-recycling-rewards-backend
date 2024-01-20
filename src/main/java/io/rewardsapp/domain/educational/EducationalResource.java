@@ -38,9 +38,6 @@ public class EducationalResource {
     @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "educationalResource", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference
-    private Collection<UserSavedResource> userSavedResources;
 
     @OneToMany(mappedBy = "educationalResource", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
