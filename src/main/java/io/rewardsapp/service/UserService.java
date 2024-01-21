@@ -1,5 +1,6 @@
 package io.rewardsapp.service;
 
+import io.rewardsapp.domain.auth.User;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.form.UpdateUserDetailsForm;
 import io.rewardsapp.form.UserRegistrationForm;
@@ -46,4 +47,6 @@ public interface UserService {
     void updateLastLogin(Long userId);
 
     List<UserDTO> findInactiveUsers(LocalDateTime oneWeekAgo);
+
+    User getJpaManagedUser(Long userId);
 }

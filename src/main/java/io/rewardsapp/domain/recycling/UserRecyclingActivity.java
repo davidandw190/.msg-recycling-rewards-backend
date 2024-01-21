@@ -21,7 +21,7 @@ public class UserRecyclingActivity {
     @Column(name = "activity_id")
     private Long activityId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

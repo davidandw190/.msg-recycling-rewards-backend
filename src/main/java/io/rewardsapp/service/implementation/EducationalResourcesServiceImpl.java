@@ -5,19 +5,22 @@ import io.rewardsapp.domain.educational.Category;
 import io.rewardsapp.domain.educational.ContentType;
 import io.rewardsapp.domain.educational.EducationalResource;
 import io.rewardsapp.domain.educational.UserEngagement;
+import io.rewardsapp.dto.EducationalResourceDTO;
 import io.rewardsapp.exception.ApiException;
-import io.rewardsapp.repository.CategoryRepository;
-import io.rewardsapp.repository.ContentTypeRepository;
-import io.rewardsapp.repository.EducationalResourceRepository;
-import io.rewardsapp.repository.UserEngagementRepository;
+import io.rewardsapp.repository.*;
 import io.rewardsapp.service.EducationalResourcesService;
+import io.rewardsapp.service.UserService;
+import io.rewardsapp.specs.EducationalResourceSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -25,12 +28,15 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class EducationalResourcesServiceImpl implements EducationalResourcesService {
+public
+class EducationalResourcesServiceImpl implements EducationalResourcesService {
 
     private final EducationalResourceRepository educationalResourceRepository;
     private final UserEngagementRepository userEngagementRepository;
     private final ContentTypeRepository contentTypeRepository;
     private final CategoryRepository categoryRepository;
+
+    private final UserService userService;
 
     /**
      * Creates a new eco-learn educational resource with the provided information.
@@ -60,51 +66,104 @@ public class EducationalResourcesServiceImpl implements EducationalResourcesServ
         return educationalResourceRepository.save(educationalResource);
     }
 
+    @Transactional
+    @Override
+    public Page<EducationalResourceDTO> searchResources(
+            User user,
+            String title,
+            String contentType,
+            List<String> categories,
+            int page,
+            int size,
+            String sortBy,
+            String sortOrder,
+            boolean likedOnly,
+            boolean savedOnly
+    ) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortOrder), sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Specification<EducationalResource> specification = EducationalResourceSpecification.searchResources(title, contentType, categories, likedOnly, savedOnly);
+        Page<EducationalResource> resourcesPage = educationalResourceRepository.findAll(specification, pageable);
+
+        List<EducationalResourceDTO> resourceDTOs = resourcesPage.getContent().stream()
+                .map(resource -> convertToDTO(resource, user))
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(resourceDTOs, pageable, resourcesPage.getTotalElements());
+    }
+
     /**
      * Allows a user to like a specific educational resource.
      *
-     * @param user      The user who is performing the action.
+     * @param userId     The ID of the user who is performing the action.
      * @param resourceId The ID of the educational resource being liked.
      * @throws ApiException If there is an issue performing the action.
      */
     @Transactional
     @Override
-    public void likeResource(User user, Long resourceId) {
+    public void likeResource(Long userId, Long resourceId) {
         EducationalResource resource = getResourceById(resourceId);
-        updateUserEngagement(user, resource, true, false, false);
-        log.info("User with ID {} liked educational resource with ID {}", user.getId(), resourceId);
+        updateUserEngagement(userId, resource, true, false, false);
+        log.info("User with ID {} liked educational resource with ID {}", userId, resourceId);
     }
 
     /**
      * Allows a user to save a specific educational resource.
      *
-     * @param user      The user who is performing the action.
+     * @param userId     The ID of the user who is performing the action.
      * @param resourceId The ID of the educational resource being saved.
      * @throws ApiException If there is an issue performing the action.
      */
     @Transactional
     @Override
-    public void saveResource(User user, Long resourceId) {
+    public void saveResource(Long userId, Long resourceId) {
         EducationalResource resource = getResourceById(resourceId);
-        updateUserEngagement(user, resource, false, false, true);
-        log.info("User with ID {} saved educational resource with ID {}", user.getId(), resourceId);
+        updateUserEngagement(userId, resource, false, false, true);
+        log.info("User with ID {} saved educational resource with ID {}", userId, resourceId);
     }
 
     /**
      * Allows a user to share a specific educational resource.
      *
-     * @param user      The user who is performing the action.
+     * @param userId     The ID of the user who is performing the action.
      * @param resourceId The ID of the educational resource being shared.
      * @throws ApiException If there is an issue performing the action.
      */
     @Transactional
     @Override
-    public void shareResource(User user, Long resourceId) {
+    public void shareResource(Long userId, Long resourceId) {
         EducationalResource resource = getResourceById(resourceId);
-        updateUserEngagement(user, resource, false, true, false);
-        log.info("User with ID {} shared educational resource with ID {}", user.getId(), resourceId);
+        updateUserEngagement(userId, resource, false, true, false);
+        log.info("User with ID {} shared educational resource with ID {}", userId, resourceId);
 
     }
+
+    private EducationalResourceDTO convertToDTO(EducationalResource resource, User user) {
+        long likesCount = userEngagementRepository.countByEducationalResourceAndLikeStatus(resource, true);
+        long sharesCount = userEngagementRepository.countByEducationalResourceAndShareStatus(resource, true);
+        long savesCount = userEngagementRepository.countByEducationalResourceAndSavedStatus(resource, true);
+
+        boolean isLikedByUser = userEngagementRepository.existsByUserAndEducationalResourceAndLikeStatus(user, resource, true);
+        boolean isSharedByUser = userEngagementRepository.existsByUserAndEducationalResourceAndShareStatus(user, resource, true);
+        boolean isSavedByUser = userEngagementRepository.existsByUserAndEducationalResourceAndSavedStatus(user, resource, true);
+
+        return EducationalResourceDTO.builder()
+                .resourceId(resource.getId())
+                .title(resource.getTitle())
+                .content(resource.getContent())
+                .contentType(resource.getContentType().getTypeName())
+                .likesCount(likesCount)
+                .sharesCount(sharesCount)
+                .savesCount(savesCount)
+                .createdAt(resource.getCreatedAt())
+                .categories(resource.getCategories().stream().map(Category::getCategoryName).collect(Collectors.toSet()))
+                .likedByUser(isLikedByUser)
+                .sharedByUser(isSharedByUser)
+                .savedByUser(isSavedByUser)
+                .build();
+    }
+
 
     /**
      * Updates or creates a user engagement for a specific educational resource.
@@ -115,7 +174,7 @@ public class EducationalResourcesServiceImpl implements EducationalResourcesServ
      * If no engagement is found, a new user engagement is created with the specified engagement statuses.
      * </p>
      *
-     * @param user         The user performing the action.
+     * @param userId       The id of the user performing the action.
      * @param resource     The educational resource being engaged with.
      * @param likeStatus   The like status to be set.
      * @param shareStatus  The share status to be set.
@@ -123,15 +182,19 @@ public class EducationalResourcesServiceImpl implements EducationalResourcesServ
      *
      * @throws ApiException If an error occurs while updating or saving the user engagement.
      */
-    private void updateUserEngagement(User user, EducationalResource resource, boolean likeStatus, boolean shareStatus, boolean savedStatus) {
-        Optional<UserEngagement> existingEngagement = userEngagementRepository.findByUserAndEducationalResource(user, resource);
+    private void updateUserEngagement(Long userId, EducationalResource resource, boolean likeStatus, boolean shareStatus, boolean savedStatus) {
+        User user = userService.getJpaManagedUser(userId);
+        Optional<UserEngagement> existingEngagement = userEngagementRepository.findByUserIdAndEducationalResource(userId, resource);
 
         UserEngagement engagement = existingEngagement.orElseGet(
-                () -> new UserEngagement(user, resource, false, false, false)
+                () -> UserEngagement.builder()
+                        .likeStatus(likeStatus)
+                        .shareStatus(shareStatus)
+                        .savedStatus(savedStatus)
+                        .educationalResource(resource)
+                        .user(user)
+                        .build()
         );
-        engagement.setLikeStatus(likeStatus);
-        engagement.setShareStatus(shareStatus);
-        engagement.setSavedStatus(savedStatus);
 
         userEngagementRepository.save(engagement);
     }

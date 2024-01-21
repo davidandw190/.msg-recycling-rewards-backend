@@ -13,7 +13,6 @@ public record CreateEducationalResourceForm(
         String contentType,
 
         @NotNull(message = "Please provide the content for the new center.")
-        @Min(value = 10, message = "The content for the educational resource should be at least 10 characters long.")
         String content,
 
         @NotNull(message = "Please specify the categories of the new educational resource.")

@@ -8,6 +8,7 @@ import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.form.UpdateUserDetailsForm;
 import io.rewardsapp.form.UserRegistrationForm;
 import io.rewardsapp.repository.JdbcUserRepository;
+import io.rewardsapp.repository.JpaUserRepository;
 import io.rewardsapp.repository.RoleRepository;
 import io.rewardsapp.service.UserService;
 import io.rewardsapp.utils.EmailUtils;
@@ -29,6 +30,7 @@ public class UserServiceImpl implements UserService {
 
     // Repositories
     private final JdbcUserRepository<User> jdbcUserRepository;
+    private final JpaUserRepository jpaUserRepository;
     private final RoleRepository<Role> roleRepository;
 
     private final EmailUtils emailUtils;
@@ -81,6 +83,7 @@ public class UserServiceImpl implements UserService {
     public UserDTO getUser(Long userId) {
         return mapToUserDTO(jdbcUserRepository.get(userId));
     }
+
 
     /**
      * Sends an account verification code to the specified user.
@@ -245,6 +248,13 @@ public class UserServiceImpl implements UserService {
                 .filter(user -> user.isEnabled() && user.isNotificationsEnabled() && user.isNotLocked())
                 .map(this::mapToUserDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public User getJpaManagedUser(Long userId) {
+        return jpaUserRepository.findUserById(userId).orElseThrow(
+                () -> new ApiException("No user found by ID: " + userId)
+        );
     }
 
     private UserDTO mapToUserDTO(User user) {

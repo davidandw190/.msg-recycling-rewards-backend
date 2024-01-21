@@ -2,6 +2,7 @@ package io.rewardsapp.resource;
 
 import io.rewardsapp.domain.HttpResponse;
 import io.rewardsapp.dto.UserDTO;
+import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.form.CreateEducationalResourceForm;
 import io.rewardsapp.service.EducationalResourcesService;
 import io.rewardsapp.service.RoleService;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 import static io.rewardsapp.dto.mapper.UserDTOMapper.toUser;
@@ -38,7 +40,7 @@ public class EcoLearnResource {
     private final HttpServletResponse response;
 
     @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<HttpResponse> createCustomer(
+    public ResponseEntity<HttpResponse> createResource(
             @AuthenticationPrincipal UserDTO authenticatedUser,
             @RequestBody @Valid CreateEducationalResourceForm form
     ) {
@@ -63,9 +65,9 @@ public class EcoLearnResource {
             @PathVariable Long resourceId
     ) {
         switch (action.toUpperCase()) {
-            case "LIKE"     -> educationalResourcesService.likeResource(toUser(authenticatedUser), resourceId);
-            case "SAVE"     -> educationalResourcesService.saveResource(toUser(authenticatedUser), resourceId);
-            case "SHARE"    -> educationalResourcesService.shareResource(toUser(authenticatedUser), resourceId);
+            case "LIKE"     -> educationalResourcesService.likeResource(authenticatedUser.id(), resourceId);
+            case "SAVE"     -> educationalResourcesService.saveResource(authenticatedUser.id(), resourceId);
+            case "SHARE"    -> educationalResourcesService.shareResource(authenticatedUser.id(), resourceId);
 
             default         -> handleException(request, response, new BadRequestException("Invalid engagement action: " + action.toUpperCase()));
         }
@@ -79,5 +81,61 @@ public class EcoLearnResource {
                         .statusCode(OK.value())
                         .build()
             );
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<HttpResponse> searchCenters(
+            @AuthenticationPrincipal UserDTO authenticatedUser,
+            @RequestParam(defaultValue = "") String title,
+            @RequestParam(defaultValue = "") String contentType,
+            @RequestParam(defaultValue = "") List<String> categories,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortOrder,
+
+            @RequestParam(defaultValue = "false") Boolean likedOnly,
+            @RequestParam(defaultValue = "false") Boolean savedOnly
+    ) {
+        Map<String, Object> searchData = null;
+
+        try {
+            validatePageAndSize(page, size);
+
+            searchData = Map.of(
+                    "user", authenticatedUser,
+                    "page", educationalResourcesService.searchResources(
+                            toUser(authenticatedUser),
+                            title,
+                            contentType,
+                            categories,
+                            page,
+                            size,
+                            sortBy,
+                            sortOrder,
+                            likedOnly,
+                            savedOnly
+                    )
+            );
+
+        } catch (Exception exception) {
+            handleException(request, response, exception);
+        }
+
+        return ResponseEntity.ok(
+                HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .data(searchData)
+                        .message("Resources retrieved successfully!")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build()
+        );
+    }
+
+    private void validatePageAndSize(int page, int size) {
+        if (page < 0 || size <= 0 || size > 100) {
+            throw new ApiException("Invalid page or size parameters");
+        }
     }
 }

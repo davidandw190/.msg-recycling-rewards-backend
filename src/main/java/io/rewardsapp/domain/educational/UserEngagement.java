@@ -3,6 +3,7 @@ package io.rewardsapp.domain.educational;
 import io.rewardsapp.domain.auth.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @IdClass(UserEngagementId.class)
 @Table(name = "user_engagement")
 public class UserEngagement {
