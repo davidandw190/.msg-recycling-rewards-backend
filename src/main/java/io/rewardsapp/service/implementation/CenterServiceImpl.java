@@ -36,6 +36,8 @@ public class CenterServiceImpl implements CenterService {
     private final CenterRepository centerRepository;
     private final MaterialsRepository materialsRepository;
 
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+
     /**
      * Retrieves a paginated list of recycling centers.
      *
@@ -187,8 +189,8 @@ public class CenterServiceImpl implements CenterService {
                 .address(form.address())
                 .acceptedMaterials(materials)
                 .alwaysOpen(form.alwaysOpen())
-                .openingHour(parseLocalTime(form.openingHour()))
-                .closingHour(parseLocalTime(form.closingHour()))
+                .openingHour(LocalTime.parse(form.openingHour(), formatter))
+                .closingHour(LocalTime.parse(form.closingHour(), formatter))
                 .build();
     }
 
@@ -199,10 +201,10 @@ public class CenterServiceImpl implements CenterService {
         center.setContact(form.contact());
         center.setName(form.name());
         center.setAlwaysOpen(form.alwaysOpen());
+        center.setOpeningHour(LocalTime.parse(form.openingHour(), formatter));
+        center.setClosingHour(LocalTime.parse(form.closingHour(), formatter));
         center.setAcceptedMaterials(materials);
     }
 
-    private LocalTime parseLocalTime(String time) {
-        return (time != null) ? LocalTime.parse(time, DateTimeFormatter.ofPattern("HH:mm")) : LocalTime.parse("00:00", DateTimeFormatter.ofPattern("HH:mm"));
-    }
+
 }
