@@ -164,39 +164,59 @@ class EducationalResourcesServiceImpl implements EducationalResourcesService {
                 .build();
     }
 
-
     /**
      * Updates or creates a user engagement for a specific educational resource.
      *
      * <p>
      * It checks if an engagement already exists for the given user and educational resource.
-     * If an existing engagement is found, it updates the engagement status based on the provided parameters.
+     * If an existing engagement is found, it toggles the specified engagement status based on the provided parameters.
      * If no engagement is found, a new user engagement is created with the specified engagement statuses.
      * </p>
      *
      * @param userId       The id of the user performing the action.
      * @param resource     The educational resource being engaged with.
-     * @param likeStatus   The like status to be set.
-     * @param shareStatus  The share status to be set.
-     * @param savedStatus  The saved status to be set.
+     * @param likeStatus   The like status to be toggled.
+     * @param shareStatus  The share status to be toggled.
+     * @param savedStatus  The saved status to be toggled.
      *
      * @throws ApiException If an error occurs while updating or saving the user engagement.
      */
     private void updateUserEngagement(Long userId, EducationalResource resource, boolean likeStatus, boolean shareStatus, boolean savedStatus) {
         User user = userService.getJpaManagedUser(userId);
+
         Optional<UserEngagement> existingEngagement = userEngagementRepository.findByUserIdAndEducationalResource(userId, resource);
 
-        UserEngagement engagement = existingEngagement.orElseGet(
-                () -> UserEngagement.builder()
-                        .likeStatus(likeStatus)
-                        .shareStatus(shareStatus)
-                        .savedStatus(savedStatus)
-                        .educationalResource(resource)
-                        .user(user)
-                        .build()
+        // if an existing engagement found for user-resource, toggle the specified statuses
+        existingEngagement.ifPresentOrElse(
+                engagement -> {
+                    engagement.setLikeStatus(toggleStatus(engagement.isLikeStatus(), likeStatus));
+                    engagement.setShareStatus(toggleStatus(engagement.isShareStatus(), shareStatus));
+                    engagement.setSavedStatus(toggleStatus(engagement.isSavedStatus(), savedStatus));
+                    userEngagementRepository.save(engagement);
+                },
+                // if not, create a new one with the specified statuses
+                () -> {
+                    UserEngagement newEngagement = UserEngagement.builder()
+                            .likeStatus(likeStatus)
+                            .shareStatus(shareStatus)
+                            .savedStatus(savedStatus)
+                            .educationalResource(resource)
+                            .user(user)
+                            .build();
+                    userEngagementRepository.save(newEngagement);
+                }
         );
+    }
 
-        userEngagementRepository.save(engagement);
+    /**
+     * Toggles the status based on the provided parameters.
+     *
+     * @param currentStatus The current status.
+     * @param newStatus     The new status.
+     * @return The toggled status.
+     */
+    private boolean toggleStatus(boolean currentStatus, boolean newStatus) {
+        return !currentStatus && newStatus;
     }
 
     /**
