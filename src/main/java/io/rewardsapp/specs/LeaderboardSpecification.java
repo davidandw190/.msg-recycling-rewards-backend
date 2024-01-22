@@ -3,14 +3,19 @@ package io.rewardsapp.specs;
 import io.rewardsapp.domain.auth.User;
 import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Specification class for querying users based on criteria for leaderboard generation.
  */
+@Component
 public class LeaderboardSpecification {
 
     /**
@@ -65,4 +70,5 @@ public class LeaderboardSpecification {
         return Specification.where(getResults(county, sortBy, sortOrder))
                 .and(orderBy(sortBy, sortOrder));
     }
+
 }

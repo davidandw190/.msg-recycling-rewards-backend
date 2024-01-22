@@ -11,11 +11,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,13 +39,22 @@ public class LeaderboardServiceImpl implements LeaderboardService {
     @Override
     public Page<LeaderboardEntryDTO> getLeaderboard(String county, int page, int size, String sortBy, String sortOrder) {
         try {
-            Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(sortOrder), sortBy));
+            Pageable pageable = PageRequest.of(page, size);
             Specification<User> specification = LeaderboardSpecification.buildLeaderboardSpecification(county, sortBy, sortOrder);
+
             Page<User> userPage = userRepository.findAll(specification, pageable);
 
             List<LeaderboardEntryDTO> leaderboardEntries = userPage.getContent().stream()
                     .map(this::mapToLeaderboardEntryDTO)
                     .collect(Collectors.toList());
+
+            if ("rewardPoints".equals(sortBy)) {
+                Comparator<LeaderboardEntryDTO> comparator = Comparator.comparing(LeaderboardEntryDTO::getRewardPoints);
+                if ("desc".equalsIgnoreCase(sortOrder)) {
+                    comparator = comparator.reversed();
+                }
+                leaderboardEntries.sort(comparator);
+            }
 
             calculateRank(leaderboardEntries);
 
@@ -63,7 +72,9 @@ public class LeaderboardServiceImpl implements LeaderboardService {
 
         long rank = 1L;
         for (LeaderboardEntryDTO entry : sortedEntries) {
-            entry.setRank(rank++);
+            if (!entry.isAdministration()) {
+                entry.setRank(rank++);
+            }
         }
     }
 
