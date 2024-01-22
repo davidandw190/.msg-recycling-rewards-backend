@@ -172,7 +172,7 @@ public class UserResource {
      * @param email The email of the user for password reset.
      * @return ResponseEntity containing the password reset response.
      */
-    @GetMapping("/reset-password/{email}")
+    @GetMapping("/reset-pass/{email}")
     public ResponseEntity<HttpResponse> resetForgottenPassword(@PathVariable("email") String email) {
         userService.resetForgottenPassword(email);
         return ResponseEntity.ok().body(

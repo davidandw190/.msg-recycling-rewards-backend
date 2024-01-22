@@ -299,17 +299,16 @@ public class JdbcUserRepositoryImpl implements JdbcUserRepository<User>, UserDet
         if (getEmailCount(email.trim().toLowerCase()) <= 0) throw new ApiException("There is no account for this email address");
 
         try {
-            String expirationDate = format(addDays(new Date(), 1), DATE_FORMAT);
             User user = getUserByEmail(email);
             String verificationUrl = getVerificationUrl(UUID.randomUUID().toString(), PASSWORD.getType());
             jdbc.update(DELETE_PASSWORD_VERIFICATION_BY_USER_ID_QUERY, Map.of("userId",  user.getId()));
-            jdbc.update(INSERT_PASSWORD_VERIFICATION_QUERY, Map.of("userId",  user.getId(), "url", verificationUrl, "expirationDate", expirationDate));
+            jdbc.update(INSERT_PASSWORD_VERIFICATION_QUERY, Map.of("userId",  user.getId(), "url", verificationUrl, "expirationDate", addDays(new Date(), 1)));
             log.info("Verification URL: {}", verificationUrl);
 
             return verificationUrl;
 
         } catch (Exception exception) {
-            throw new ApiException("An error occurred. Please try again.");
+            throw new ApiException("An error occurred. Please try again. " + exception);
         }
     }
 
