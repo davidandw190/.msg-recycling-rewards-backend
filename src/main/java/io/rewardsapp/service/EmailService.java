@@ -9,4 +9,6 @@ public interface EmailService {
 
     @Async
     void sendInactiveUserEmail(String firstName, String email);
+
+    void sendMonthlyRewardPointsEmail(String email, String s, Long earnedPoints);
 }

@@ -131,6 +131,11 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    @Override
+    public void sendMonthlyRewardPointsEmail(String email, String s, Long earnedPoints) {
+
+    }
+
     private String getInactivityEmailMessage() {
         return "<br/>We noticed that you haven't logged into your RecyclingRewards account for a week. "
                 + "<p>Recycling plays a crucial role in building a sustainable future, and your participation makes a positive impact. Reconnect with us to explore the latest recycling challenges, community initiatives, and exciting rewards awaiting you.</p>"

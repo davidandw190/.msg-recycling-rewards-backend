@@ -10,6 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static io.rewardsapp.utils.RewardPointsUtils.computeRewardPointsByUnitsRecycled;
 
@@ -56,4 +59,31 @@ public class RewardPointsServiceImpl implements RewardPointsService {
             rewardPointsRepository.save(existingRewardPoints);
         }
     }
+
+    @Override
+    @Transactional
+    public void restoreRecyclersRewardPoints(List<Long> userIds) {
+        rewardPointsRepository.resetRewardPointsByUserIds(userIds);
+    }
+
+    @Override
+    public List<Long> getRecyclersIds() {
+        return rewardPointsRepository.findUserIdsOfRecyclers();
+    }
+
+    @Override
+    @Transactional
+    public List<Long> getRewardPointsAmount(List<Long> userIds) {
+        Map<Long, Long> rewardPointsMap = rewardPointsRepository.findTotalPointsByUserIds(userIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        RewardPoints::getUserId,
+                        RewardPoints::getTotalPoints,
+                        (existing, replacement) -> existing));
+
+        return userIds.stream()
+                .map(userId -> rewardPointsMap.getOrDefault(userId, 0L))
+                .collect(Collectors.toList());
+    }
+
 }
