@@ -28,6 +28,9 @@ public class EducationalResource {
     @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
 
+    @Column(name = "media")
+    private String media;
+
     @ManyToOne
     @JoinColumn(name = "content_type_id", nullable = false)
     private ContentType contentType;

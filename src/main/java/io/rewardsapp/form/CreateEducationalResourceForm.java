@@ -15,6 +15,8 @@ public record CreateEducationalResourceForm(
         @NotNull(message = "Please provide the content for the new center.")
         String content,
 
+        String media,
+
         @NotNull(message = "Please specify the categories of the new educational resource.")
         @NotEmpty(message = "Please provide at least one category accepted by the new center.")
         String[] categories

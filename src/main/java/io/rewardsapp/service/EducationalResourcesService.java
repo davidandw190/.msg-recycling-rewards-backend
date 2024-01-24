@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface EducationalResourcesService {
     @Transactional
-    EducationalResource createEducationalResource(String title, String content, String contentType, String[] categories);
+    EducationalResource createEducationalResource(String title, String content, String contentTypeName, String media, String[] categoryNames);
 
     @Transactional
     Page<EducationalResourceDTO> searchResources(

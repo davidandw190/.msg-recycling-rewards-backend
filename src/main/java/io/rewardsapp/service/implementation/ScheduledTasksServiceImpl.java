@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
 
 @Slf4j
 @Service
@@ -49,6 +48,7 @@ public class ScheduledTasksServiceImpl implements ScheduledTasksService {
         CompletableFuture.allOf(futures).join();
     }
 
+    @Override
     @Transactional
     @Scheduled(cron = "0 0 0 1 * *")  // to run every 1st day of each month at midnight
     public void restoreRecyclersRewardPoints() {

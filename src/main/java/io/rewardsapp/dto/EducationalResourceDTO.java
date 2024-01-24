@@ -14,6 +14,7 @@ public record EducationalResourceDTO(
     String title,
     String content,
     String contentType,
+    String media,
     long likesCount,
     long sharesCount,
     long savesCount,

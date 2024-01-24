@@ -41,16 +41,17 @@ class EducationalResourcesServiceImpl implements EducationalResourcesService {
     /**
      * Creates a new eco-learn educational resource with the provided information.
      *
-     * @param title          The title of the educational resource.
-     * @param content        The content of the educational resource.
-     * @param contentTypeName The name of the content type for the educational resource.
-     * @param categoryNames  The names of the categories associated with the educational resource.
+     * @param title             The title of the educational resource.
+     * @param content           The content of the educational resource.
+     * @param contentTypeName   The name of the content type for the educational resource.
+     * @param media             The media of the resource which can be a link, a photo, a video.
+     * @param categoryNames     The names of the categories associated with the educational resource.
      * @return The created educational resource.
      * @throws ApiException If there is an issue creating the educational resource.
      */
     @Transactional
     @Override
-    public EducationalResource createEducationalResource(String title, String content, String contentTypeName, String[] categoryNames) {
+    public EducationalResource createEducationalResource(String title, String content, String contentTypeName, String media, String[] categoryNames) {
         ContentType contentType = findContentTypeByName(contentTypeName);
         Set<Category> categories = findCategoriesByNames(categoryNames);
 
@@ -58,6 +59,7 @@ class EducationalResourcesServiceImpl implements EducationalResourcesService {
                 .title(title)
                 .content(content)
                 .contentType(contentType)
+                .media(media)
                 .likesCount(0L)
                 .createdAt(LocalDateTime.now())
                 .categories(categories)
@@ -153,6 +155,7 @@ class EducationalResourcesServiceImpl implements EducationalResourcesService {
                 .title(resource.getTitle())
                 .content(resource.getContent())
                 .contentType(resource.getContentType().getTypeName())
+                .media(resource.getMedia())
                 .likesCount(likesCount)
                 .sharesCount(sharesCount)
                 .savesCount(savesCount)

@@ -18,6 +18,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -189,8 +192,9 @@ public class CenterServiceImpl implements CenterService {
                 .address(form.address())
                 .acceptedMaterials(materials)
                 .alwaysOpen(form.alwaysOpen())
-                .openingHour(LocalTime.parse(form.openingHour(), formatter))
-                .closingHour(LocalTime.parse(form.closingHour(), formatter))
+                .openingHour(form.openingHour() != null ?  LocalTime.parse(form.openingHour(), formatter) : LocalTime.parse("00:00:00", formatter))
+                .closingHour(form.closingHour() != null ?  LocalTime.parse(form.closingHour(), formatter) : LocalTime.parse("00:00:00", formatter))
+                .createdAt(Timestamp.valueOf(LocalDateTime.now()))
                 .build();
     }
 
