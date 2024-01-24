@@ -15,8 +15,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +28,7 @@ import static io.rewardsapp.dto.mapper.UserDTOMapper.toUser;
 import static io.rewardsapp.utils.ExceptionUtils.handleException;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
 
 @Slf4j
 @RestController
@@ -39,23 +43,26 @@ public class EcoLearnResource {
     private final HttpServletRequest request;
     private final HttpServletResponse response;
 
-    @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
+
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<HttpResponse> createResource(
             @AuthenticationPrincipal UserDTO authenticatedUser,
-            @RequestBody @Valid CreateEducationalResourceForm form
+            @RequestParam("title") String title,
+            @RequestParam("contentType") String contentType,
+            @RequestParam("content") String content,
+            @RequestParam("categories") String[] categories,
+            @RequestParam(value = "file", required = false) MultipartFile file
     ) {
-        educationalResourcesService.createEducationalResource(form.title(), form.content(), form.contentType(), form.media(), form.categories());
-        return ResponseEntity.created(URI.create(""))
-                .body(
-                        HttpResponse.builder()
-                                .timeStamp(LocalDateTime.now().toString())
-                                .data(Map.of(
-                                        "user", authenticatedUser))
-                                .message("Eco-Learn " + form.contentType().toUpperCase() + " created successfully!")
-                                .status(CREATED)
-                                .statusCode(CREATED.value())
-                                .build()
-                );
+        educationalResourcesService.createEducationalResource(title, content, contentType, categories, file);
+
+        return ResponseEntity.created(URI.create("/resource/created/resourceId")) // TODO use the actual uri
+                .body(HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .data(Map.of("user", authenticatedUser))
+                        .message("Eco-Learn " + contentType.toUpperCase() + " created successfully!")
+                        .status(CREATED)
+                        .statusCode(CREATED.value())
+                        .build());
     }
 
     @PostMapping(value = "/engage/{action}/{resourceId}")
@@ -77,11 +84,16 @@ public class EcoLearnResource {
                         .timeStamp(LocalDateTime.now().toString())
                         .data(Map.of(
                                 "user", authenticatedUser))
-                        .message( action + " performed successfully!")
+                        .message( action.toUpperCase() + " performed successfully!")
                         .status(OK)
                         .statusCode(OK.value())
                         .build()
             );
+    }
+
+    @GetMapping(value = "/image/{fileName}", produces = IMAGE_PNG_VALUE)
+    public byte[] getProfileImage(@PathVariable("fileName") String fileName) throws Exception {
+        return Files.readAllBytes(Paths.get(System.getProperty("user.home") + "/Downloads/images/" + fileName));
     }
 
     @GetMapping("/search")

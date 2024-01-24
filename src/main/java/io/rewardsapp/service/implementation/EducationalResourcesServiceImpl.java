@@ -7,7 +7,10 @@ import io.rewardsapp.domain.educational.EducationalResource;
 import io.rewardsapp.domain.educational.UserEngagement;
 import io.rewardsapp.dto.EducationalResourceDTO;
 import io.rewardsapp.exception.ApiException;
-import io.rewardsapp.repository.*;
+import io.rewardsapp.repository.CategoryRepository;
+import io.rewardsapp.repository.ContentTypeRepository;
+import io.rewardsapp.repository.EducationalResourceRepository;
+import io.rewardsapp.repository.UserEngagementRepository;
 import io.rewardsapp.service.EducationalResourcesService;
 import io.rewardsapp.service.UserService;
 import io.rewardsapp.specs.EducationalResourceSpecification;
@@ -17,7 +20,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -25,11 +33,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentContextPath;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public
-class EducationalResourcesServiceImpl implements EducationalResourcesService {
+public class EducationalResourcesServiceImpl implements EducationalResourcesService {
 
     private final EducationalResourceRepository educationalResourceRepository;
     private final UserEngagementRepository userEngagementRepository;
@@ -44,14 +54,13 @@ class EducationalResourcesServiceImpl implements EducationalResourcesService {
      * @param title             The title of the educational resource.
      * @param content           The content of the educational resource.
      * @param contentTypeName   The name of the content type for the educational resource.
-     * @param media             The media of the resource which can be a link, a photo, a video.
      * @param categoryNames     The names of the categories associated with the educational resource.
      * @return The created educational resource.
      * @throws ApiException If there is an issue creating the educational resource.
      */
     @Transactional
     @Override
-    public EducationalResource createEducationalResource(String title, String content, String contentTypeName, String media, String[] categoryNames) {
+    public void createEducationalResource(String title, String content, String contentTypeName, String[] categoryNames, MultipartFile file) {
         ContentType contentType = findContentTypeByName(contentTypeName);
         Set<Category> categories = findCategoriesByNames(categoryNames);
 
@@ -59,13 +68,14 @@ class EducationalResourcesServiceImpl implements EducationalResourcesService {
                 .title(title)
                 .content(content)
                 .contentType(contentType)
-                .media(media)
                 .likesCount(0L)
                 .createdAt(LocalDateTime.now())
                 .categories(categories)
                 .build();
 
-        return educationalResourceRepository.save(educationalResource);
+        EducationalResource createdResource = educationalResourceRepository.save(educationalResource);
+
+        educationalResourceRepository.save(attachImage(createdResource, file));
     }
 
     @Transactional
@@ -209,6 +219,40 @@ class EducationalResourcesServiceImpl implements EducationalResourcesService {
                     userEngagementRepository.save(newEngagement);
                 }
         );
+    }
+
+    @Transactional
+    public EducationalResource attachImage(EducationalResource resource, MultipartFile image) {
+        String resourceImageUrl = setResourceImageUrl(resource.getId());
+        saveImage(resource.getId(), image);
+        resource.setMedia(resourceImageUrl);
+
+        return resource;
+    }
+
+    private void saveImage(Long resourceId, MultipartFile image) {
+        Path fileStorageLocation = Paths.get(System.getProperty("user.home") + "/Downloads/images/").toAbsolutePath().normalize();
+        if (!Files.exists(fileStorageLocation)) {
+            try {
+                Files.createDirectories(fileStorageLocation);
+            } catch (IOException e) {
+                log.error(e.getMessage());
+                throw new ApiException("Unable to create directories to save image");
+            }
+            log.info("Created directories: {}", fileStorageLocation);
+        }
+
+        try {
+            Files.copy(image.getInputStream(), fileStorageLocation.resolve(resourceId + ".png"), REPLACE_EXISTING);
+        } catch (IOException exception) {
+            log.error(exception.getMessage());
+            throw new ApiException(exception.getMessage());
+        }
+        log.info("File saved in: {} folder", fileStorageLocation);
+    }
+
+    private String setResourceImageUrl(Long resourceId) {
+        return fromCurrentContextPath().path("/eco-learn/resource/image/" + resourceId + ".png").toUriString();
     }
 
     /**

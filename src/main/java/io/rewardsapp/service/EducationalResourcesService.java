@@ -5,12 +5,13 @@ import io.rewardsapp.domain.educational.EducationalResource;
 import io.rewardsapp.dto.EducationalResourceDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface EducationalResourcesService {
     @Transactional
-    EducationalResource createEducationalResource(String title, String content, String contentTypeName, String media, String[] categoryNames);
+    void createEducationalResource(String title, String content, String contentTypeName, String[] categoryNames, MultipartFile file);
 
     @Transactional
     Page<EducationalResourceDTO> searchResources(
