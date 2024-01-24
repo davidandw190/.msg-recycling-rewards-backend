@@ -4,9 +4,7 @@ import io.rewardsapp.domain.HttpResponse;
 import io.rewardsapp.dto.UserDTO;
 import io.rewardsapp.exception.ApiException;
 import io.rewardsapp.form.CreateEducationalResourceForm;
-import io.rewardsapp.service.EducationalResourcesService;
-import io.rewardsapp.service.RoleService;
-import io.rewardsapp.service.UserService;
+import io.rewardsapp.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -35,6 +33,8 @@ import static org.springframework.http.HttpStatus.OK;
 public class EcoLearnResource {
     private final UserService userService;
     private final RoleService roleService;
+    private final ContentTypeService contentTypeService;
+    private final CategoryService categoryService;
     private final EducationalResourcesService educationalResourcesService;
     private final HttpServletRequest request;
     private final HttpServletResponse response;
@@ -44,7 +44,7 @@ public class EcoLearnResource {
             @AuthenticationPrincipal UserDTO authenticatedUser,
             @RequestBody @Valid CreateEducationalResourceForm form
     ) {
-        educationalResourcesService.createEducationalResource(form.title(), form.content(), form.contentType(), form.categories());
+        educationalResourcesService.createEducationalResource(form.title(), form.content(), form.contentType(), form.media(), form.categories());
         return ResponseEntity.created(URI.create(""))
                 .body(
                         HttpResponse.builder()
@@ -75,7 +75,8 @@ public class EcoLearnResource {
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(LocalDateTime.now().toString())
-                        .data(Map.of("user", authenticatedUser))
+                        .data(Map.of(
+                                "user", authenticatedUser))
                         .message( action + " performed successfully!")
                         .status(OK)
                         .statusCode(OK.value())
@@ -90,7 +91,7 @@ public class EcoLearnResource {
             @RequestParam(defaultValue = "") String contentType,
             @RequestParam(defaultValue = "") List<String> categories,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "7") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "asc") String sortOrder,
 
@@ -115,8 +116,7 @@ public class EcoLearnResource {
                             sortOrder,
                             likedOnly,
                             savedOnly
-                    )
-            );
+                    ));
 
         } catch (Exception exception) {
             handleException(request, response, exception);
@@ -127,6 +127,53 @@ public class EcoLearnResource {
                         .timeStamp(LocalDateTime.now().toString())
                         .data(searchData)
                         .message("Resources retrieved successfully!")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build()
+        );
+    }
+
+    @GetMapping("/content-types")
+    public ResponseEntity<HttpResponse> availableContentTypes(@AuthenticationPrincipal UserDTO authenticatedUser) {
+
+        return ResponseEntity.ok(
+                HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .data(Map.of(
+                                "availableContentTypes", contentTypeService.getAvailableContentTypeNames()))
+                        .message("Available content types retrieved successfully!")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build()
+        );
+    }
+
+    @GetMapping("/categories")
+    public ResponseEntity<HttpResponse> availableCategories(@AuthenticationPrincipal UserDTO authenticatedUser) {
+
+        return ResponseEntity.ok(
+                HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .data(Map.of(
+                                "availableCategories", categoryService.getAvailableCategoryNames()))
+                        .message("Available categories retrieved successfully!")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build()
+        );
+    }
+
+    @GetMapping("/create")
+    public ResponseEntity<HttpResponse> fetchForCreateResource(@AuthenticationPrincipal UserDTO authenticatedUser) {
+
+        return ResponseEntity.ok(
+                HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .data(Map.of(
+                                "user", authenticatedUser,
+                                "availableContentTypes", contentTypeService.getAvailableContentTypeNames(),
+                                "availableCategories", categoryService.getAvailableCategoryNames()))
+                        .message("Available categories retrieved successfully!")
                         .status(OK)
                         .statusCode(OK.value())
                         .build()
