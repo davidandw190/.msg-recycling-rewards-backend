@@ -292,7 +292,7 @@ public class EducationalResourcesServiceImpl implements EducationalResourcesServ
     }
 
     private Category findCategoryByName(String categoryName) {
-        return categoryRepository.findFirstByCategoryName(categoryName)
+        return categoryRepository.findFirstByCategoryName(categoryName.trim())
                 .orElseThrow(() -> new ApiException("No valid category found by name: " + categoryName));
     }
 

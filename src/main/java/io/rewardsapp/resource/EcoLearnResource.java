@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.nio.file.Files;
@@ -55,7 +56,7 @@ public class EcoLearnResource {
     ) {
         educationalResourcesService.createEducationalResource(title, content, contentType, categories, file);
 
-        return ResponseEntity.created(URI.create("/resource/created/resourceId")) // TODO use the actual uri
+        return ResponseEntity.created(getUri())
                 .body(HttpResponse.builder()
                         .timeStamp(LocalDateTime.now().toString())
                         .data(Map.of("user", authenticatedUser))
@@ -91,8 +92,8 @@ public class EcoLearnResource {
             );
     }
 
-    @GetMapping(value = "/image/{fileName}", produces = IMAGE_PNG_VALUE)
-    public byte[] getProfileImage(@PathVariable("fileName") String fileName) throws Exception {
+    @GetMapping(value = "resource/image/{fileName}", produces = IMAGE_PNG_VALUE)
+    public byte[] getResourceImage(@PathVariable("fileName") String fileName) throws Exception {
         return Files.readAllBytes(Paths.get(System.getProperty("user.home") + "/Downloads/images/" + fileName));
     }
 
@@ -196,5 +197,9 @@ public class EcoLearnResource {
         if (page < 0 || size <= 0 || size > 100) {
             throw new ApiException("Invalid page or size parameters");
         }
+    }
+
+    private URI getUri() {
+        return URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/eco-learn/resource/image/get/<resourceId>").toUriString());
     }
 }

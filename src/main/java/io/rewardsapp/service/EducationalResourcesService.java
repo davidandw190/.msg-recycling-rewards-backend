@@ -1,7 +1,6 @@
 package io.rewardsapp.service;
 
 import io.rewardsapp.domain.auth.User;
-import io.rewardsapp.domain.educational.EducationalResource;
 import io.rewardsapp.dto.EducationalResourceDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
