@@ -1,6 +1,7 @@
 package io.rewardsapp.service;
 
 import io.rewardsapp.domain.auth.User;
+import io.rewardsapp.domain.educational.EducationalResource;
 import io.rewardsapp.dto.EducationalResourceDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -10,7 +11,7 @@ import java.util.List;
 
 public interface EducationalResourcesService {
     @Transactional
-    void createEducationalResource(String title, String content, String contentTypeName, String[] categoryNames, MultipartFile file);
+    EducationalResource createEducationalResource(String title, String content, String contentTypeName, String[] categoryNames, MultipartFile file);
 
     @Transactional
     Page<EducationalResourceDTO> searchResources(

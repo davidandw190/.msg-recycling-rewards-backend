@@ -7,7 +7,7 @@ public class SecurityConstants {
     public static final String[] PUBLIC_URLS = {
             "/user/verify/password/**", "/user/login/**", "/user/register/**", "/user/verify/code/**",
             "/user/reset-pass/**", "/user/verify/account/**", "/user/refresh/token/**", "/user/image/**",
-            "/user/new/password/**" , "/user/error/**", "eco-learn/resource/image/**"
+            "/user/new/password/**" , "/user/error/**", "eco-learn/resource/images/**", "eco-learn/resource/videos/**"
     };
 
     public static final long ACCESS_TOKEN_EXPIRATION_TIME = 100_000_000; //1_800_000;

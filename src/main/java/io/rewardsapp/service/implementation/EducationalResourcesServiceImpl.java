@@ -27,10 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -60,7 +57,7 @@ public class EducationalResourcesServiceImpl implements EducationalResourcesServ
      */
     @Transactional
     @Override
-    public void createEducationalResource(String title, String content, String contentTypeName, String[] categoryNames, MultipartFile file) {
+    public EducationalResource createEducationalResource(String title, String content, String contentTypeName, String[] categoryNames, MultipartFile file) {
         ContentType contentType = findContentTypeByName(contentTypeName);
         Set<Category> categories = findCategoriesByNames(categoryNames);
 
@@ -73,10 +70,35 @@ public class EducationalResourcesServiceImpl implements EducationalResourcesServ
                 .categories(categories)
                 .build();
 
-        EducationalResource createdResource = educationalResourceRepository.save(educationalResource);
+        EducationalResource savedResource = educationalResourceRepository.save(educationalResource);
 
-        educationalResourceRepository.save(attachImage(createdResource, file));
+
+        attachMedia(savedResource, file, contentTypeName.equalsIgnoreCase("VIDEO"));
+
+        return educationalResourceRepository.save(educationalResource);
     }
+
+    private void attachMedia(EducationalResource resource, MultipartFile mediaFile, boolean isVideo) {
+        if (mediaFile != null && !mediaFile.isEmpty()) {
+            try {
+                String fileName = isVideo ? "videos" : "images";
+                Path fileStorageLocation = Paths.get(System.getProperty("user.home") + "/Downloads/" + fileName + "/").toAbsolutePath().normalize();
+                Files.createDirectories(fileStorageLocation);
+                String extension = getFileExtension(Objects.requireNonNull(mediaFile.getOriginalFilename()));
+                String newFileName = resource.getId() + extension;
+                Path targetLocation = fileStorageLocation.resolve(newFileName);
+                Files.copy(mediaFile.getInputStream(), targetLocation, REPLACE_EXISTING);
+                resource.setMedia(fromCurrentContextPath().path("/eco-learn/resource/" + fileName + "/" + newFileName).toUriString());
+            } catch (Exception ex) {
+                throw new ApiException("Could not store file " + mediaFile.getOriginalFilename() + ". Please try again!");
+            }
+        }
+    }
+
+    private String getFileExtension(String fileName) {
+        return fileName.substring(fileName.lastIndexOf("."));
+    }
+
 
     @Transactional
     @Override

@@ -34,7 +34,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
     private static final String HTTP_OPTIONS_METHOD = "OPTIONS";
     private static final String[] PUBLIC_ROUTES = {
             "/user/new/password", "/user/login", "/user/verify/code", "/user/register", "/user/refresh/token", "/user/image",
-            "/user/reset-pass", "eco-lean/resource/image"
+            "/user/reset-pass", "eco-learn/resource/images", "eco-learn/resource/videos"
     };
 
     /**
