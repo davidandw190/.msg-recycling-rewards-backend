@@ -2,6 +2,10 @@ spring:
   profiles:
     active: @spring.profiles.active@
 
+  servlet:
+    multipart:
+      max-file-size: ${MAX_MULTIPART_FILE_SIZE}
+      max-request-size: ${MAX_MULTIPART_REQUEST_SIZE}
 
   datasource:
     url: jdbc:${POSTGRESQL}://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?currentSchema=${POSTGRES_CURRENT_SCHEMA}
