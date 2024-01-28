@@ -11,7 +11,15 @@ import java.util.List;
 
 public interface EducationalResourcesService {
     @Transactional
-    EducationalResource createEducationalResource(String title, String content, String contentTypeName, String[] categoryNames, MultipartFile file);
+    EducationalResource createEducationalResource(
+            String title,
+            String content,
+            String contentTypeName,
+            String[] categoryNames,
+            boolean isExternalMedia,
+            String externalMediaUrl,
+            MultipartFile file
+    );
 
     @Transactional
     Page<EducationalResourceDTO> searchResources(

@@ -158,8 +158,8 @@ public class CenterResource {
             @RequestParam(defaultValue = "") String city,
             @RequestParam(defaultValue = "") List<String> materials,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "9") int size,
+            @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(defaultValue = "asc") String sortOrder
     ) {
         Map<String, Object> searchData = null;

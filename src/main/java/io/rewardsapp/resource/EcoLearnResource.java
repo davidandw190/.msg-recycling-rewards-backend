@@ -27,6 +27,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static io.rewardsapp.dto.mapper.UserDTOMapper.toUser;
 import static io.rewardsapp.utils.ExceptionUtils.handleException;
@@ -51,13 +52,24 @@ public class EcoLearnResource {
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<HttpResponse> createResource(
             @AuthenticationPrincipal UserDTO authenticatedUser,
-            @RequestParam("title") String title,
-            @RequestParam("contentType") String contentType,
-            @RequestParam("content") String content,
-            @RequestParam("categories") String[] categories,
+            @RequestParam String title,
+            @RequestParam String contentType,
+            @RequestParam String content,
+            @RequestParam String[] categories,
+            @RequestParam(defaultValue = "false") boolean isExternalMedia,
+            @RequestParam(defaultValue = "") String externalMediaUrl,
             @RequestParam(value = "file", required = false) MultipartFile file
     ) {
-        EducationalResource createdResource = educationalResourcesService.createEducationalResource(title, content, contentType, categories, file);
+        EducationalResource createdResource =
+                educationalResourcesService.createEducationalResource(
+                        title,
+                        content,
+                        contentType,
+                        categories,
+                        isExternalMedia,
+                        externalMediaUrl,
+                        file
+                );
 
         return ResponseEntity.created(getResourceUri(createdResource.getId(), contentType))
                 .body(HttpResponse.builder()
@@ -67,15 +79,6 @@ public class EcoLearnResource {
                         .status(CREATED)
                         .statusCode(CREATED.value())
                         .build());
-    }
-
-    private URI getResourceUri(Long resourceId, String contentType) {
-        String basePath = ServletUriComponentsBuilder.fromCurrentContextPath().path("/eco-learn/resource/").toUriString();
-        if ("VIDEO".equalsIgnoreCase(contentType)) {
-            return URI.create(basePath + "video/" + resourceId);
-        } else {
-            return URI.create(basePath + "image/" + resourceId);
-        }
     }
 
     @PostMapping(value = "/engage/{action}/{resourceId}")
@@ -126,7 +129,6 @@ public class EcoLearnResource {
                     .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
                     .body(resource);
         } else {
-            // Return 404 status if file doesn't exist
             return ResponseEntity.notFound().build();
         }
     }
@@ -140,7 +142,7 @@ public class EcoLearnResource {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "7") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortOrder,
+            @RequestParam(defaultValue = "desc") String sortOrder,
 
             @RequestParam(defaultValue = "false") Boolean likedOnly,
             @RequestParam(defaultValue = "false") Boolean savedOnly
@@ -163,7 +165,9 @@ public class EcoLearnResource {
                             sortOrder,
                             likedOnly,
                             savedOnly
-                    ));
+                    ),
+                    "availableCategories", categoryService.getAvailableCategoryNames(),
+                    "availableContentTypes", contentTypeService.getAvailableContentTypeNames());
 
         } catch (Exception exception) {
             handleException(request, response, exception);
@@ -227,17 +231,18 @@ public class EcoLearnResource {
         );
     }
 
+    private URI getResourceUri(Long resourceId, String contentType) {
+        String basePath = ServletUriComponentsBuilder.fromCurrentContextPath().path("/eco-learn/resource/").toUriString();
+        if ("VIDEO".equalsIgnoreCase(contentType)) {
+            return URI.create(basePath + "videos/" + resourceId);
+        } else {
+            return URI.create(basePath + "images/" + resourceId);
+        }
+    }
+
     private void validatePageAndSize(int page, int size) {
         if (page < 0 || size <= 0 || size > 100) {
             throw new ApiException("Invalid page or size parameters");
         }
-    }
-
-    private URI getImageUri(String fileName) {
-        return URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/eco-learn/resource/image/" + fileName).toUriString());
-    }
-
-    private URI getVideoUri(String fileName) {
-        return URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/eco-learn/resource/video/" + fileName).toUriString());
     }
 }

@@ -57,25 +57,56 @@ public class EducationalResourcesServiceImpl implements EducationalResourcesServ
      */
     @Transactional
     @Override
-    public EducationalResource createEducationalResource(String title, String content, String contentTypeName, String[] categoryNames, MultipartFile file) {
+    public EducationalResource createEducationalResource(
+            String title,
+            String content,
+            String contentTypeName,
+            String[] categoryNames,
+            boolean isExternalMedia,
+            String externalMediaUrl,
+            MultipartFile file
+    ) {
         ContentType contentType = findContentTypeByName(contentTypeName);
         Set<Category> categories = findCategoriesByNames(categoryNames);
 
-        EducationalResource educationalResource = EducationalResource.builder()
+        EducationalResource educationalResource = buildEducationalResource(
+                title, content, isExternalMedia, contentType, categories
+        );
+
+        EducationalResource savedResource = educationalResourceRepository.save(educationalResource);
+
+        if (isExternalMedia) {
+            validateAndSetExternalMediaUrl(savedResource, externalMediaUrl);
+        } else {
+            attachMedia(savedResource, file, contentTypeName.equals("VIDEO"));
+        }
+
+        return educationalResourceRepository.save(savedResource);
+    }
+
+    private EducationalResource buildEducationalResource(
+            String title,
+            String content,
+            boolean isExternalMedia,
+            ContentType contentType,
+            Set<Category> categories
+    ) {
+        return EducationalResource.builder()
                 .title(title)
                 .content(content)
+                .isExternalMedia(isExternalMedia)
                 .contentType(contentType)
                 .likesCount(0L)
                 .createdAt(LocalDateTime.now())
                 .categories(categories)
                 .build();
+    }
 
-        EducationalResource savedResource = educationalResourceRepository.save(educationalResource);
-
-
-        attachMedia(savedResource, file, contentTypeName.equalsIgnoreCase("VIDEO"));
-
-        return educationalResourceRepository.save(educationalResource);
+    private void validateAndSetExternalMediaUrl(EducationalResource resource, String externalMediaUrl) {
+        if (externalMediaUrl == null || externalMediaUrl.isEmpty()) {
+            throw new ApiException("Not valid external media URL provided.");
+        }
+        resource.setMediaUrl(externalMediaUrl);
     }
 
     private void attachMedia(EducationalResource resource, MultipartFile mediaFile, boolean isVideo) {
@@ -88,7 +119,7 @@ public class EducationalResourcesServiceImpl implements EducationalResourcesServ
                 String newFileName = resource.getId() + extension;
                 Path targetLocation = fileStorageLocation.resolve(newFileName);
                 Files.copy(mediaFile.getInputStream(), targetLocation, REPLACE_EXISTING);
-                resource.setMedia(fromCurrentContextPath().path("/eco-learn/resource/" + fileName + "/" + newFileName).toUriString());
+                resource.setMediaUrl(fromCurrentContextPath().path("/eco-learn/resource/" + fileName + "/" + newFileName).toUriString());
             } catch (Exception ex) {
                 throw new ApiException("Could not store file " + mediaFile.getOriginalFilename() + ". Please try again!");
             }
@@ -187,7 +218,8 @@ public class EducationalResourcesServiceImpl implements EducationalResourcesServ
                 .title(resource.getTitle())
                 .content(resource.getContent())
                 .contentType(resource.getContentType().getTypeName())
-                .media(resource.getMedia())
+                .isExternalMedia(resource.isExternalMedia())
+                .mediaUrl(resource.getMediaUrl())
                 .likesCount(likesCount)
                 .sharesCount(sharesCount)
                 .savesCount(savesCount)
@@ -247,7 +279,7 @@ public class EducationalResourcesServiceImpl implements EducationalResourcesServ
     public EducationalResource attachImage(EducationalResource resource, MultipartFile image) {
         String resourceImageUrl = setResourceImageUrl(resource.getId());
         saveImage(resource.getId(), image);
-        resource.setMedia(resourceImageUrl);
+        resource.setMediaUrl(resourceImageUrl);
 
         return resource;
     }

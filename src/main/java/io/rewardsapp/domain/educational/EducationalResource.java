@@ -28,12 +28,15 @@ public class EducationalResource {
     @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @Column(name = "media")
-    private String media;
+    @Column(name = "media_url")
+    private String mediaUrl;
 
     @ManyToOne
     @JoinColumn(name = "content_type_id", nullable = false)
     private ContentType contentType;
+
+    @Column(name = "is_external_media")
+    private boolean isExternalMedia;
 
     @Column(name = "likes_count", columnDefinition = "BIGINT DEFAULT 0")
     private Long likesCount;
