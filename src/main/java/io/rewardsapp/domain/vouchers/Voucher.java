@@ -29,21 +29,21 @@ public class Voucher {
     @JoinColumn(name = "voucher_type_id", nullable = false)
     private VoucherType voucherType;
 
-    @OneToOne(mappedBy = "voucher", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonBackReference
-    private VoucherHistory voucherHistory;
-
     @Column(name = "unique_code", unique = true, nullable = false)
     private String uniqueCode;
 
     @Column(name = "redeemed", nullable = false)
     private boolean redeemed;
 
-    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
-    @Column(name = "expires_at", nullable = false)
+    @Column(name = "expires_at", nullable = false, updatable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime expiresAt;
+
+    @Column(name = "redeemed_at", updatable = false)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime redeemedAt;
 }

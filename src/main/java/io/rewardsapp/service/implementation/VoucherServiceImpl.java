@@ -118,6 +118,7 @@ public class VoucherServiceImpl implements VoucherService {
         }
 
         voucher.setRedeemed(true);
+        voucher.setRedeemedAt(LocalDateTime.now());
         return voucherRepository.save(voucher);
     }
 
