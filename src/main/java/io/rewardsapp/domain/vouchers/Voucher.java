@@ -43,7 +43,7 @@ public class Voucher {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime expiresAt;
 
-    @Column(name = "redeemed_at", updatable = false)
+    @Column(name = "redeemed_at")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime redeemedAt;
 }

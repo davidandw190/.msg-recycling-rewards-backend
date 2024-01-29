@@ -12,6 +12,7 @@ import io.rewardsapp.service.VoucherService;
 import io.rewardsapp.specs.VoucherSpecification;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -117,8 +118,9 @@ public class VoucherServiceImpl implements VoucherService {
             throw new ApiException("Seems like you voucher has expired..");
         }
 
-        voucher.setRedeemed(true);
         voucher.setRedeemedAt(LocalDateTime.now());
+        voucher.setRedeemed(true);
+
         return voucherRepository.save(voucher);
     }
 
@@ -174,6 +176,7 @@ public class VoucherServiceImpl implements VoucherService {
         return Voucher.builder()
                 .voucherType(type)
                 .user(user)
+                .createdAt(LocalDateTime.now())
                 .expiresAt(LocalDateTime.now().plusDays(VOUCHER_LIFETIME_IN_DAYS))
                 .uniqueCode(generateValidUniqueCode())
                 .build();
