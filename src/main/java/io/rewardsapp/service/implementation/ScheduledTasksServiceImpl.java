@@ -25,16 +25,21 @@ import java.util.concurrent.Executors;
 @RequiredArgsConstructor
 public class ScheduledTasksServiceImpl implements ScheduledTasksService {
 
+    public static final int EMAIL_THREAD_POOL_SIZE = 15;
+
     private final UserService userService;
 
     private final RewardPointsService rewardPointsService;
 
     private final EmailService emailService;
 
-    private final ExecutorService emailThreadPool = Executors.newFixedThreadPool(15);
+    private final ExecutorService emailThreadPool = Executors.newFixedThreadPool(EMAIL_THREAD_POOL_SIZE);
 
 
-
+    /**
+     * Sends email notifications to inactive users (if they have notifications enabled).
+     * Inactive users are identified based on their activity one week prior to the current date.
+     */
     @Override
     @Scheduled(cron = "0 0 0 * * MON")  // to run every Monday at midnight
     public void sendEmailToInactiveUsers() {
@@ -42,12 +47,19 @@ public class ScheduledTasksServiceImpl implements ScheduledTasksService {
         List<UserDTO> inactiveUsers = userService.findInactiveUsers(oneWeekAgo);
 
         CompletableFuture<?>[] futures = inactiveUsers.stream()
-                .map(user -> CompletableFuture.runAsync(() -> emailService.sendInactiveUserEmail(user.firstName(), user.lastName()), emailThreadPool))
+                .filter(UserDTO::notificationsEnabled)
+                .map(user -> CompletableFuture.runAsync(
+                        () -> emailService.sendInactiveUserEmail(user.firstName(), user.lastName()),
+                        emailThreadPool))
                 .toArray(CompletableFuture[]::new);
 
         CompletableFuture.allOf(futures).join();
     }
 
+    /**
+     * Restores reward points for recyclers. It retrieves a list of recycler IDs and processes
+     * them in batches, sending emails and restoring points accordingly.
+     */
     @Override
     @Transactional
     @Scheduled(cron = "0 0 0 1 * *")  // to run every 1st day of each month at midnight
@@ -66,6 +78,13 @@ public class ScheduledTasksServiceImpl implements ScheduledTasksService {
         log.info("Completed restoreRecyclersRewardPoints task.");
     }
 
+    /**
+     * Processes a batch of recycler IDs for the purpose of restoring reward points.
+     * For each user ID, it sends an email with the earned points and then performs
+     * the actual reward points restoration.
+     *
+     * @param batchIds the list of user IDs to process
+     */
     private void processBatch(List<Long> batchIds) {
         try {
             List<Long> earnedPoints = rewardPointsService.getRewardPointsAmount(batchIds);
@@ -92,10 +111,20 @@ public class ScheduledTasksServiceImpl implements ScheduledTasksService {
         }
     }
 
+    /**
+     * Checks if the user has enabled notifications and, if yes, then sends
+     * an email with the monthly reward points.
+     *
+     * @param userId        the ID of the user to which the email should be sent
+     * @param earnedPoints  the amount of reward points earned last month
+     */
     private void sendRewardPointsEmail(Long userId, Long earnedPoints) {
         try {
             UserDTO user = userService.getUser(userId);
-            emailService.sendMonthlyRewardPointsEmail(user.email(), user.firstName(), earnedPoints);
+
+            if (user.notificationsEnabled()) {
+                emailService.sendMonthlyRewardPointsEmail(user.email(), user.firstName(), earnedPoints);
+            }
 
         } catch (Exception e) {
             log.error("Error sending reward points email for user with ID " + userId, e);
