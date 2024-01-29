@@ -18,13 +18,8 @@ DROP TABLE IF EXISTS    rewards_app.users,
                         rewards_app.user_recycling_activities,
                         rewards_app.reward_points,
                         rewards_app.vouchers,
-                        rewards_app.voucher_history,
                         rewards_app.voucher_types,
-                        rewards_app.educational_resources,
-                        rewards_app.user_saved_resources,
-                        rewards_app.challenges,
-                        rewards_app.user_challenges,
-                        rewards_app.leaderboard;
+                        rewards_app.educational_resources;
 
 -- Users Table
 CREATE TABLE users (
@@ -156,6 +151,7 @@ CREATE TABLE vouchers (
     redeemed        BOOLEAN NOT NULL DEFAULT FALSE,
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     expires_at      TIMESTAMP NOT NULL,
+    redeemed_at     TIMESTAMP,
     CONSTRAINT fk_vouchers_user_id FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_vouchers_voucher_type_id FOREIGN KEY (voucher_type_id) REFERENCES voucher_types(voucher_type_id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
@@ -164,15 +160,9 @@ CREATE TABLE vouchers (
 CREATE TABLE voucher_types (
     voucher_type_id   BIGSERIAL PRIMARY KEY,
     name              VARCHAR(50) NOT NULL,
-    threshold_points  INT NOT NULL
+    threshold_points  INTEGER NOT NULL
 );
 
--- Voucher History Table
-CREATE TABLE voucher_history (
-    voucher_id      BIGINT REFERENCES vouchers(voucher_id) ON DELETE CASCADE,
-    redeem_date     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_voucher_history_voucher_id FOREIGN KEY (voucher_id) REFERENCES vouchers(voucher_id) ON DELETE CASCADE ON UPDATE CASCADE
-);
 
 -- Educational Resources Table
 CREATE TABLE educational_resources (
@@ -180,19 +170,11 @@ CREATE TABLE educational_resources (
     title           VARCHAR(255) NOT NULL,
     content         TEXT NOT NULL,
     content_type_id BIGINT REFERENCES content_types(content_type_id) ON DELETE RESTRICT,
+    is_external_media BOOLEAN NOT NULL DEFAULT FALSE,
+    media_ul        VARCHAR(255),
     likes_count     BIGINT DEFAULT 0,
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
--- User Saved Educational Resources Table
-CREATE TABLE user_saved_resources (
-    user_id         BIGINT REFERENCES users(user_id) ON DELETE CASCADE,
-    resource_id     BIGINT REFERENCES educational_resources(resource_id) ON DELETE CASCADE,
-    PRIMARY KEY(user_id, resource_id),
-    CONSTRAINT fk_user_saved_resources_user_id FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_user_saved_resources_resource_id FOREIGN KEY (resource_id) REFERENCES educational_resources(resource_id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
 
 -- Educational Resource Content Types Table
 CREATE TABLE content_types (
@@ -221,8 +203,6 @@ CREATE TABLE eco_tips (
     content   TEXT NOT NULL
 );
 
-
-
 -- User Engagement with Educational Resources Table
 CREATE TABLE user_engagement (
     user_id        BIGINT REFERENCES users(user_id) ON DELETE CASCADE,
@@ -241,8 +221,6 @@ CREATE INDEX idx_user_recycling_activities_user_id ON user_recycling_activities(
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_user_recycling_activities_center_id ON user_recycling_activities(center_id);
 CREATE INDEX idx_user_recycling_activities_material_id ON user_recycling_activities(material_id);
-CREATE INDEX idx_user_saved_resources_user_id ON user_saved_resources(user_id);
-CREATE INDEX idx_user_saved_resources_resource_id ON user_saved_resources(resource_id);
 
 -- Insert records into the 'roles' table
 INSERT INTO roles (name, permission)

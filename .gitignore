@@ -35,3 +35,9 @@ build/
 ### PROFILES ###
 /src/main/resources/application-dev.yml
 /src/main/resources/application-prod.yml
+
+### ENVIRNMENTS ###
+.env
+.env.dev
+.env.prod
+.env.test
