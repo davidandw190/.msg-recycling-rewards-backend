@@ -78,7 +78,7 @@ public class JdbcUserRepositoryImpl implements JdbcUserRepository<User>, UserDet
             user.setEnabled(true);
             user.setCreatedAt(LocalDateTime.now());
             SqlParameterSource parameters = getSqlParameterSource(user);
-            jdbc.update(INSERT_USER_QUERY, parameters, holder, new String[]{"user_id"});  // Specify the key column
+            jdbc.update(INSERT_USER_QUERY, parameters, holder, new String[]{"user_id"});
             log.info("inserted");
             Number key = holder.getKey();
             if (key == null) {
@@ -197,15 +197,16 @@ public class JdbcUserRepositoryImpl implements JdbcUserRepository<User>, UserDet
      */
     @Override
     public void sendAccountVerificationCode(UserDTO user) {
-        String expirationDate = format(addDays(new Date(), 1), DATE_FORMAT);
         String verificationCode = randomAlphabetic(8).toUpperCase();
         try {
             jdbc.update(DELETE_VERIFICATION_CODE_BY_USER_ID, Map.of("userId", user.id()));
-            jdbc.update(INSERT_VERIFICATION_CODE_QUERY, Map.of("userId", user.id(), "code", verificationCode, "expirationDate", expirationDate));
+            jdbc.update(INSERT_VERIFICATION_CODE_QUERY, Map.of("userId", user.id(), "code", verificationCode, "expirationDate", addDays(new Date(), 1)));
             sendSMS(user.phone(), "From: .MsgRecyclingRewards \nVerification code\n" + verificationCode);
             log.info("Verification Code: {}", verificationCode);
 
         } catch (Exception e) {
+            log.warn("asdasd");
+            e.printStackTrace();
             log.error(e.getMessage());
             throw new ApiException("An error occurred. Please try again.");
         }
