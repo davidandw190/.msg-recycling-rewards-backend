@@ -28,4 +28,6 @@ public interface VoucherService {
     int checkForEarnedVouchers(User user, long rewardsPointsBeforeActivity);
 
     List<VoucherType> getVoucherTypes();
+
+    Long getPointsUntilNextVoucher(Long userId);
 }

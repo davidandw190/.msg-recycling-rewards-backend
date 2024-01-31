@@ -154,6 +154,17 @@ public class VoucherServiceImpl implements VoucherService {
         return voucherTypeRepository.findAll();
     }
 
+    @Override
+    public Long getPointsUntilNextVoucher(Long userId) {
+        Long currentRewardPoints = rewardPointsService.getRewardPointsAmount(userId);
+        Long threshold = voucherTypeRepository.findThresholdForNextRedeemableVoucher(currentRewardPoints).orElse(0L);
+        if (currentRewardPoints >= threshold) {
+            return 0L;
+        }
+
+        return threshold - currentRewardPoints;
+    }
+
     /**
      * Checks if a user owns a particular voucher.
      *

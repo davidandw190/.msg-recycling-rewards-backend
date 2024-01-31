@@ -51,6 +51,7 @@ public class CenterResource {
     private final RewardPointsService rewardPointsService;
     private final RecyclingActivityService activityService;
     private final TipsService tipsService;
+    private final VoucherService voucherService;
     private final HttpServletRequest request;
     private final HttpServletResponse response;
 
@@ -119,6 +120,7 @@ public class CenterResource {
                     "userRewardPoints", rewardPointsService.getRewardPointsAmount(authenticatedUser.id()),
                     "userStats", statsService.getUserStatsForLastMonth(authenticatedUser.id()),
                     "appStats", statsService.getAppStats(),
+                    "pointsUntilVoucher", voucherService.getPointsUntilNextVoucher(authenticatedUser.id()),
                     "ecoTip", tipsService.getRandomRecyclingTip()
             );
         } catch (Exception exception) {

@@ -12,4 +12,4 @@ services:
     expose:
       - ${CONTAINER_PORT}
     ports:
-      - ${CONTAINER_PORT}:${HOST_PORT}
+      - ${HOST_PORT}:${CONTAINER_PORT}

@@ -10,4 +10,4 @@ RUN mvn package -DskipTests -X
 FROM openjdk:17
 COPY --from=build /app/target/*.jar rewardsapp.jar
 EXPOSE ${CONTAINER_PORT}
-CMD ["java", "-jar", "app.jar"]
+CMD ["java", "-jar", "rewardsapp.jar"]

@@ -10,7 +10,7 @@ public class SecurityConstants {
             "/user/new/password/**" , "/user/error/**", "eco-learn/resource/images/**", "eco-learn/resource/videos/**"
     };
 
-    public static final long ACCESS_TOKEN_EXPIRATION_TIME = 100_000_000; //1_800_000;
+    public static final long ACCESS_TOKEN_EXPIRATION_TIME = 100_000_000;
     public static final long REFRESH_TOKEN_EXPIRATION_TIME = 432_000_000;
 
     public static final int PASS_ENCODER_STRENGTH = 14;
