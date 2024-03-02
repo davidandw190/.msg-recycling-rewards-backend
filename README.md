@@ -2,11 +2,11 @@
 
 The .msgRecyclingRewards project is a secure and scalable full-stack platform designed to promote sustainable activities within communities. The application, developed as part of a competition organized by [.msg Systems Romania](https://www.msg-systems.ro/en/), provides users with the ability to actively engage with recycling centers, contribute recyclable materials, track rewards, manage vouchers, and access educational resources for a more sustainable lifestyle. 
 
-The application is fully Dockerized, build for multiple environments, built with extensiblity and saclability in mind, architecture-wise it adheres to DDD and follows SOLID principles.
+The application is fully Dockerized, build for multiple environments, built with extensibility and scalability in mind, architecture-wise it adheres to DDD and follows SOLID principles.
 
 **Requirements:** [REQUIREMENTS.md](REQUIREMENTS.md)
 
-**Frontend Repository:** [Link to Frontend Repository](#)
+***This is the BACKEND repository of the application. In order tho access the FRONTEND repository along with its documentation and an overview of the app, please click [HERE](https://github.com/davidandw190/.msg-recycling-rewards-frontend)**
 
 ## Topics
 
