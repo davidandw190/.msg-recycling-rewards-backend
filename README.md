@@ -22,7 +22,7 @@ The application is fully Dockerized, build for multiple environments, built with
 
 [DB Schema on dbdocs.io](https://dbdocs.io/nandavid190/RECYCLING-REWARDS-DB)
 
-![Database Schema](assets/DB-SCHEMA.png)
+![Database Schema](assets/db-schema.png)
 
 ## Backend Tech Stack
 
