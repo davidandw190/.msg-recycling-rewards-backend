@@ -26,7 +26,7 @@ The application is fully Dockerized, build for multiple environments, built with
 
 ## Backend Tech Stack
 
-- **Spring Boot 3.2**
+- **Spring Boot 3.2.2**
 - **Spring Security 6.2**
 - **Spring JPA**
 - **Spring JDBC**
